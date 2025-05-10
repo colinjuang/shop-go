@@ -1,0 +1,84 @@
+package repository
+
+import (
+	"fmt"
+	"shop-go/internal/model"
+	"time"
+)
+
+// OrderRepository handles database operations for orders
+type OrderRepository struct{}
+
+// NewOrderRepository creates a new order repository
+func NewOrderRepository() *OrderRepository {
+	return &OrderRepository{}
+}
+
+// CreateOrder creates a new order
+func (r *OrderRepository) CreateOrder(order *model.Order) error {
+	// Generate order number
+	now := time.Now()
+	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
+
+	return DB.Create(order).Error
+}
+
+// GetOrderByID gets an order by ID
+func (r *OrderRepository) GetOrderByID(id uint) (*model.Order, error) {
+	var order model.Order
+	result := DB.Preload("OrderItems").First(&order, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &order, nil
+}
+
+// GetOrderByOrderNo gets an order by order number
+func (r *OrderRepository) GetOrderByOrderNo(orderNo string) (*model.Order, error) {
+	var order model.Order
+	result := DB.Where("order_no = ?", orderNo).Preload("OrderItems").First(&order)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &order, nil
+}
+
+// UpdateOrderStatus updates the status of an order
+func (r *OrderRepository) UpdateOrderStatus(id uint, status int) error {
+	updates := map[string]interface{}{
+		"status": status,
+	}
+
+	// Add payment time if paid
+	if status == model.OrderStatusPaid {
+		updates["payment_time"] = time.Now()
+	}
+
+	return DB.Model(&model.Order{}).Where("id = ?", id).Updates(updates).Error
+}
+
+// GetOrdersByUserID gets orders for a user with pagination
+func (r *OrderRepository) GetOrdersByUserID(userID uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
+	var orders []model.Order
+	var count int64
+
+	query := DB.Model(&model.Order{}).Where("user_id = ?", userID)
+
+	// Apply status filter if provided
+	if status != nil {
+		query = query.Where("status = ?", *status)
+	}
+
+	// Get total count
+	if err := query.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated results
+	offset := (page - 1) * pageSize
+	if err := query.Offset(offset).Limit(pageSize).Preload("OrderItems").Order("created_at DESC").Find(&orders).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return orders, count, nil
+}

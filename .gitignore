@@ -1,0 +1,84 @@
+# Go相关忽略项
+# 编译后的二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件、测试结果
+*.test
+*.out
+*.prof
+*.pprof
+*.trace
+
+# Go特定目录
+/vendor/
+/go.work
+
+# IDE/编辑器相关文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 本地环境配置
+.env
+.env.local
+*.env.*.local
+
+# 项目特定忽略项
+
+# 上传目录（运行时创建但不包含在版本控制中）
+/uploads/
+/uploads/*
+!/uploads/.gitkeep
+
+# 编译输出
+/bin/
+/dist/
+
+# 日志文件
+*.log
+/logs/
+
+# 临时文件
+/tmp/
+/temp/
+
+# 缓存目录
+.cache/
+
+# MinIO本地开发目录
+/minio-data/
+
+# Redis本地数据
+/redis-data/
+dump.rdb
+
+# 迁移失败记录
+migration_failures.log
+
+# 凭证和敏感信息 - 开发时需要自行创建并配置
+# /configs/config.yaml
+
+# 自动生成的报表和导出文件
+/reports/
+/exports/
+
+# Go编译缓存
+/go-build/
+
+# 生成的文档
+/docs/generated/
+
+# 部署相关的密钥文件
+*.pem
+*.key
+*.crt
+
+# 依赖目录下的二进制文件
+node_modules/

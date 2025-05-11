@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"shop-go/internal/config"
-	"shop-go/internal/model"
 	"shop-go/internal/pkg/logger"
 
 	"gorm.io/driver/mysql"
@@ -43,20 +42,20 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	}
 
 	// Auto migrate the schemas
-	err = db.AutoMigrate(
-		&model.User{},
-		&model.Address{},
-		&model.Category{},
-		&model.Product{},
-		&model.Banner{},
-		&model.Promotion{},
-		&model.CartItem{},
-		&model.Order{},
-		&model.OrderItem{},
-	)
-	if err != nil {
-		return nil, err
-	}
+	// err = db.AutoMigrate(
+	// 	&model.User{},
+	// 	&model.Address{},
+	// 	&model.Category{},
+	// 	&model.Product{},
+	// 	&model.Banner{},
+	// 	&model.Promotion{},
+	// 	&model.CartItem{},
+	// 	&model.Order{},
+	// 	&model.OrderItem{},
+	// )
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	DB = db
 	return db, nil

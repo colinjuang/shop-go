@@ -1,9 +1,6 @@
 package config
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/spf13/viper"
 )
 
@@ -99,57 +96,11 @@ func LoadConfig(path string) (*Config, error) {
 
 // GetConfig gets the application configuration
 func GetConfig() *Config {
-	// 尝试不同的配置文件路径
-	configPaths := []string{
-		"configs/config.yaml",                                   // 如果从项目根目录运行
-		"../configs/config.yaml",                                // 如果从cmd目录运行
-		"../../configs/config.yaml",                             // 如果从子目录运行
-		filepath.Join(findProjectRoot(), "configs/config.yaml"), // 使用查找的根目录
-	}
-
-	var config *Config
-	var lastErr error
-
-	// 尝试各个路径
-	for _, path := range configPaths {
-		config, lastErr = LoadConfig(path)
-		if lastErr == nil {
-			return config
-		}
+	config, err := LoadConfig("configs/config.yaml")
+	if err == nil {
+		return config
 	}
 
 	// 所有路径都加载失败
-	panic("Failed to load configuration: " + lastErr.Error())
-}
-
-// findProjectRoot 尝试查找项目根目录
-func findProjectRoot() string {
-	// 首先尝试当前工作目录
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-
-	// 检查当前目录是否包含go.mod
-	if _, err := os.Stat(filepath.Join(currentDir, "go.mod")); err == nil {
-		return currentDir
-	}
-
-	// 向上遍历目录结构，寻找go.mod
-	for {
-		parentDir := filepath.Dir(currentDir)
-		if parentDir == currentDir {
-			// 已到达根目录
-			break
-		}
-		currentDir = parentDir
-
-		if _, err := os.Stat(filepath.Join(currentDir, "go.mod")); err == nil {
-			return currentDir
-		}
-	}
-
-	// 找不到项目根目录，返回当前工作目录作为后备
-	dir, _ := os.Getwd()
-	return dir
+	panic("Failed to load configuration: " + err.Error())
 }

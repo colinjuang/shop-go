@@ -17,10 +17,11 @@ var (
 )
 
 // LogConfig holds the configuration for the logger
+// 用于配置应用程序的日志系统，定义日志级别、格式和输出位置
 type LogConfig struct {
-	Level      string `mapstructure:"level"`
-	Encoding   string `mapstructure:"encoding"`
-	OutputPath string `mapstructure:"output_path"`
+	Level      string `mapstructure:"level"`       // 日志级别: debug, info, warn, error, fatal
+	Encoding   string `mapstructure:"encoding"`    // 日志格式: json 或 console
+	OutputPath string `mapstructure:"output_path"` // 日志输出位置: stdout 或文件路径
 }
 
 // Init initializes the global logger

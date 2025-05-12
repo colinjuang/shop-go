@@ -79,7 +79,7 @@ func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 			zap.String("sql", sql),
 			zap.Int64("rows", rows))
 	case l.LogLevel >= logger.Info:
-		l.ZapLogger.Debug("GORM Query",
+		l.ZapLogger.Info("GORM Query",
 			zap.Duration("elapsed", elapsed),
 			zap.String("sql", sql),
 			zap.Int64("rows", rows))

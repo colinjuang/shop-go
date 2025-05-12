@@ -42,8 +42,8 @@ func (s *ProductService) GetProductByID(id uint) (*model.Product, error) {
 		return nil, err
 	}
 
-	// Cache for 30 minutes
-	err = s.cacheService.Set(ctx, cacheKey, *productPtr, 30*time.Minute)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, *productPtr, 1*time.Minute)
 	if err != nil {
 		// Just log the error, don't fail the request
 		logger.Warnf("Failed to cache product: %v", err)
@@ -83,8 +83,8 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint, hot, 
 
 	pagination = model.NewPagination(total, page, pageSize, products)
 
-	// Cache for 10 minutes
-	err = s.cacheService.Set(ctx, cacheKey, pagination, 10*time.Minute)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, pagination, 1*time.Minute)
 	if err != nil {
 		// Just log the error, don't fail the request
 		logger.Warnf("Failed to cache products: %v", err)
@@ -125,8 +125,8 @@ func (s *CategoryService) GetCategories() ([]model.Category, error) {
 		return nil, err
 	}
 
-	// Cache for 1 hour
-	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Hour)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache categories: %v", err)
 	}
@@ -152,8 +152,8 @@ func (s *CategoryService) GetCategoriesByParentID(parentID uint) ([]model.Catego
 		return nil, err
 	}
 
-	// Cache for 1 hour
-	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Hour)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache categories: %v", err)
 	}
@@ -197,8 +197,8 @@ func (s *HomeService) GetBanners() ([]model.Banner, error) {
 		return nil, err
 	}
 
-	// Cache for 1 hour
-	err = s.cacheService.Set(ctx, cacheKey, banners, 1*time.Hour)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, banners, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache banners: %v", err)
 	}
@@ -224,8 +224,8 @@ func (s *HomeService) GetPromotions() ([]model.Promotion, error) {
 		return nil, err
 	}
 
-	// Cache for 1 hour
-	err = s.cacheService.Set(ctx, cacheKey, promotions, 1*time.Hour)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, promotions, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache promotions: %v", err)
 	}
@@ -252,8 +252,8 @@ func (s *HomeService) GetRecommendProducts(limit int) ([]model.Product, error) {
 		return nil, err
 	}
 
-	// Cache for 30 minutes
-	err = s.cacheService.Set(ctx, cacheKey, products, 30*time.Minute)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, products, 1*time.Minute)
 	if err != nil {
 		fmt.Printf("Failed to cache recommend products: %v\n", err)
 	}
@@ -280,8 +280,8 @@ func (s *HomeService) GetHotProducts(limit int) ([]model.Product, error) {
 		return nil, err
 	}
 
-	// Cache for 30 minutes
-	err = s.cacheService.Set(ctx, cacheKey, products, 30*time.Minute)
+	// Cache for 1 minute
+	err = s.cacheService.Set(ctx, cacheKey, products, 1*time.Minute)
 	if err != nil {
 		fmt.Printf("Failed to cache hot products: %v\n", err)
 	}

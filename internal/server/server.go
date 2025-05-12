@@ -1,10 +1,10 @@
 package server
 
 import (
+	"fmt"
 	"shop-go/internal/config"
 	"shop-go/internal/handler"
 	"shop-go/internal/middleware"
-	"shop-go/internal/pkg/logger"
 	"shop-go/internal/pkg/minio"
 	"shop-go/internal/pkg/redis"
 	"shop-go/internal/repository"
@@ -58,7 +58,7 @@ func (s *Server) InitRoutes() {
 	s.router.Use(middleware.RateLimitMiddleware(100, 1*time.Minute))
 
 	// API group
-	api := s.router.Group("/mall-api")
+	api := s.router.Group("/api")
 
 	// Public endpoints (no auth required)
 	// Home page
@@ -130,38 +130,32 @@ func (s *Server) Start() error {
 	// Initialize database
 	_, err := repository.InitDB(s.config)
 	if err != nil {
-		logger.Errorf("Failed to initialize database: %v", err)
-		logger.Warn("Continuing without database connection for testing purposes")
-		// 不返回错误，继续执行
-	} else {
-		logger.Info("Database connection established")
+		fmt.Printf("Failed to initialize database: %v\n", err)
+		return err
 	}
+	fmt.Println("Database connection established")
 
 	// Initialize Redis
 	_, err = redis.InitClient(&s.config.Redis)
 	if err != nil {
-		logger.Errorf("Failed to initialize Redis: %v", err)
-		logger.Warn("Continuing without Redis connection for testing purposes")
-		// 不返回错误，继续执行
-	} else {
-		logger.Info("Redis connection established")
+		fmt.Printf("Failed to initialize Redis: %v\n", err)
+		return err
 	}
+	fmt.Println("Redis connection established")
 
 	// Initialize MinIO
 	_, err = minio.InitClient(&s.config.MinIO)
 	if err != nil {
-		logger.Errorf("Failed to initialize MinIO: %v", err)
-		logger.Warn("Continuing without MinIO connection for testing purposes")
-		// 不返回错误，继续执行
-	} else {
-		logger.Info("MinIO connection established")
+		fmt.Printf("Failed to initialize MinIO: %v\n", err)
+		return err
 	}
+	fmt.Println("MinIO connection established")
 
 	// Initialize routes
 	s.InitRoutes()
-	logger.Info("Routes initialized")
+	fmt.Println("Routes initialized")
 
 	// Start server
-	logger.Infof("Starting server on %s in %s mode", s.config.Server.Port, s.config.Server.Environment)
+	fmt.Printf("Starting server on %s in %s mode\n", s.config.Server.Port, s.config.Server.Environment)
 	return s.router.Run(s.config.Server.Port)
 }

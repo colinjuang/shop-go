@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"shop-go/internal/config"
 	"shop-go/internal/pkg/logger"
 	"shop-go/internal/server"
@@ -21,8 +23,11 @@ func main() {
 
 	// Create and start the server
 	srv := server.NewServer(cfg)
-	logger.Infof("Starting server on %s", cfg.Server.Port)
+	fmt.Printf("Starting server on %s\n", cfg.Server.Port)
 	if err := srv.Start(); err != nil {
-		logger.Fatalf("Failed to start server: %v", err)
+		fmt.Println("======================================")
+		fmt.Printf("Failed to start server:\n%v\n", err)
+		fmt.Println("======================================")
+		os.Exit(1)
 	}
 }

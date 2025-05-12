@@ -41,22 +41,6 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Auto migrate the schemas
-	// err = db.AutoMigrate(
-	// 	&model.User{},
-	// 	&model.Address{},
-	// 	&model.Category{},
-	// 	&model.Product{},
-	// 	&model.Banner{},
-	// 	&model.Promotion{},
-	// 	&model.CartItem{},
-	// 	&model.Order{},
-	// 	&model.OrderItem{},
-	// )
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	DB = db
 	return db, nil
 }

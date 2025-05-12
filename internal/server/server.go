@@ -63,7 +63,7 @@ func (s *Server) InitRoutes() {
 	// Public endpoints (no auth required)
 	// Home page
 	api.GET("/home/banners", homeHandler.GetBanners)
-	api.GET("/home/categories", homeHandler.GetCategories)
+	api.GET("/home/category/level1", homeHandler.GetCategories)
 	api.GET("/home/promotions", homeHandler.GetPromotions)
 	api.GET("/home/recommend", homeHandler.GetRecommendProducts)
 	api.GET("/home/hot", homeHandler.GetHotProducts)

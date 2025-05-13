@@ -93,148 +93,8 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint, hot, 
 	return &pagination, nil
 }
 
-// CategoryService handles business logic for categories
-type CategoryService struct {
-	categoryRepo *repository.CategoryRepository
-	cacheService *redis.CacheService
-}
-
-// NewCategoryService creates a new category service
-func NewCategoryService() *CategoryService {
-	return &CategoryService{
-		categoryRepo: repository.NewCategoryRepository(),
-		cacheService: redis.NewCacheService(),
-	}
-}
-
-// GetCategories gets all categories
-func (s *CategoryService) GetCategories() ([]model.Category, error) {
-	ctx := context.Background()
-	cacheKey := "categories:all"
-
-	// Try to get from cache
-	var categories []model.Category
-	err := s.cacheService.GetObject(ctx, cacheKey, &categories)
-	if err == nil {
-		return categories, nil
-	}
-
-	// If not in cache, get from database
-	categories, err = s.categoryRepo.GetCategories()
-	if err != nil {
-		return nil, err
-	}
-
-	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Minute)
-	if err != nil {
-		logger.Warnf("Failed to cache categories: %v", err)
-	}
-
-	return categories, nil
-}
-
-// GetCategoriesByParentID gets categories by parent ID
-func (s *CategoryService) GetCategoriesByParentID(parentID uint) ([]model.Category, error) {
-	ctx := context.Background()
-	cacheKey := fmt.Sprintf("categories:parent:%d", parentID)
-
-	// Try to get from cache
-	var categories []model.Category
-	err := s.cacheService.GetObject(ctx, cacheKey, &categories)
-	if err == nil {
-		return categories, nil
-	}
-
-	// If not in cache, get from database
-	categories, err = s.categoryRepo.GetCategoriesByParentID(parentID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Minute)
-	if err != nil {
-		logger.Warnf("Failed to cache categories: %v", err)
-	}
-
-	return categories, nil
-}
-
-// HomeService handles business logic for the home page
-type HomeService struct {
-	bannerRepo    *repository.BannerRepository
-	promotionRepo *repository.PromotionRepository
-	productRepo   *repository.ProductRepository
-	cacheService  *redis.CacheService
-}
-
-// NewHomeService creates a new home service
-func NewHomeService() *HomeService {
-	return &HomeService{
-		bannerRepo:    repository.NewBannerRepository(),
-		promotionRepo: repository.NewPromotionRepository(),
-		productRepo:   repository.NewProductRepository(),
-		cacheService:  redis.NewCacheService(),
-	}
-}
-
-// GetBanners gets all banners
-func (s *HomeService) GetBanners() ([]model.Banner, error) {
-	ctx := context.Background()
-	cacheKey := "home:banners"
-
-	// Try to get from cache
-	var banners []model.Banner
-	err := s.cacheService.GetObject(ctx, cacheKey, &banners)
-	if err == nil {
-		return banners, nil
-	}
-
-	// If not in cache, get from database
-	banners, err = s.bannerRepo.GetBanners()
-	if err != nil {
-		return nil, err
-	}
-
-	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, banners, 1*time.Minute)
-	if err != nil {
-		logger.Warnf("Failed to cache banners: %v", err)
-	}
-
-	return banners, nil
-}
-
-// GetPromotions gets all promotions
-func (s *HomeService) GetPromotions() ([]model.Promotion, error) {
-	ctx := context.Background()
-	cacheKey := "home:promotions"
-
-	// Try to get from cache
-	var promotions []model.Promotion
-	err := s.cacheService.GetObject(ctx, cacheKey, &promotions)
-	if err == nil {
-		return promotions, nil
-	}
-
-	// If not in cache, get from database
-	promotions, err = s.promotionRepo.GetPromotions()
-	if err != nil {
-		return nil, err
-	}
-
-	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, promotions, 1*time.Minute)
-	if err != nil {
-		logger.Warnf("Failed to cache promotions: %v", err)
-	}
-
-	return promotions, nil
-}
-
 // GetRecommendProducts gets recommended products
-func (s *HomeService) GetRecommendProducts(limit int) ([]model.Product, error) {
+func (s *ProductService) GetRecommendProducts(limit int) ([]model.Product, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:recommend:limit:%d", limit)
 
@@ -262,7 +122,7 @@ func (s *HomeService) GetRecommendProducts(limit int) ([]model.Product, error) {
 }
 
 // GetHotProducts gets hot products
-func (s *HomeService) GetHotProducts(limit int) ([]model.Product, error) {
+func (s *ProductService) GetHotProducts(limit int) ([]model.Product, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:hot:limit:%d", limit)
 

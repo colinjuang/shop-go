@@ -95,3 +95,37 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.SuccessResponse(pagination))
 }
+
+// GetRecommendProducts gets recommended products
+func (h *ProductHandler) GetRecommendProducts(c *gin.Context) {
+	limit := 10
+	limitStr := c.DefaultQuery("limit", "10")
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		limit = l
+	}
+
+	products, err := h.productService.GetRecommendProducts(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse(products))
+}
+
+// GetHotProducts gets hot products
+func (h *ProductHandler) GetHotProducts(c *gin.Context) {
+	limit := 10
+	limitStr := c.DefaultQuery("limit", "10")
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		limit = l
+	}
+
+	products, err := h.productService.GetHotProducts(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse(products))
+}

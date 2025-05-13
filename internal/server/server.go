@@ -44,7 +44,9 @@ func (s *Server) InitRoutes() {
 	// Create handlers
 	userHandler := handler.NewUserHandler()
 	addressHandler := handler.NewAddressHandler()
-	homeHandler := handler.NewHomeHandler()
+	bannerHandler := handler.NewBannerHandler()
+	categoryHandler := handler.NewCategoryHandler()
+	promotionHandler := handler.NewPromotionHandler()
 	productHandler := handler.NewProductHandler()
 	cartHandler := handler.NewCartHandler()
 	orderHandler := handler.NewOrderHandler()
@@ -62,15 +64,15 @@ func (s *Server) InitRoutes() {
 
 	// Public endpoints (no auth required)
 	// Home page
-	api.GET("/home/banners", homeHandler.GetBanners)
-	api.GET("/home/category/level1", homeHandler.GetCategories)
-	api.GET("/home/promotions", homeHandler.GetPromotions)
-	api.GET("/home/recommend", homeHandler.GetRecommendProducts)
-	api.GET("/home/hot", homeHandler.GetHotProducts)
+	api.GET("/home/banners", bannerHandler.GetBanners)
+	api.GET("/home/category/level1", categoryHandler.GetCategories)
+	api.GET("/home/promotions", promotionHandler.GetPromotions)
+	api.GET("/home/recommend", productHandler.GetRecommendProducts)
+	api.GET("/home/hot", productHandler.GetHotProducts)
 
 	// Categories
-	api.GET("/categories", homeHandler.GetAllCategories)
-	api.GET("/categories/:id/subs", homeHandler.GetSubCategories)
+	api.GET("/categories", categoryHandler.GetAllCategories)
+	api.GET("/categories/:id/subs", categoryHandler.GetSubCategories)
 
 	// Products
 	api.GET("/products", productHandler.GetProducts)

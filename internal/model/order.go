@@ -19,34 +19,34 @@ const (
 
 // Order represents an order
 type Order struct {
-	ID            uint        `json:"id" gorm:"primaryKey"`
-	UserID        uint        `json:"user_id" gorm:"index;not null"`
-	OrderNo       string      `json:"order_no" gorm:"uniqueIndex;not null"`
-	TotalAmount   float64     `json:"total_amount" gorm:"type:decimal(10,2);not null"`
-	PaymentAmount float64     `json:"payment_amount" gorm:"type:decimal(10,2);not null"`
-	Status        int         `json:"status" gorm:"default:0"`
-	PaymentTime   time.Time   `json:"payment_time"`
-	AddressID     uint        `json:"address_id"`
-	ReceiverName  string      `json:"receiver_name"`
-	ReceiverPhone string      `json:"receiver_phone"`
-	Address       string      `json:"address"`
-	PaymentType   int         `json:"payment_type" gorm:"default:1"` // 1: wechat
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
-	OrderItems    []OrderItem `json:"order_items" gorm:"foreignKey:OrderID"`
+	ID            uint        `json:"id" gorm:"column:id;primaryKey"`
+	UserID        uint        `json:"userId" gorm:"column:user_id;index;not null"`
+	OrderNo       string      `json:"orderNo" gorm:"column:order_no;uniqueIndex;not null"`
+	TotalAmount   float64     `json:"totalAmount" gorm:"column:total_amount;type:decimal(10,2);not null"`
+	PaymentAmount float64     `json:"paymentAmount" gorm:"column:payment_amount;type:decimal(10,2);not null"`
+	Status        int         `json:"status" gorm:"column:status;default:0"`
+	PaymentTime   time.Time   `json:"paymentTime" gorm:"column:payment_time"`
+	AddressID     uint        `json:"addressId" gorm:"column:address_id"`
+	ReceiverName  string      `json:"receiverName" gorm:"column:receiver_name"`
+	ReceiverPhone string      `json:"receiverPhone" gorm:"column:receiver_phone"`
+	Address       string      `json:"address" gorm:"column:address"`
+	PaymentType   int         `json:"paymentType" gorm:"default:1"` // 1: wechat
+	CreatedAt     time.Time   `json:"createdAt" gorm:"column:created_at"`
+	UpdatedAt     time.Time   `json:"updatedAt" gorm:"column:updated_at"`
+	OrderItems    []OrderItem `json:"orderItems" gorm:"foreignKey:OrderID"`
 }
 
 // OrderItem represents an item in an order
 type OrderItem struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	OrderID   uint      `json:"order_id" gorm:"index;not null"`
-	ProductID uint      `json:"product_id" gorm:"index;not null"`
-	Quantity  int       `json:"quantity" gorm:"not null"`
-	Price     float64   `json:"price" gorm:"type:decimal(10,2);not null"`
-	Name      string    `json:"name" gorm:"not null"`
-	Image     string    `json:"image"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `json:"id" gorm:"column:id;primaryKey"`
+	OrderID   uint      `json:"orderId" gorm:"column:order_id;index;not null"`
+	ProductID uint      `json:"productId" gorm:"column:product_id;index;not null"`
+	Quantity  int       `json:"quantity" gorm:"column:quantity;not null"`
+	Price     float64   `json:"price" gorm:"column:price;type:decimal(10,2);not null"`
+	Name      string    `json:"name" gorm:"column:name;not null"`
+	Image     string    `json:"image" gorm:"column:image"`
+	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
 
 // OrderRequest represents the order creation request

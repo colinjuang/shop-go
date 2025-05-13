@@ -6,18 +6,18 @@ import (
 
 // Product represents a product
 type Product struct {
-	ID          uint      `json:"id" gorm:"primaryKey"`
-	Name        string    `json:"name" gorm:"not null"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price" gorm:"type:decimal(10,2)"`
-	Stock       int       `json:"stock" gorm:"default:0"`
-	CategoryID  uint      `json:"category_id" gorm:"index"`
-	Images      string    `json:"images"`
-	MainImage   string    `json:"main_image"`
-	Status      int       `json:"status" gorm:"default:1"` // 1: on sale, 0: off sale
-	Hot         bool      `json:"hot" gorm:"default:false"`
-	Recommend   bool      `json:"recommend" gorm:"default:false"`
-	SortOrder   int       `json:"sort_order" gorm:"default:0"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uint      `json:"id" gorm:"column:id;primaryKey"`
+	Name        string    `json:"name" gorm:"column:name;not null"`
+	Description string    `json:"description" gorm:"column:description"`
+	Price       float64   `json:"price" gorm:"column:price;type:decimal(10,2)"`
+	Stock       int       `json:"stock" gorm:"column:stock;default:0"`
+	CategoryID  uint      `json:"categoryId" gorm:"column:category_id;index"`
+	Images      string    `json:"images" gorm:"column:images"`
+	MainImage   string    `json:"mainImage" gorm:"column:main_image"`
+	Status      int       `json:"status" gorm:"column:status;default:1"` // 1: on sale, 0: off sale
+	Hot         bool      `json:"hot" gorm:"column:hot;default:false"`
+	Recommend   bool      `json:"recommend" gorm:"column:recommend;default:false"`
+	SortOrder   int       `json:"sortOrder" gorm:"column:sort_order;default:0"`
+	CreatedAt   time.Time `json:"createdAt" gorm:"column:created_at"`
+	UpdatedAt   time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }

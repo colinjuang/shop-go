@@ -73,6 +73,7 @@ func (s *Server) InitRoutes() {
 	// Categories
 	api.GET("/categories", categoryHandler.GetAllCategories)
 	api.GET("/categories/:id/subs", categoryHandler.GetSubCategories)
+	api.GET("/categories/tree", categoryHandler.GetCategoryTree)
 
 	// Products
 	api.GET("/products", productHandler.GetProducts)
@@ -83,7 +84,8 @@ func (s *Server) InitRoutes() {
 	api.GET("/reports/export", reportHandler.ExportProducts)
 
 	// User login
-	api.GET("/users/login", userHandler.WechatLogin)
+	// api.GET("/user/login/:code", userHandler.GetWechatLoginCode)
+	api.GET("/user/login", userHandler.WechatLogin)
 
 	// Protected endpoints (auth required)
 	auth := api.Group("/")

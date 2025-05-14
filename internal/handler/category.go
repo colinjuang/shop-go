@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"shop-go/internal/model"
 	"shop-go/internal/service"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // CategoryHandler handles home page API endpoints
@@ -58,4 +59,15 @@ func (h *CategoryHandler) GetSubCategories(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, model.SuccessResponse(categories))
+}
+
+// GetCategoryTree gets the category tree
+func (h *CategoryHandler) GetCategoryTree(c *gin.Context) {
+	tree, err := h.categoryService.GetCategoryTree()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, model.SuccessResponse(tree))
 }

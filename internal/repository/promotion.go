@@ -13,7 +13,7 @@ func NewPromotionRepository() *PromotionRepository {
 // GetPromotions gets all promotions
 func (r *PromotionRepository) GetPromotions() ([]model.Promotion, error) {
 	var promotions []model.Promotion
-	result := DB.Order("sort_order ASC").Find(&promotions)
+	result := DB.Find(&promotions)
 	if result.Error != nil {
 		return nil, result.Error
 	}

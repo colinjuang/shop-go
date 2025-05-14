@@ -4,6 +4,7 @@ import (
 	"context"
 	"shop-go/internal/model"
 	"shop-go/internal/pkg/logger"
+	"shop-go/internal/pkg/minio"
 	"shop-go/internal/pkg/redis"
 	"shop-go/internal/repository"
 	"time"
@@ -39,6 +40,10 @@ func (s *PromotionService) GetPromotions() ([]model.Promotion, error) {
 	promotions, err = s.promotionRepo.GetPromotions()
 	if err != nil {
 		return nil, err
+	}
+
+	for i, promotion := range promotions {
+		promotions[i].ImageUrl = minio.GetClient().GetFileURL(promotion.ImageUrl)
 	}
 
 	// Cache for 1 minute

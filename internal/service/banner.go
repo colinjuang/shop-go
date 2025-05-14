@@ -4,6 +4,7 @@ import (
 	"context"
 	"shop-go/internal/model"
 	"shop-go/internal/pkg/logger"
+	"shop-go/internal/pkg/minio"
 	"shop-go/internal/pkg/redis"
 	"shop-go/internal/repository"
 	"time"
@@ -43,6 +44,11 @@ func (s *BannerService) GetBanners() ([]model.Banner, error) {
 		return nil, err
 	}
 
+	minioClient := minio.GetClient()
+	for i, banner := range banners {
+		imageUrl := minioClient.GetFileURL(banner.ImageUrl)
+		banners[i].ImageUrl = imageUrl
+	}
 	// Cache for 1 minute
 	err = s.cacheService.Set(ctx, cacheKey, banners, 1*time.Minute)
 	if err != nil {

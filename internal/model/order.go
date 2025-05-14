@@ -44,7 +44,7 @@ type OrderItem struct {
 	Quantity  int       `json:"quantity" gorm:"column:quantity;not null"`
 	Price     float64   `json:"price" gorm:"column:price;type:decimal(10,2);not null"`
 	Name      string    `json:"name" gorm:"column:name;not null"`
-	Image     string    `json:"image" gorm:"column:image"`
+	ImageUrl  string    `json:"image" gorm:"column:image_url"`
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }

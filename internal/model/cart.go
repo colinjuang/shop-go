@@ -18,12 +18,12 @@ type CartItem struct {
 
 // CartItemResponse is the response for cart item list
 type CartItemResponse struct {
-	ID        uint    `json:"id"`
-	ProductID uint    `json:"product_id"`
-	Quantity  int     `json:"quantity"`
-	Selected  bool    `json:"selected"`
-	Name      string  `json:"name"`
-	Price     float64 `json:"price"`
-	MainImage string  `json:"main_image"`
-	Stock     int     `json:"stock"`
+	ID         uint    `json:"id"`
+	ProductID  uint    `json:"product_id"`
+	Quantity   int     `json:"quantity"`
+	Selected   bool    `json:"selected"`
+	Name       string  `json:"name"`
+	Price      float64 `json:"price"`
+	ImageUrl   string  `json:"image_url"`
+	StockCount int     `json:"stock_count"`
 }

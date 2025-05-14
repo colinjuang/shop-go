@@ -71,7 +71,7 @@ func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryI
 		for _, product := range products {
 			file.WriteString(fmt.Sprintf("Product: %s\n", product.Name))
 			file.WriteString(fmt.Sprintf("Price: %.2f\n", product.Price))
-			file.WriteString(fmt.Sprintf("Description: %s\n\n", product.Description))
+			file.WriteString(fmt.Sprintf("Description: %s\n\n", product.FloralLanguage))
 		}
 
 		return nil
@@ -177,8 +177,8 @@ func (s *ReportService) ExportProductsToCSV(ctx context.Context, categoryID *uin
 
 		for _, product := range products {
 			file.WriteString(fmt.Sprintf("%d,%s,%.2f,%d,%s,%d\n",
-				product.ID, product.Name, product.Price, product.Stock,
-				product.Description, product.CategoryID))
+				product.ID, product.Name, product.Price, product.StockCount,
+				product.FloralLanguage, product.CategoryID))
 		}
 
 		return nil

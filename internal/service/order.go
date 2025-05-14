@@ -59,7 +59,7 @@ func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *ui
 		}
 
 		// Check stock
-		if product.Stock < *quantity {
+		if product.StockCount < *quantity {
 			return 0, nil, ErrorOutOfStock
 		}
 
@@ -144,7 +144,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 				return err
 			}
 
-			if product.Stock < item.Quantity {
+			if product.StockCount < item.Quantity {
 				return ErrorOutOfStock
 			}
 
@@ -153,7 +153,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 				Quantity:  item.Quantity,
 				Price:     item.Product.Price,
 				Name:      item.Product.Name,
-				Image:     item.Product.MainImage,
+				ImageUrl:  item.Product.ImageUrl,
 			}
 			orderItems = append(orderItems, orderItem)
 		}

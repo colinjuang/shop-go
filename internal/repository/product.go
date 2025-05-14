@@ -35,7 +35,7 @@ func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint, ho
 	}
 
 	if hot != nil {
-		query = query.Where("hot = ?", *hot)
+		query = query.Where("sale_count > 100")
 	}
 
 	if recommend != nil {

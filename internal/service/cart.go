@@ -28,7 +28,7 @@ func (s *CartService) AddToCart(userID, productID uint, quantity int) error {
 	}
 
 	// Check stock
-	if product.Stock < quantity {
+	if product.StockCount < quantity {
 		return ErrorOutOfStock
 	}
 
@@ -45,14 +45,14 @@ func (s *CartService) GetCartItems(userID uint) ([]model.CartItemResponse, error
 	var responses []model.CartItemResponse
 	for _, item := range cartItems {
 		response := model.CartItemResponse{
-			ID:        item.ID,
-			ProductID: item.ProductID,
-			Quantity:  item.Quantity,
-			Selected:  item.Selected,
-			Name:      item.Product.Name,
-			Price:     item.Product.Price,
-			MainImage: item.Product.MainImage,
-			Stock:     item.Product.Stock,
+			ID:         item.ID,
+			ProductID:  item.ProductID,
+			Quantity:   item.Quantity,
+			Selected:   item.Selected,
+			Name:       item.Product.Name,
+			Price:      item.Product.Price,
+			ImageUrl:   item.Product.ImageUrl,
+			StockCount: item.Product.StockCount,
 		}
 		responses = append(responses, response)
 	}

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"shop-go/internal/config"
-	"shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"

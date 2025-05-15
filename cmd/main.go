@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"shop-go/internal/config"
-	"shop-go/internal/pkg/logger"
-	"shop-go/internal/server"
+	"github.com/colinjuang/shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/pkg/logger"
+	"github.com/colinjuang/shop-go/internal/server"
 )
 
 func main() {

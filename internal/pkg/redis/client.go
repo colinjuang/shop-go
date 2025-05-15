@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
-	"shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/config"
 	"time"
 
 	"github.com/redis/go-redis/v9"

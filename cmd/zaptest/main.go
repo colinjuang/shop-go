@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"shop-go/internal/pkg/logger"
+	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"time"
 
 	"go.uber.org/zap"

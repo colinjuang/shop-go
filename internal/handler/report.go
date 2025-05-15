@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"net/http"
-	"shop-go/internal/model"
-	"shop-go/internal/service"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/service"
 	"strconv"
 	"time"
 

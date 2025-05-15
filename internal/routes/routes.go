@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"shop-go/internal/handler"
-	"shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/handler"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"time"
 
 	"github.com/gin-gonic/gin"

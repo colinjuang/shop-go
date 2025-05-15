@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"shop-go/internal/middleware"
-	"shop-go/internal/model"
-	"shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/repository"
 )
 
 // UserService handles business logic for users

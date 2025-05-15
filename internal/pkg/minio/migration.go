@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/config"
 	"strings"
 )
 

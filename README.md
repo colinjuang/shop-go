@@ -7,7 +7,6 @@ A WeChat mini program mall backend API implemented with the Gin framework.
 The project is organized in a clean architecture:
 
 ```
-shop-go/
 ├── cmd/               # Application entry points
 │   └── migrate/       # MinIO file migration tool
 ├── configs/           # Configuration files

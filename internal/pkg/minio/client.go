@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/config"
 	"time"
 
 	"github.com/minio/minio-go/v7"

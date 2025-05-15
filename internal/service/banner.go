@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"shop-go/internal/model"
-	"shop-go/internal/pkg/logger"
-	"shop-go/internal/pkg/minio"
-	"shop-go/internal/pkg/redis"
-	"shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/logger"
+	"github.com/colinjuang/shop-go/internal/pkg/minio"
+	"github.com/colinjuang/shop-go/internal/pkg/redis"
+	"github.com/colinjuang/shop-go/internal/repository"
 	"time"
 )
 

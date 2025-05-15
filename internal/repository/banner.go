@@ -1,6 +1,6 @@
 package repository
 
-import "shop-go/internal/model"
+import "github.com/colinjuang/shop-go/internal/model"
 
 // BannerRepository handles database operations for banners
 type BannerRepository struct{}

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"shop-go/internal/pkg/logger"
+	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"time"
 
 	"github.com/gin-gonic/gin"

@@ -1,6 +1,6 @@
 package repository
 
-import "shop-go/internal/model"
+import "github.com/colinjuang/shop-go/internal/model"
 
 // PromotionRepository handles database operations for promotions
 type PromotionRepository struct{}

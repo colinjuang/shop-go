@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"shop-go/internal/handler"
+	"github.com/colinjuang/shop-go/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )

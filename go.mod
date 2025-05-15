@@ -1,8 +1,6 @@
-module shop-go
+module github.com/colinjuang/shop-go
 
-go 1.23.0
-
-toolchain go1.23.9
+go 1.23.9
 
 require (
 	github.com/gin-gonic/gin v1.9.1

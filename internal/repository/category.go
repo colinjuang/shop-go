@@ -1,6 +1,6 @@
 package repository
 
-import "shop-go/internal/model"
+import "github.com/colinjuang/shop-go/internal/model"
 
 // CategoryRepository handles database operations for categories
 type CategoryRepository struct{}

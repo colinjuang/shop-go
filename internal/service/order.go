@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"shop-go/internal/model"
-	"shop-go/internal/pkg/redis"
-	"shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/redis"
+	"github.com/colinjuang/shop-go/internal/repository"
 	"time"
 )
 

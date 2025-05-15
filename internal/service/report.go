@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"shop-go/internal/model"
-	"shop-go/internal/pkg/minio"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"time"
 )
 

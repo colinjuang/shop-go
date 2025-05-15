@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"net/http"
-	"shop-go/internal/model"
-	"shop-go/internal/pkg/redis"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"strconv"
 	"time"
 

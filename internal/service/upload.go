@@ -8,8 +8,8 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"shop-go/internal/config"
-	"shop-go/internal/pkg/minio"
+	"github.com/colinjuang/shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"strings"
 	"time"
 )

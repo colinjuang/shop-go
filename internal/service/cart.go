@@ -1,8 +1,8 @@
 package service
 
 import (
-	"shop-go/internal/model"
-	"shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/repository"
 )
 
 // CartService handles business logic for cart items

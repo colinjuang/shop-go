@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/model"
 )
 
 // AddressRepository handles database operations for addresses

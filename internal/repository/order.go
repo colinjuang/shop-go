@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/model"
 	"time"
 )
 

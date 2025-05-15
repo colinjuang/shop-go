@@ -16,4 +16,6 @@ func RegisterCategoryRouter(api *gin.RouterGroup) {
 	api.GET("/categories/:id/subs", categoryHandler.GetSubCategories)
 	// 获取分类树
 	api.GET("/categories/tree", categoryHandler.GetCategoryTree)
+	// 获取一级分类
+	api.GET("/categories/level1", categoryHandler.GetLevel1Categories)
 }

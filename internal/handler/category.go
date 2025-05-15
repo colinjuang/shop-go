@@ -2,9 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,8 +22,8 @@ func NewCategoryHandler() *CategoryHandler {
 	}
 }
 
-// GetCategories gets top-level categories
-func (h *CategoryHandler) GetCategories(c *gin.Context) {
+// GetLevel1Categories gets level 1 categories
+func (h *CategoryHandler) GetLevel1Categories(c *gin.Context) {
 	categories, err := h.categoryService.GetCategoriesByParentID(0)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))

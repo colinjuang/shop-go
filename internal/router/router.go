@@ -30,6 +30,8 @@ func RegisterRouter(router *gin.Engine) {
 	api.RegisterPromotionApi(apiV1)
 	// 上传
 	api.RegisterUploadApi(apiV1)
+	// 微信登录
+	api.RegisterWechatLoginApi(apiV1)
 	// 用户
 	api.RegisterUserApi(apiV1)
 	// 地址

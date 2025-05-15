@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterUserApi registers all user and address related api
+// RegisterUserApi registers all user api
 func RegisterUserApi(api *gin.RouterGroup) {
 	userHandler := handler.NewUserHandler()
 

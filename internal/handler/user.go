@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
@@ -23,13 +25,20 @@ func NewUserHandler() *UserHandler {
 
 // GetUserInfo gets the current user's information
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	userId, exists := c.Get("userId")
-	if !exists {
+	userIdStr := c.Query("userId")
+	fmt.Println("userId", userIdStr)
+	if userIdStr == "" {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	user, err := h.userService.GetUserByID(userId.(uint))
+	userId, err := strconv.ParseUint(userIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid user ID"))
+		return
+	}
+
+	user, err := h.userService.GetUserByID(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -76,4 +77,14 @@ func (s *UserService) UpdateUser(id uint, updateInfo model.UserUpdateInfo) error
 	user.Country = updateInfo.Country
 
 	return s.userRepo.UpdateUser(user)
+}
+
+// GetUserByUsername gets a user by username
+func (s *UserService) GetUserByUsername(username string) (*model.User, error) {
+	return s.userRepo.GetUserByUsername(username)
+}
+
+// CreateUser creates a new user
+func (s *UserService) CreateUser(user *model.User) error {
+	return s.userRepo.CreateUser(user)
 }

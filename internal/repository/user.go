@@ -41,3 +41,18 @@ func (r *UserRepository) GetUserByID(id uint) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+// GetUserByUsername gets a user by username
+func (r *UserRepository) GetUserByUsername(username string) (*model.User, error) {
+	var count int64
+	DB.Where("username = ?", username).Count(&count)
+	if count == 0 {
+		return nil, nil
+	}
+	var user model.User
+	result := DB.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}

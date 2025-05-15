@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterOrderRoutes registers all order related routes
-func RegisterOrderRoutes(api *gin.RouterGroup, orderHandler *handler.OrderHandler) {
+// RegisterOrderRouter registers all order related routes
+func RegisterOrderRouter(api *gin.RouterGroup) {
+	orderHandler := handler.NewOrderHandler()
 	// 获取订单详情
 	api.GET("/order/detail", orderHandler.GetOrderDetail)
 	// 获取订单地址

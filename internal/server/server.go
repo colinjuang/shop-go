@@ -7,8 +7,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"github.com/colinjuang/shop-go/internal/routes"
-
+	"github.com/colinjuang/shop-go/internal/router"
 	"github.com/gin-gonic/gin"
 )
 
@@ -65,7 +64,7 @@ func (s *Server) Start() error {
 	fmt.Println("MinIO connection established")
 
 	// Initialize routes
-	routes.RegisterRoutes(s.router)
+	router.RegisterRouter(s.router)
 	fmt.Println("Routes initialized")
 
 	// Start server

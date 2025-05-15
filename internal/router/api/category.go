@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterCategoryRoutes registers all category routes
-func RegisterCategoryRoutes(api *gin.RouterGroup, categoryHandler *handler.CategoryHandler) {
+// RegisterCategoryRouter registers all category routes
+func RegisterCategoryRouter(api *gin.RouterGroup) {
+	categoryHandler := handler.NewCategoryHandler()
 
 	// 获取所有分类
 	api.GET("/categories", categoryHandler.GetAllCategories)

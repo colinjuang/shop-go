@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterUploadRoutes registers all file upload related routes
-func RegisterUploadRoutes(api *gin.RouterGroup, uploadHandler *handler.UploadHandler) {
+// RegisterUploadRouter registers all file upload related routes
+func RegisterUploadRouter(api *gin.RouterGroup) {
+	uploadHandler := handler.NewUploadHandler()
 	// Upload
 	api.POST("/upload", uploadHandler.UploadFile)
 	api.POST("/upload/batch", uploadHandler.BatchUploadFiles)

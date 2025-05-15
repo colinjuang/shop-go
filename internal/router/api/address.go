@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterUserRoutes registers all user and address related routes
-func RegisterAddressRoutes(api *gin.RouterGroup, addressHandler *handler.AddressHandler) {
+// RegisterAddressRouter registers all user and address related routes
+func RegisterAddressRouter(api *gin.RouterGroup) {
+	addressHandler := handler.NewAddressHandler()
 	// 添加地址
 	api.POST("/address/add", addressHandler.CreateAddress)
 	// 获取地址列表

@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterCartRoutes registers all cart related routes
-func RegisterCartRoutes(api *gin.RouterGroup, cartHandler *handler.CartHandler) {
+// RegisterCartRouter registers all cart related routes
+func RegisterCartRouter(api *gin.RouterGroup) {
+	cartHandler := handler.NewCartHandler()
+
 	// 添加到购物车
 	api.GET("/cart/add", cartHandler.AddToCart)
 	// 获取购物车列表

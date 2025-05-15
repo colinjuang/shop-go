@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterProductRoutes registers all product routes
-func RegisterProductRoutes(api *gin.RouterGroup, productHandler *handler.ProductHandler) {
+// RegisterProductRouter registers all product routes
+func RegisterProductRouter(api *gin.RouterGroup) {
+	productHandler := handler.NewProductHandler()
 
 	// 获取商品列表
 	api.GET("/products", productHandler.GetProducts)

@@ -1,4 +1,4 @@
-package routes
+package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterBannerRoutes registers all banner routes
-func RegisterBannerRoutes(api *gin.RouterGroup, bannerHandler *handler.BannerHandler) {
+// RegisterBannerRouter registers all banner routes
+func RegisterBannerRouter(api *gin.RouterGroup) {
+	bannerHandler := handler.NewBannerHandler()
 	// 获取轮播图
 	api.GET("/banners", bannerHandler.GetBanners)
 }

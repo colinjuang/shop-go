@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterProductRouter registers all product routes
-func RegisterProductRouter(api *gin.RouterGroup) {
+// RegisterProductApi registers all product api
+func RegisterProductApi(api *gin.RouterGroup) {
 	productHandler := handler.NewProductHandler()
 
 	// 获取商品列表

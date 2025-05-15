@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterOrderRouter registers all order related routes
-func RegisterOrderRouter(api *gin.RouterGroup) {
+// RegisterOrderApi registers all order related api
+func RegisterOrderApi(api *gin.RouterGroup) {
 	orderHandler := handler.NewOrderHandler()
 	// 获取订单详情
 	api.GET("/order/detail", orderHandler.GetOrderDetail)

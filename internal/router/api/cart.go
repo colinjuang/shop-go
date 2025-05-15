@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterCartRouter registers all cart related routes
-func RegisterCartRouter(api *gin.RouterGroup) {
+// RegisterCartApi registers all cart related api
+func RegisterCartApi(api *gin.RouterGroup) {
 	cartHandler := handler.NewCartHandler()
 
 	// 添加到购物车

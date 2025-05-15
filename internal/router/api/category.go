@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterCategoryRouter registers all category routes
-func RegisterCategoryRouter(api *gin.RouterGroup) {
+// RegisterCategoryApi registers all category api
+func RegisterCategoryApi(api *gin.RouterGroup) {
 	categoryHandler := handler.NewCategoryHandler()
 
 	// 获取所有分类

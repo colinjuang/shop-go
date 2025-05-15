@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterAddressRouter registers all user and address related routes
-func RegisterAddressRouter(api *gin.RouterGroup) {
+// RegisterAddressApi registers all user and address related api
+func RegisterAddressApi(api *gin.RouterGroup) {
 	addressHandler := handler.NewAddressHandler()
 	// 添加地址
 	api.POST("/address/add", addressHandler.CreateAddress)

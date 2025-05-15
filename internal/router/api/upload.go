@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterUploadRouter registers all file upload related routes
-func RegisterUploadRouter(api *gin.RouterGroup) {
+// RegisterUploadApi registers all file upload related api
+func RegisterUploadApi(api *gin.RouterGroup) {
 	uploadHandler := handler.NewUploadHandler()
 	// Upload
 	api.POST("/upload", uploadHandler.UploadFile)

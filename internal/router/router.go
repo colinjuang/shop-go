@@ -21,21 +21,21 @@ func RegisterRouter(router *gin.Engine) {
 	apiV1 := router.Group("/api")
 
 	// 轮播图
-	api.RegisterBannerRouter(apiV1)
+	api.RegisterBannerApi(apiV1)
 	// 分类
-	api.RegisterCategoryRouter(apiV1)
+	api.RegisterCategoryApi(apiV1)
 	// 商品
-	api.RegisterProductRouter(apiV1)
+	api.RegisterProductApi(apiV1)
 	// 促销广告
-	api.RegisterPromotionRouter(apiV1)
+	api.RegisterPromotionApi(apiV1)
 	// 上传
-	api.RegisterUploadRouter(apiV1)
+	api.RegisterUploadApi(apiV1)
 	// 用户
-	api.RegisterUserRouter(apiV1)
+	api.RegisterUserApi(apiV1)
 	// 地址
-	api.RegisterAddressRouter(apiV1)
+	api.RegisterAddressApi(apiV1)
 	// 购物车
-	api.RegisterCartRouter(apiV1)
+	api.RegisterCartApi(apiV1)
 	// 订单
-	api.RegisterOrderRouter(apiV1)
+	api.RegisterOrderApi(apiV1)
 }

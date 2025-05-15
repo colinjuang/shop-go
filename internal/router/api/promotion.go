@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterPromotionRouter registers all promotion routes
-func RegisterPromotionRouter(api *gin.RouterGroup) {
+// RegisterPromotionApi registers all promotion api
+func RegisterPromotionApi(api *gin.RouterGroup) {
 	promotionHandler := handler.NewPromotionHandler()
 	// 获取促销广告
 	api.GET("/promotions", promotionHandler.GetPromotions)

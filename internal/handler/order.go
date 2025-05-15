@@ -2,9 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,20 +26,20 @@ func NewOrderHandler() *OrderHandler {
 
 // GetOrderDetail gets order details for checkout
 func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
 	// Handle direct purchase
-	var productID *uint
+	var productId *uint
 	var quantity *int
 
 	if pidStr := c.Query("product_id"); pidStr != "" {
 		if pid, err := strconv.ParseUint(pidStr, 10, 64); err == nil {
 			pid := uint(pid)
-			productID = &pid
+			productId = &pid
 		}
 	}
 
@@ -59,7 +60,7 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	}
 
 	// Get order details
-	totalAmount, cartItems, err := h.orderService.GetOrderDetail(userID.(uint), cartIDs, productID, quantity)
+	totalAmount, cartItems, err := h.orderService.GetOrderDetail(userId.(uint), cartIDs, productId, quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -76,20 +77,20 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 
 // GetOrderAddress gets the user's addresses for order
 func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint))
+	addresses, err := h.addressService.GetAddressesByUserId(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
 	// Try to get default address first
-	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(userID.(uint))
+	defaultAddress, _ := h.addressService.GetDefaultAddressByUserId(userId.(uint))
 
 	resp := gin.H{
 		"addresses":       addresses,
@@ -101,7 +102,7 @@ func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
 
 // CreateOrder creates a new order
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -113,7 +114,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.orderService.CreateOrder(userID.(uint), req)
+	order, err := h.orderService.CreateOrder(userId.(uint), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -124,7 +125,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 
 // GetWechatPayInfo gets WeChat payment information
 func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -137,7 +138,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -160,7 +161,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 
 // CheckWechatPayStatus checks WeChat payment status
 func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -173,7 +174,7 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -183,14 +184,14 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	// For now, we'll simulate payment success
 	if order.Status == model.OrderStatusPending {
 		// Update order status to paid
-		err = h.orderService.UpdateOrderStatus(order.ID, userID.(uint), model.OrderStatusPaid)
+		err = h.orderService.UpdateOrderStatus(order.ID, userId.(uint), model.OrderStatusPaid)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
 		}
 
 		// Reload order
-		order, err = h.orderService.GetOrderByID(order.ID, userID.(uint))
+		order, err = h.orderService.GetOrderByID(order.ID, userId.(uint))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
@@ -208,7 +209,7 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 
 // GetOrderList gets orders for a user with pagination
 func (h *OrderHandler) GetOrderList(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -235,7 +236,7 @@ func (h *OrderHandler) GetOrderList(c *gin.Context) {
 	}
 
 	// Get orders
-	pagination, err := h.orderService.GetOrdersByUserID(userID.(uint), page, pageSize, status)
+	pagination, err := h.orderService.GetOrdersByUserId(userId.(uint), page, pageSize, status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

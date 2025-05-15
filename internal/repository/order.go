@@ -2,8 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"github.com/colinjuang/shop-go/internal/model"
 	"time"
+
+	"github.com/colinjuang/shop-go/internal/model"
 )
 
 // OrderRepository handles database operations for orders
@@ -18,7 +19,7 @@ func NewOrderRepository() *OrderRepository {
 func (r *OrderRepository) CreateOrder(order *model.Order) error {
 	// Generate order number
 	now := time.Now()
-	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
+	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserId)
 
 	return DB.Create(order).Error
 }
@@ -57,12 +58,12 @@ func (r *OrderRepository) UpdateOrderStatus(id uint, status int) error {
 	return DB.Model(&model.Order{}).Where("id = ?", id).Updates(updates).Error
 }
 
-// GetOrdersByUserID gets orders for a user with pagination
-func (r *OrderRepository) GetOrdersByUserID(userID uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
+// GetOrdersByUserId gets orders for a user with pagination
+func (r *OrderRepository) GetOrdersByUserId(userId uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
 	var orders []model.Order
 	var count int64
 
-	query := DB.Model(&model.Order{}).Where("user_id = ?", userID)
+	query := DB.Model(&model.Order{}).Where("user_id = ?", userId)
 
 	// Apply status filter if provided
 	if status != nil {

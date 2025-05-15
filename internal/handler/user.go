@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -20,44 +21,15 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
-// WechatLogin handles WeChat login
-func (h *UserHandler) WechatLogin(c *gin.Context) {
-	code := c.Query("code")
-	if code == "" {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Missing code"))
-		return
-	}
-
-	// Here we would normally call WeChat API to get user info
-	// For simplicity, we'll use the code as OpenID
-	openID := code
-	nickname := c.DefaultQuery("nickname", "User")
-	avatar := c.DefaultQuery("avatar", "")
-	gender := 0 // Default: unknown
-	city := c.DefaultQuery("city", "")
-	province := c.DefaultQuery("province", "")
-	country := c.DefaultQuery("country", "")
-
-	token, err := h.userService.LoginWithWechat(openID, nickname, avatar, gender, city, province, country)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
-		return
-	}
-
-	c.JSON(http.StatusOK, model.SuccessResponse(gin.H{
-		"token": token,
-	}))
-}
-
 // GetUserInfo gets the current user's information
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	user, err := h.userService.GetUserByID(userID.(uint))
+	user, err := h.userService.GetUserByID(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -68,7 +40,7 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 
 // UpdateUserInfo updates the current user's information
 func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -80,7 +52,7 @@ func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
-	err := h.userService.UpdateUser(userID.(uint), updateInfo)
+	err := h.userService.UpdateUser(userId.(uint), updateInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

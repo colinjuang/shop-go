@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
-	"time"
 )
 
 // ReportService handles business logic for generating reports
@@ -79,9 +80,9 @@ func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryI
 }
 
 // GenerateOrderInvoicePDF generates a PDF invoice for an order
-func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uint, userID uint) (string, error) {
+func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderId uint, userId uint) (string, error) {
 	// Get order
-	order, err := s.orderService.GetOrderByID(orderID, userID)
+	order, err := s.orderService.GetOrderByID(orderId, userId)
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +113,7 @@ func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uin
 		file.WriteString("=======\n\n")
 		file.WriteString(fmt.Sprintf("Order Number: %s\n", order.OrderNo))
 		file.WriteString(fmt.Sprintf("Date: %s\n", order.CreatedAt.Format("2006-01-02")))
-		file.WriteString(fmt.Sprintf("Customer ID: %d\n\n", order.UserID))
+		file.WriteString(fmt.Sprintf("Customer ID: %d\n\n", order.UserId))
 
 		// Shipping address
 		file.WriteString("Shipping Address:\n")

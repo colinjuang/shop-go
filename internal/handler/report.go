@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"net/http"
-	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/service"
 	"strconv"
 	"time"
+
+	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,8 +54,8 @@ func (h *ReportHandler) GetProductCatalog(c *gin.Context) {
 // GetOrderInvoice generates and returns a PDF invoice for an order
 func (h *ReportHandler) GetOrderInvoice(c *gin.Context) {
 	// Get user ID from context
-	userID, _ := c.Get("user_id")
-	uid := userID.(uint)
+	userId, _ := c.Get("user_id")
+	uid := userId.(uint)
 
 	// Get order ID from query
 	idStr := c.Param("id")

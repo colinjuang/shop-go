@@ -20,7 +20,7 @@ const (
 // Order represents an order
 type Order struct {
 	ID            uint        `json:"id" gorm:"column:id;primaryKey"`
-	UserID        uint        `json:"userId" gorm:"column:user_id;index;not null"`
+	UserId        uint        `json:"userId" gorm:"column:user_id;index;not null"`
 	OrderNo       string      `json:"orderNo" gorm:"column:order_no;uniqueIndex;not null"`
 	TotalAmount   float64     `json:"totalAmount" gorm:"column:total_amount;type:decimal(10,2);not null"`
 	PaymentAmount float64     `json:"paymentAmount" gorm:"column:payment_amount;type:decimal(10,2);not null"`
@@ -33,14 +33,14 @@ type Order struct {
 	PaymentType   int         `json:"paymentType" gorm:"default:1"` // 1: wechat
 	CreatedAt     time.Time   `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt     time.Time   `json:"updatedAt" gorm:"column:updated_at"`
-	OrderItems    []OrderItem `json:"orderItems" gorm:"foreignKey:OrderID"`
+	OrderItems    []OrderItem `json:"orderItems" gorm:"foreignKey:OrderId"`
 }
 
 // OrderItem represents an item in an order
 type OrderItem struct {
 	ID        uint      `json:"id" gorm:"column:id;primaryKey"`
-	OrderID   uint      `json:"orderId" gorm:"column:order_id;index;not null"`
-	ProductID uint      `json:"productId" gorm:"column:product_id;index;not null"`
+	OrderId   uint      `json:"orderId" gorm:"column:order_id;index;not null"`
+	ProductId uint      `json:"productId" gorm:"column:product_id;index;not null"`
 	Quantity  int       `json:"quantity" gorm:"column:quantity;not null"`
 	Price     float64   `json:"price" gorm:"column:price;type:decimal(10,2);not null"`
 	Name      string    `json:"name" gorm:"column:name;not null"`
@@ -53,7 +53,7 @@ type OrderItem struct {
 type OrderRequest struct {
 	AddressID uint   `json:"address_id" binding:"required"`
 	CartIDs   []uint `json:"cart_ids"`                 // Optional for cart checkout
-	ProductID uint   `json:"product_id"`               // For direct purchase
+	ProductId uint   `json:"product_id"`               // For direct purchase
 	Quantity  int    `json:"quantity" binding:"min=1"` // For direct purchase
 }
 

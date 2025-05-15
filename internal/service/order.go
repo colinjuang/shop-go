@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"time"
 )
 
 // OrderService handles business logic for orders
@@ -31,7 +32,7 @@ func NewOrderService() *OrderService {
 }
 
 // GetOrderDetail gets order details for checkout
-func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *uint, quantity *int) (float64, []model.CartItem, error) {
+func (s *OrderService) GetOrderDetail(userId uint, cartIDs []uint, productId *uint, quantity *int) (float64, []model.CartItem, error) {
 	var cartItems []model.CartItem
 	var err error
 
@@ -45,15 +46,15 @@ func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *ui
 
 		// Verify ownership of cart items
 		for _, item := range items {
-			if item.UserID != userID {
+			if item.UserId != userId {
 				return 0, nil, ErrorUnauthorized
 			}
 		}
 
 		cartItems = items
-	} else if productID != nil && quantity != nil {
+	} else if productId != nil && quantity != nil {
 		// Direct purchase
-		product, err := s.productRepo.GetProductByID(*productID)
+		product, err := s.productRepo.GetProductByID(*productId)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -65,8 +66,8 @@ func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *ui
 
 		cartItems = []model.CartItem{
 			{
-				UserID:    userID,
-				ProductID: *productID,
+				UserId:    userId,
+				ProductId: *productId,
 				Quantity:  *quantity,
 				Product:   *product,
 			},
@@ -85,19 +86,19 @@ func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *ui
 }
 
 // CreateOrder creates a new order
-func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.Order, error) {
+func (s *OrderService) CreateOrder(userId uint, req model.OrderRequest) (*model.Order, error) {
 	ctx := context.Background()
 
 	// Create a lock key for this order creation
 	// This prevents race conditions when multiple requests try to create an order
 	// for the same user with the same products
-	lockKey := fmt.Sprintf("order:create:user:%d", userID)
+	lockKey := fmt.Sprintf("order:create:user:%d", userId)
 	if len(req.CartIDs) > 0 {
 		for _, id := range req.CartIDs {
 			lockKey += fmt.Sprintf(":cart:%d", id)
 		}
 	} else {
-		lockKey += fmt.Sprintf(":product:%d:qty:%d", req.ProductID, req.Quantity)
+		lockKey += fmt.Sprintf(":product:%d:qty:%d", req.ProductId, req.Quantity)
 	}
 
 	// Use Redis distributed lock to prevent race conditions
@@ -112,19 +113,19 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 			return err
 		}
 
-		if address.UserID != userID {
+		if address.UserId != userId {
 			return ErrorAddressNotFound
 		}
 
 		// Get order details
-		totalAmount, cartItems, err := s.GetOrderDetail(userID, req.CartIDs, &req.ProductID, &req.Quantity)
+		totalAmount, cartItems, err := s.GetOrderDetail(userId, req.CartIDs, &req.ProductId, &req.Quantity)
 		if err != nil {
 			return err
 		}
 
 		// Create order
 		order = &model.Order{
-			UserID:        userID,
+			UserId:        userId,
 			TotalAmount:   totalAmount,
 			PaymentAmount: totalAmount, // No discount for now
 			Status:        model.OrderStatusPending,
@@ -139,7 +140,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 		var orderItems []model.OrderItem
 		for _, item := range cartItems {
 			// Check stock again within the lock to prevent race conditions
-			product, err := s.productRepo.GetProductByID(item.ProductID)
+			product, err := s.productRepo.GetProductByID(item.ProductId)
 			if err != nil {
 				return err
 			}
@@ -149,7 +150,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 			}
 
 			orderItem := model.OrderItem{
-				ProductID: item.ProductID,
+				ProductId: item.ProductId,
 				Quantity:  item.Quantity,
 				Price:     item.Product.Price,
 				Name:      item.Product.Name,
@@ -167,7 +168,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 
 		// Update product stock
 		for _, item := range orderItems {
-			fmt.Printf("Would decrease stock for product %d by %d\n", item.ProductID, item.Quantity)
+			fmt.Printf("Would decrease stock for product %d by %d\n", item.ProductId, item.Quantity)
 		}
 
 		// Delete cart items if from cart
@@ -192,14 +193,14 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 }
 
 // GetOrderByID gets an order by ID
-func (s *OrderService) GetOrderByID(id uint, userID uint) (*model.Order, error) {
+func (s *OrderService) GetOrderByID(id uint, userId uint) (*model.Order, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("order:%d", id)
 
 	// Try to get from cache
 	var order model.Order
 	err := s.cacheService.GetObject(ctx, cacheKey, &order)
-	if err == nil && order.UserID == userID {
+	if err == nil && order.UserId == userId {
 		return &order, nil
 	}
 
@@ -210,7 +211,7 @@ func (s *OrderService) GetOrderByID(id uint, userID uint) (*model.Order, error) 
 	}
 
 	// Ensure the order belongs to the user
-	if orderPtr.UserID != userID {
+	if orderPtr.UserId != userId {
 		return nil, ErrorOrderNotFound
 	}
 
@@ -221,14 +222,14 @@ func (s *OrderService) GetOrderByID(id uint, userID uint) (*model.Order, error) 
 }
 
 // GetOrderByOrderNo gets an order by order number
-func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint) (*model.Order, error) {
+func (s *OrderService) GetOrderByOrderNo(orderNo string, userId uint) (*model.Order, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("order:no:%s", orderNo)
 
 	// Try to get from cache
 	var order model.Order
 	err := s.cacheService.GetObject(ctx, cacheKey, &order)
-	if err == nil && order.UserID == userID {
+	if err == nil && order.UserId == userId {
 		return &order, nil
 	}
 
@@ -239,7 +240,7 @@ func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint) (*model.Or
 	}
 
 	// Ensure the order belongs to the user
-	if orderPtr.UserID != userID {
+	if orderPtr.UserId != userId {
 		return nil, ErrorOrderNotFound
 	}
 
@@ -250,10 +251,10 @@ func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint) (*model.Or
 }
 
 // UpdateOrderStatus updates the status of an order
-func (s *OrderService) UpdateOrderStatus(id uint, userID uint, status int) error {
+func (s *OrderService) UpdateOrderStatus(id uint, userId uint, status int) error {
 	ctx := context.Background()
 
-	order, err := s.GetOrderByID(id, userID)
+	order, err := s.GetOrderByID(id, userId)
 	if err != nil {
 		return err
 	}
@@ -278,12 +279,12 @@ func (s *OrderService) UpdateOrderStatus(id uint, userID uint, status int) error
 	return err
 }
 
-// GetOrdersByUserID gets orders for a user with pagination
-func (s *OrderService) GetOrdersByUserID(userID uint, page, pageSize int, status *int) (*model.Pagination, error) {
+// GetOrdersByUserId gets orders for a user with pagination
+func (s *OrderService) GetOrdersByUserId(userId uint, page, pageSize int, status *int) (*model.Pagination, error) {
 	ctx := context.Background()
 
 	// Generate cache key
-	cacheKey := fmt.Sprintf("orders:user:%d:page:%d:size:%d", userID, page, pageSize)
+	cacheKey := fmt.Sprintf("orders:user:%d:page:%d:size:%d", userId, page, pageSize)
 	if status != nil {
 		cacheKey += fmt.Sprintf(":status:%d", *status)
 	}
@@ -296,7 +297,7 @@ func (s *OrderService) GetOrdersByUserID(userID uint, page, pageSize int, status
 	}
 
 	// If not in cache, get from database
-	orders, total, err := s.orderRepo.GetOrdersByUserID(userID, page, pageSize, status)
+	orders, total, err := s.orderRepo.GetOrdersByUserId(userId, page, pageSize, status)
 	if err != nil {
 		return nil, err
 	}

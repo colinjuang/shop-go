@@ -2,9 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,16 +24,16 @@ func NewCartHandler() *CartHandler {
 
 // AddToCart adds a product to the cart
 func (h *CartHandler) AddToCart(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	productIDStr := c.Query("product_id")
+	productIdStr := c.Query("product_id")
 	quantityStr := c.DefaultQuery("quantity", "1")
 
-	productID, err := strconv.ParseUint(productIDStr, 10, 64)
+	productId, err := strconv.ParseUint(productIdStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid product ID"))
 		return
@@ -44,7 +45,7 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 		return
 	}
 
-	err = h.cartService.AddToCart(userID.(uint), uint(productID), quantity)
+	err = h.cartService.AddToCart(userId.(uint), uint(productId), quantity)
 	if err != nil {
 		if err == service.ErrorOutOfStock {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
@@ -59,13 +60,13 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 
 // GetCartList gets all cart items for a user
 func (h *CartHandler) GetCartList(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	cartItems, err := h.cartService.GetCartItems(userID.(uint))
+	cartItems, err := h.cartService.GetCartItems(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -76,7 +77,7 @@ func (h *CartHandler) GetCartList(c *gin.Context) {
 
 // UpdateCartItemStatus updates the status of a cart item
 func (h *CartHandler) UpdateCartItemStatus(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -93,7 +94,7 @@ func (h *CartHandler) UpdateCartItemStatus(c *gin.Context) {
 
 	selected := selectedStr == "true" || selectedStr == "1"
 
-	err = h.cartService.UpdateCartItemStatus(uint(id), userID.(uint), selected)
+	err = h.cartService.UpdateCartItemStatus(uint(id), userId.(uint), selected)
 	if err != nil {
 		if err == service.ErrorCartItemNotFound {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
@@ -108,7 +109,7 @@ func (h *CartHandler) UpdateCartItemStatus(c *gin.Context) {
 
 // UpdateAllCartItemStatus updates the status of all cart items for a user
 func (h *CartHandler) UpdateAllCartItemStatus(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -117,7 +118,7 @@ func (h *CartHandler) UpdateAllCartItemStatus(c *gin.Context) {
 	selectedStr := c.DefaultQuery("selected", "true")
 	selected := selectedStr == "true" || selectedStr == "1"
 
-	err := h.cartService.UpdateAllCartItemStatus(userID.(uint), selected)
+	err := h.cartService.UpdateAllCartItemStatus(userId.(uint), selected)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -128,7 +129,7 @@ func (h *CartHandler) UpdateAllCartItemStatus(c *gin.Context) {
 
 // DeleteCartItem deletes a cart item
 func (h *CartHandler) DeleteCartItem(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -141,7 +142,7 @@ func (h *CartHandler) DeleteCartItem(c *gin.Context) {
 		return
 	}
 
-	err = h.cartService.DeleteCartItem(uint(id), userID.(uint))
+	err = h.cartService.DeleteCartItem(uint(id), userId.(uint))
 	if err != nil {
 		if err == service.ErrorCartItemNotFound {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))

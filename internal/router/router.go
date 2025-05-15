@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/colinjuang/shop-go/internal/router/api"
 	"time"
+
+	"github.com/colinjuang/shop-go/internal/router/api"
 
 	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func RegisterRouter(router *gin.Engine) {
 	router.Use(middleware.RateLimitMiddleware(100, 1*time.Minute))
 
 	// API group
-	apiV1 := router.Group("/api/v1")
+	apiV1 := router.Group("/api")
 
 	// 轮播图
 	api.RegisterBannerRouter(apiV1)

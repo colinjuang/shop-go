@@ -10,5 +10,5 @@ import (
 func RegisterPromotionApi(api *gin.RouterGroup) {
 	promotionHandler := handler.NewPromotionHandler()
 	// 获取促销广告
-	api.GET("/promotions", promotionHandler.GetPromotions)
+	api.GET("/promotion", promotionHandler.GetPromotions)
 }

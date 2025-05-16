@@ -11,11 +11,11 @@ func RegisterCategoryApi(api *gin.RouterGroup) {
 	categoryHandler := handler.NewCategoryHandler()
 
 	// 获取所有分类
-	api.GET("/categories", categoryHandler.GetAllCategories)
+	api.GET("/category", categoryHandler.GetAllCategories)
 	// 获取子分类
-	api.GET("/categories/:id/subs", categoryHandler.GetSubCategories)
+	api.GET("/category/:id/subs", categoryHandler.GetSubCategories)
 	// 获取分类树
-	api.GET("/categories/tree", categoryHandler.GetCategoryTree)
+	api.GET("/category/tree", categoryHandler.GetCategoryTree)
 	// 获取一级分类
-	api.GET("/categories/level1", categoryHandler.GetLevel1Categories)
+	api.GET("/category/level1", categoryHandler.GetLevel1Categories)
 }

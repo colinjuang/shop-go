@@ -3,11 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"time"
 )
 
 // ProductService handles business logic for products
@@ -25,31 +27,52 @@ func NewProductService() *ProductService {
 }
 
 // GetProductByID gets a product by ID
-func (s *ProductService) GetProductByID(id uint64) (*model.Product, error) {
+func (s *ProductService) GetProductByID(id uint64) (*dto.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("product:%d", id)
 
 	// Try to get from cache
-	var product model.Product
-	err := s.cacheService.GetObject(ctx, cacheKey, &product)
+	var productResponse dto.ProductResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &productResponse)
 	if err == nil {
-		return &product, nil
+		return &productResponse, nil
 	}
 
 	// If not in cache, get from database
-	productPtr, err := s.productRepo.GetProductByID(id)
+	product, err := s.productRepo.GetProductByID(id)
 	if err != nil {
 		return nil, err
 	}
 
+	productResponse = dto.ProductResponse{
+		ID:             product.ID,
+		Name:           product.Name,
+		FloralLanguage: product.FloralLanguage,
+		Price:          product.Price,
+		MarketPrice:    product.MarketPrice,
+		SaleCount:      product.SaleCount,
+		StockCount:     product.StockCount,
+		CategoryID:     product.CategoryID,
+		SubCategoryID:  product.SubCategoryID,
+		Material:       product.Material,
+		Packing:        product.Packing,
+		ImageUrl:       product.ImageUrl,
+		Status:         product.Status,
+		Recommend:      product.Recommend,
+		SortOrder:      product.SortOrder,
+		ApplyUser:      product.ApplyUser,
+		CreatedAt:      product.CreatedAt,
+		UpdatedAt:      product.UpdatedAt,
+	}
+
 	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, *productPtr, 1*time.Minute)
+	err = s.cacheService.Set(ctx, cacheKey, product, 1*time.Minute)
 	if err != nil {
 		// Just log the error, don't fail the request
 		logger.Warnf("Failed to cache product: %v", err)
 	}
 
-	return productPtr, nil
+	return &productResponse, nil
 }
 
 // GetProducts gets products with pagination
@@ -94,22 +117,46 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot
 }
 
 // GetRecommendProducts gets recommended products
-func (s *ProductService) GetRecommendProducts(limit int) ([]model.Product, error) {
+func (s *ProductService) GetRecommendProducts(limit int) ([]*dto.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:recommend:limit:%d", limit)
 
 	// Try to get from cache
-	var products []model.Product
-	err := s.cacheService.GetObject(ctx, cacheKey, &products)
+	var productResponses []*dto.ProductResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &productResponses)
 	if err == nil {
-		return products, nil
+		return productResponses, nil
 	}
 
 	// If not in cache, get from database
 	recommend := true
-	products, _, err = s.productRepo.GetProducts(1, limit, nil, nil, &recommend)
+	products, _, err := s.productRepo.GetProducts(1, limit, nil, nil, &recommend)
 	if err != nil {
 		return nil, err
+	}
+
+	productResponses = make([]*dto.ProductResponse, len(products))
+	for i, product := range products {
+		productResponses[i] = &dto.ProductResponse{
+			ID:             product.ID,
+			Name:           product.Name,
+			FloralLanguage: product.FloralLanguage,
+			Price:          product.Price,
+			MarketPrice:    product.MarketPrice,
+			SaleCount:      product.SaleCount,
+			StockCount:     product.StockCount,
+			CategoryID:     product.CategoryID,
+			SubCategoryID:  product.SubCategoryID,
+			Material:       product.Material,
+			Packing:        product.Packing,
+			ImageUrl:       product.ImageUrl,
+			Status:         product.Status,
+			Recommend:      product.Recommend,
+			SortOrder:      product.SortOrder,
+			ApplyUser:      product.ApplyUser,
+			CreatedAt:      product.CreatedAt,
+			UpdatedAt:      product.UpdatedAt,
+		}
 	}
 
 	// Cache for 1 minute
@@ -118,33 +165,57 @@ func (s *ProductService) GetRecommendProducts(limit int) ([]model.Product, error
 		fmt.Printf("Failed to cache recommend products: %v\n", err)
 	}
 
-	return products, nil
+	return productResponses, nil
 }
 
 // GetHotProducts gets hot products
-func (s *ProductService) GetHotProducts(limit int) ([]model.Product, error) {
+func (s *ProductService) GetHotProducts(limit int) ([]*dto.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:hot:limit:%d", limit)
 
 	// Try to get from cache
-	var products []model.Product
-	err := s.cacheService.GetObject(ctx, cacheKey, &products)
+	var productResponses []*dto.ProductResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &productResponses)
 	if err == nil {
-		return products, nil
+		return productResponses, nil
 	}
 
 	// If not in cache, get from database
 	hot := true
-	products, _, err = s.productRepo.GetProducts(1, limit, nil, &hot, nil)
+	products, _, err := s.productRepo.GetProducts(1, limit, nil, &hot, nil)
 	if err != nil {
 		return nil, err
 	}
 
+	productResponses = make([]*dto.ProductResponse, len(products))
+	for i, product := range products {
+		productResponses[i] = &dto.ProductResponse{
+			ID:             product.ID,
+			Name:           product.Name,
+			FloralLanguage: product.FloralLanguage,
+			Price:          product.Price,
+			MarketPrice:    product.MarketPrice,
+			SaleCount:      product.SaleCount,
+			StockCount:     product.StockCount,
+			CategoryID:     product.CategoryID,
+			SubCategoryID:  product.SubCategoryID,
+			Material:       product.Material,
+			Packing:        product.Packing,
+			ImageUrl:       product.ImageUrl,
+			Status:         product.Status,
+			Recommend:      product.Recommend,
+			SortOrder:      product.SortOrder,
+			ApplyUser:      product.ApplyUser,
+			CreatedAt:      product.CreatedAt,
+			UpdatedAt:      product.UpdatedAt,
+		}
+	}
+
 	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, products, 1*time.Minute)
+	err = s.cacheService.Set(ctx, cacheKey, productResponses, 1*time.Minute)
 	if err != nil {
 		fmt.Printf("Failed to cache hot products: %v\n", err)
 	}
 
-	return products, nil
+	return productResponses, nil
 }

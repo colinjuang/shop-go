@@ -12,11 +12,3 @@ type Category struct {
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
-
-type CategoryTree struct {
-	ID        uint64     `json:"id"`
-	Name      string     `json:"name"`
-	ImageUrl  string     `json:"imageUrl"`
-	SortOrder int        `json:"sortOrder"`
-	Children  []Category `json:"children"`
-}

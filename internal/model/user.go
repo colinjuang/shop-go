@@ -19,13 +19,3 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
-
-// UserUpdateInfo represents data used to update user information
-type UserUpdateInfo struct {
-	Nickname string `json:"nickname" binding:"required"`
-	Avatar   string `json:"avatar" binding:"required"`
-	Gender   int    `json:"gender" binding:"required"`
-	City     string `json:"city"`
-	Province string `json:"province"`
-	District string `json:"district"`
-}

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/colinjuang/shop-go/internal/dto"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -24,19 +26,19 @@ func NewAddressHandler() *AddressHandler {
 
 // CreateAddress creates a new address
 func (h *AddressHandler) CreateAddress(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	user := middleware.GetRequestUser(c)
+	if user == nil {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	var req model.AddressRequest
+	var req dto.AddressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	address, err := h.addressService.CreateAddress(userID.(uint64), req)
+	address, err := h.addressService.CreateAddress(user.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -101,7 +103,7 @@ func (h *AddressHandler) UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	var req model.AddressRequest
+	var req dto.AddressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return

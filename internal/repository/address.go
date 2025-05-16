@@ -15,8 +15,8 @@ func NewAddressRepository() *AddressRepository {
 // CreateAddress creates a new address
 func (r *AddressRepository) CreateAddress(address *model.Address) error {
 	// Set all other addresses as non-default if this one is default
-	if address.IsDefault {
-		DB.Model(&model.Address{}).Where("user_id = ?", address.UserID).Update("is_default", false)
+	if address.IsDefault == 1 {
+		DB.Model(&model.Address{}).Where("user_id = ?", address.UserID).Update("is_default", 0)
 	}
 
 	return DB.Create(address).Error
@@ -35,8 +35,8 @@ func (r *AddressRepository) GetAddressByID(id uint64) (*model.Address, error) {
 // UpdateAddress updates an address
 func (r *AddressRepository) UpdateAddress(address *model.Address) error {
 	// Set all other addresses as non-default if this one is default
-	if address.IsDefault {
-		DB.Model(&model.Address{}).Where("user_id = ? AND id != ?", address.UserID, address.ID).Update("is_default", false)
+	if address.IsDefault == 1 {
+		DB.Model(&model.Address{}).Where("user_id = ? AND id != ?", address.UserID, address.ID).Update("is_default", 0)
 	}
 
 	return DB.Save(address).Error

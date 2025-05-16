@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
+	"github.com/colinjuang/shop-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,14 +10,16 @@ import (
 // RegisterAddressApi registers all user and address related api
 func RegisterAddressApi(api *gin.RouterGroup) {
 	addressHandler := handler.NewAddressHandler()
+	auth := api.Use(middleware.AuthMiddleware())
+
 	// 添加地址
-	api.POST("/address/add", addressHandler.CreateAddress)
+	auth.POST("/address", addressHandler.CreateAddress)
 	// 获取地址列表
-	api.GET("/address/list", addressHandler.GetAddressList)
+	auth.GET("/address", addressHandler.GetAddressList)
 	// 获取地址详情
-	api.GET("/address/:id", addressHandler.GetAddressDetail)
+	auth.GET("/address/:id", addressHandler.GetAddressDetail)
 	// 更新地址
-	api.POST("/address/:id/update", addressHandler.UpdateAddress)
+	auth.PUT("/address/:id", addressHandler.UpdateAddress)
 	// 删除地址
-	api.GET("/address/:id/delete", addressHandler.DeleteAddress)
+	auth.DELETE("/address/:id", addressHandler.DeleteAddress)
 }

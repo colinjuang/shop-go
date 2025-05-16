@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
 )
@@ -20,16 +21,19 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress creates a new address
-func (s *AddressService) CreateAddress(userID uint64, req model.AddressRequest) (*model.Address, error) {
+func (s *AddressService) CreateAddress(userID uint64, req dto.AddressRequest) (*dto.AddressResponse, error) {
 	address := &model.Address{
-		UserID:     userID,
-		Name:       req.Name,
-		Phone:      req.Phone,
-		Province:   req.Province,
-		City:       req.City,
-		District:   req.District,
-		DetailAddr: req.DetailAddr,
-		IsDefault:  req.IsDefault,
+		UserID:       userID,
+		Name:         req.Name,
+		Phone:        req.Phone,
+		Province:     req.Province,
+		ProvinceCode: req.ProvinceCode,
+		City:         req.City,
+		CityCode:     req.CityCode,
+		District:     req.District,
+		DistrictCode: req.DistrictCode,
+		DetailAddr:   req.DetailAddr,
+		IsDefault:    req.IsDefault,
 	}
 
 	err := s.addressRepo.CreateAddress(address)
@@ -37,7 +41,20 @@ func (s *AddressService) CreateAddress(userID uint64, req model.AddressRequest) 
 		return nil, err
 	}
 
-	return address, nil
+	return &dto.AddressResponse{
+		ID:           address.ID,
+		Phone:        address.Phone,
+		Name:         address.Name,
+		City:         address.City,
+		CityCode:     address.CityCode,
+		Province:     address.Province,
+		ProvinceCode: address.ProvinceCode,
+		District:     address.District,
+		DistrictCode: address.DistrictCode,
+		DetailAddr:   address.DetailAddr,
+		FullAddr:     address.Province + address.City + address.District + address.DetailAddr,
+		IsDefault:    address.IsDefault,
+	}, nil
 }
 
 // GetAddressByID gets an address by ID
@@ -56,7 +73,7 @@ func (s *AddressService) GetAddressByID(id uint64, userID uint64) (*model.Addres
 }
 
 // UpdateAddress updates an address
-func (s *AddressService) UpdateAddress(id uint64, userID uint64, req model.AddressRequest) error {
+func (s *AddressService) UpdateAddress(id uint64, userID uint64, req dto.AddressRequest) error {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
@@ -71,8 +88,11 @@ func (s *AddressService) UpdateAddress(id uint64, userID uint64, req model.Addre
 	address.Name = req.Name
 	address.Phone = req.Phone
 	address.Province = req.Province
+	address.ProvinceCode = req.ProvinceCode
 	address.City = req.City
+	address.CityCode = req.CityCode
 	address.District = req.District
+	address.DistrictCode = req.DistrictCode
 	address.DetailAddr = req.DetailAddr
 	address.IsDefault = req.IsDefault
 

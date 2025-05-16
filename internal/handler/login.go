@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/golang-jwt/jwt/v4"
@@ -23,19 +24,22 @@ func NewLoginHandler() *LoginHandler {
 }
 
 func (h *LoginHandler) Login(c *gin.Context) {
-	// username and password
-	username := c.Query("username")
-	password := c.Query("password")
+	var loginRequest dto.UserLoginRequest
+
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
+		return
+	}
 
 	// check if username and password are correct
-	user, err := h.userService.GetUserByUsername(username)
+	user, err := h.userService.GetUserByUsername(loginRequest.Username)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Invalid username or password"))
 		return
 	}
 
 	// check if password is correct
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Invalid username or password"))
 		return
 	}
@@ -60,19 +64,15 @@ func (h *LoginHandler) Login(c *gin.Context) {
 }
 
 func (h *LoginHandler) Register(c *gin.Context) {
-	// json body
-	var json struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var userRegisterRequest dto.UserRegisterRequest
 
-	if err := c.ShouldBindJSON(&json); err != nil {
+	if err := c.ShouldBindJSON(&userRegisterRequest); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	// check if username already exists
-	user, err := h.userService.GetUserByUsername(json.Username)
+	user, err := h.userService.GetUserByUsername(userRegisterRequest.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, "Failed to get user"))
 		return
@@ -85,7 +85,7 @@ func (h *LoginHandler) Register(c *gin.Context) {
 	}
 
 	// hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(json.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userRegisterRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, "Failed to hash password"))
 		return
@@ -93,9 +93,11 @@ func (h *LoginHandler) Register(c *gin.Context) {
 
 	// create user
 	user = &model.User{
-		Username: json.Username,
+		Username: userRegisterRequest.Username,
 		Password: string(hashedPassword),
-		OpenID:   "",
+		Nickname: userRegisterRequest.Nickname,
+		Avatar:   userRegisterRequest.Avatar,
+		Gender:   userRegisterRequest.Gender,
 	}
 
 	// save user

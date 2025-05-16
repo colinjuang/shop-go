@@ -20,9 +20,9 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress creates a new address
-func (s *AddressService) CreateAddress(userId uint, req model.AddressRequest) (*model.Address, error) {
+func (s *AddressService) CreateAddress(userID uint, req model.AddressRequest) (*model.Address, error) {
 	address := &model.Address{
-		UserId:     userId,
+		UserID:     userID,
 		Name:       req.Name,
 		Phone:      req.Phone,
 		Province:   req.Province,
@@ -41,14 +41,14 @@ func (s *AddressService) CreateAddress(userId uint, req model.AddressRequest) (*
 }
 
 // GetAddressByID gets an address by ID
-func (s *AddressService) GetAddressByID(id uint, userId uint) (*model.Address, error) {
+func (s *AddressService) GetAddressByID(id uint, userID uint) (*model.Address, error) {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserId != userId {
+	if address.UserID != userID {
 		return nil, errors.New("address not found")
 	}
 
@@ -56,14 +56,14 @@ func (s *AddressService) GetAddressByID(id uint, userId uint) (*model.Address, e
 }
 
 // UpdateAddress updates an address
-func (s *AddressService) UpdateAddress(id uint, userId uint, req model.AddressRequest) error {
+func (s *AddressService) UpdateAddress(id uint, userID uint, req model.AddressRequest) error {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserId != userId {
+	if address.UserID != userID {
 		return errors.New("address not found")
 	}
 
@@ -80,26 +80,26 @@ func (s *AddressService) UpdateAddress(id uint, userId uint, req model.AddressRe
 }
 
 // DeleteAddress deletes an address
-func (s *AddressService) DeleteAddress(id uint, userId uint) error {
+func (s *AddressService) DeleteAddress(id uint, userID uint) error {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserId != userId {
+	if address.UserID != userID {
 		return errors.New("address not found")
 	}
 
 	return s.addressRepo.DeleteAddress(id)
 }
 
-// GetAddressesByUserId gets all addresses for a user
-func (s *AddressService) GetAddressesByUserId(userId uint) ([]model.Address, error) {
-	return s.addressRepo.GetAddressesByUserId(userId)
+// GetAddressesByUserID gets all addresses for a user
+func (s *AddressService) GetAddressesByUserID(userID uint) ([]model.Address, error) {
+	return s.addressRepo.GetAddressesByUserID(userID)
 }
 
-// GetDefaultAddressByUserId gets the default address for a user
-func (s *AddressService) GetDefaultAddressByUserId(userId uint) (*model.Address, error) {
-	return s.addressRepo.GetDefaultAddressByUserId(userId)
+// GetDefaultAddressByUserID gets the default address for a user
+func (s *AddressService) GetDefaultAddressByUserID(userID uint) (*model.Address, error) {
+	return s.addressRepo.GetDefaultAddressByUserID(userID)
 }

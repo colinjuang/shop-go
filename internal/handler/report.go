@@ -54,8 +54,8 @@ func (h *ReportHandler) GetProductCatalog(c *gin.Context) {
 // GetOrderInvoice generates and returns a PDF invoice for an order
 func (h *ReportHandler) GetOrderInvoice(c *gin.Context) {
 	// Get user ID from context
-	userId, _ := c.Get("user_id")
-	uid := userId.(uint)
+	userID, _ := c.Get("user_id")
+	uid := userID.(uint)
 
 	// Get order ID from query
 	idStr := c.Param("id")

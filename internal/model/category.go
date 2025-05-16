@@ -6,7 +6,7 @@ import "time"
 type Category struct {
 	ID        uint      `json:"id" gorm:"column:id;primaryKey"`
 	Name      string    `json:"name" gorm:"column:name;not null"`
-	ParentId  uint      `json:"parentId" gorm:"column:parent_id;index"`
+	ParentID  uint      `json:"parentID" gorm:"column:parent_id;index"`
 	ImageUrl  string    `json:"imageUrl" gorm:"column:image_url"`
 	SortOrder int       `json:"sortOrder" gorm:"column:sort_order;default:0"`
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`

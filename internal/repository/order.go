@@ -19,7 +19,7 @@ func NewOrderRepository() *OrderRepository {
 func (r *OrderRepository) CreateOrder(order *model.Order) error {
 	// Generate order number
 	now := time.Now()
-	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserId)
+	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
 
 	return DB.Create(order).Error
 }
@@ -58,12 +58,12 @@ func (r *OrderRepository) UpdateOrderStatus(id uint, status int) error {
 	return DB.Model(&model.Order{}).Where("id = ?", id).Updates(updates).Error
 }
 
-// GetOrdersByUserId gets orders for a user with pagination
-func (r *OrderRepository) GetOrdersByUserId(userId uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
+// GetOrdersByUserID gets orders for a user with pagination
+func (r *OrderRepository) GetOrdersByUserID(userID uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
 	var orders []model.Order
 	var count int64
 
-	query := DB.Model(&model.Order{}).Where("user_id = ?", userId)
+	query := DB.Model(&model.Order{}).Where("user_id = ?", userID)
 
 	// Apply status filter if provided
 	if status != nil {

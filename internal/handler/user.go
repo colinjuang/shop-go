@@ -25,20 +25,20 @@ func NewUserHandler() *UserHandler {
 
 // GetUserInfo gets the current user's information
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	userIdStr := c.Query("userId")
-	fmt.Println("userId", userIdStr)
-	if userIdStr == "" {
+	userIDStr := c.Query("userID")
+	fmt.Println("userID", userIDStr)
+	if userIDStr == "" {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 64)
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid user ID"))
 		return
 	}
 
-	user, err := h.userService.GetUserByID(uint(userId))
+	user, err := h.userService.GetUserByID(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -49,7 +49,7 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 
 // UpdateUserInfo updates the current user's information
 func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -61,7 +61,7 @@ func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
-	err := h.userService.UpdateUser(userId.(uint), updateInfo)
+	err := h.userService.UpdateUser(userID.(uint), updateInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

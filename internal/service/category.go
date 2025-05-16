@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"time"
 )
 
 // CategoryService handles business logic for categories
@@ -101,7 +102,7 @@ func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
 
 	// First pass: create all tree nodes
 	for _, category := range categories {
-		if category.ParentId == 0 {
+		if category.ParentID == 0 {
 			node := &model.CategoryTree{
 				ID:        category.ID,
 				Name:      category.Name,
@@ -116,8 +117,8 @@ func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
 
 	// Second pass: add children using the map for O(1) parent lookup
 	for _, category := range categories {
-		if category.ParentId != 0 {
-			if parent, exists := treeMap[category.ParentId]; exists {
+		if category.ParentID != 0 {
+			if parent, exists := treeMap[category.ParentID]; exists {
 				parent.Children = append(parent.Children, category)
 			}
 		}

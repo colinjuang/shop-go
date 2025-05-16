@@ -7,7 +7,7 @@ import (
 // Address represents a shipping address
 type Address struct {
 	ID         uint      `json:"id" gorm:"column:id;primaryKey"`
-	UserId     uint      `json:"user_id" gorm:"column:user_id;index"`
+	UserID     uint      `json:"user_id" gorm:"column:user_id;index"`
 	Name       string    `json:"name" gorm:"column:name;not null"`
 	Phone      string    `json:"phone" gorm:"column:phone;not null"`
 	Province   string    `json:"province" gorm:"column:province;not null"`

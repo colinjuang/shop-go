@@ -42,8 +42,8 @@ func (h *LoginHandler) Login(c *gin.Context) {
 
 	// generate token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": user.ID,
-		"openId": user.OpenID,
+		"userID": user.ID,
+		"openID": user.OpenID,
 		"exp":    time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -95,7 +95,7 @@ func (h *LoginHandler) Register(c *gin.Context) {
 	user = &model.User{
 		Username: json.Username,
 		Password: string(hashedPassword),
-		OpenID: ""
+		OpenID:   "",
 	}
 
 	// save user

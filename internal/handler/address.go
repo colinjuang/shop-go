@@ -24,7 +24,7 @@ func NewAddressHandler() *AddressHandler {
 
 // CreateAddress creates a new address
 func (h *AddressHandler) CreateAddress(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -36,7 +36,7 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.CreateAddress(userId.(uint), req)
+	address, err := h.addressService.CreateAddress(userID.(uint), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -47,13 +47,13 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 
 // GetAddressList gets all addresses for a user
 func (h *AddressHandler) GetAddressList(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	addresses, err := h.addressService.GetAddressesByUserId(userId.(uint))
+	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -64,7 +64,7 @@ func (h *AddressHandler) GetAddressList(c *gin.Context) {
 
 // GetAddressDetail gets an address by ID
 func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -77,7 +77,7 @@ func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.GetAddressByID(uint(id), userId.(uint))
+	address, err := h.addressService.GetAddressByID(uint(id), userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -88,7 +88,7 @@ func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
 
 // UpdateAddress updates an address
 func (h *AddressHandler) UpdateAddress(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -107,7 +107,7 @@ func (h *AddressHandler) UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	err = h.addressService.UpdateAddress(uint(id), userId.(uint), req)
+	err = h.addressService.UpdateAddress(uint(id), userID.(uint), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -118,7 +118,7 @@ func (h *AddressHandler) UpdateAddress(c *gin.Context) {
 
 // DeleteAddress deletes an address
 func (h *AddressHandler) DeleteAddress(c *gin.Context) {
-	userId, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
@@ -131,7 +131,7 @@ func (h *AddressHandler) DeleteAddress(c *gin.Context) {
 		return
 	}
 
-	err = h.addressService.DeleteAddress(uint(id), userId.(uint))
+	err = h.addressService.DeleteAddress(uint(id), userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

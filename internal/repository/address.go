@@ -16,7 +16,7 @@ func NewAddressRepository() *AddressRepository {
 func (r *AddressRepository) CreateAddress(address *model.Address) error {
 	// Set all other addresses as non-default if this one is default
 	if address.IsDefault {
-		DB.Model(&model.Address{}).Where("user_id = ?", address.UserId).Update("is_default", false)
+		DB.Model(&model.Address{}).Where("user_id = ?", address.UserID).Update("is_default", false)
 	}
 
 	return DB.Create(address).Error
@@ -36,7 +36,7 @@ func (r *AddressRepository) GetAddressByID(id uint) (*model.Address, error) {
 func (r *AddressRepository) UpdateAddress(address *model.Address) error {
 	// Set all other addresses as non-default if this one is default
 	if address.IsDefault {
-		DB.Model(&model.Address{}).Where("user_id = ? AND id != ?", address.UserId, address.ID).Update("is_default", false)
+		DB.Model(&model.Address{}).Where("user_id = ? AND id != ?", address.UserID, address.ID).Update("is_default", false)
 	}
 
 	return DB.Save(address).Error
@@ -47,20 +47,20 @@ func (r *AddressRepository) DeleteAddress(id uint) error {
 	return DB.Delete(&model.Address{}, id).Error
 }
 
-// GetAddressesByUserId gets all addresses for a user
-func (r *AddressRepository) GetAddressesByUserId(userId uint) ([]model.Address, error) {
+// GetAddressesByUserID gets all addresses for a user
+func (r *AddressRepository) GetAddressesByUserID(userID uint) ([]model.Address, error) {
 	var addresses []model.Address
-	result := DB.Where("user_id = ?", userId).Find(&addresses)
+	result := DB.Where("user_id = ?", userID).Find(&addresses)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return addresses, nil
 }
 
-// GetDefaultAddressByUserId gets the default address for a user
-func (r *AddressRepository) GetDefaultAddressByUserId(userId uint) (*model.Address, error) {
+// GetDefaultAddressByUserID gets the default address for a user
+func (r *AddressRepository) GetDefaultAddressByUserID(userID uint) (*model.Address, error) {
 	var address model.Address
-	result := DB.Where("user_id = ? AND is_default = ?", userId, true).First(&address)
+	result := DB.Where("user_id = ? AND is_default = ?", userID, true).First(&address)
 	if result.Error != nil {
 		return nil, result.Error
 	}

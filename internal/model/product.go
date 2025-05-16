@@ -13,8 +13,8 @@ type Product struct {
 	MarketPrice    float64   `json:"marketPrice" gorm:"column:market_price;type:decimal(10,2)"`
 	SaleCount      int       `json:"saleCount" gorm:"column:sale_count;default:0"`
 	StockCount     int       `json:"stockCount" gorm:"column:stock_count;default:0"`
-	CategoryID     uint      `json:"categoryId" gorm:"column:category_id;index"`
-	SubCategoryID  uint      `json:"subCategoryId" gorm:"column:sub_category_id;index"`
+	CategoryID     uint      `json:"categoryID" gorm:"column:category_id;index"`
+	SubCategoryID  uint      `json:"subCategoryID" gorm:"column:sub_category_id;index"`
 	Material       string    `json:"material" gorm:"column:material"`
 	Packing        string    `json:"packing" gorm:"column:packing"`
 	ImageUrl       string    `json:"imageUrl" gorm:"column:image_url"`

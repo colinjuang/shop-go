@@ -4,11 +4,9 @@ import (
 	"fmt"
 
 	"github.com/colinjuang/shop-go/internal/config"
-	"github.com/colinjuang/shop-go/internal/pkg/logger"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -23,19 +21,15 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		cfg.Database.DBName,
 	)
 
-	var logLevel gormlogger.LogLevel
+	var logLevel logger.LogLevel
 	if cfg.Server.Environment == "development" {
-		logLevel = gormlogger.Info
+		logLevel = logger.Info
 	} else {
-		logLevel = gormlogger.Error
+		logLevel = logger.Error
 	}
 
-	// Create custom GORM logger that uses zap
-	gormLogger := logger.NewGormLogger()
-	gormLogger.LogLevel = logLevel
-
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: gormLogger,
+		Logger: logger.Default.LogMode(logLevel),
 	})
 	if err != nil {
 		return nil, err

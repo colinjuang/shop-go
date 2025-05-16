@@ -32,7 +32,7 @@ func NewOrderService() *OrderService {
 }
 
 // GetOrderDetail gets order details for checkout
-func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *uint, quantity *int) (float64, []model.CartItem, error) {
+func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID *uint64, quantity *int) (float64, []model.CartItem, error) {
 	var cartItems []model.CartItem
 	var err error
 
@@ -86,7 +86,7 @@ func (s *OrderService) GetOrderDetail(userID uint, cartIDs []uint, productID *ui
 }
 
 // CreateOrder creates a new order
-func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.Order, error) {
+func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*model.Order, error) {
 	ctx := context.Background()
 
 	// Create a lock key for this order creation
@@ -193,7 +193,7 @@ func (s *OrderService) CreateOrder(userID uint, req model.OrderRequest) (*model.
 }
 
 // GetOrderByID gets an order by ID
-func (s *OrderService) GetOrderByID(id uint, userID uint) (*model.Order, error) {
+func (s *OrderService) GetOrderByID(id uint64, userID uint64) (*model.Order, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("order:%d", id)
 
@@ -222,7 +222,7 @@ func (s *OrderService) GetOrderByID(id uint, userID uint) (*model.Order, error) 
 }
 
 // GetOrderByOrderNo gets an order by order number
-func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint) (*model.Order, error) {
+func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint64) (*model.Order, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("order:no:%s", orderNo)
 
@@ -251,7 +251,7 @@ func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint) (*model.Or
 }
 
 // UpdateOrderStatus updates the status of an order
-func (s *OrderService) UpdateOrderStatus(id uint, userID uint, status int) error {
+func (s *OrderService) UpdateOrderStatus(id uint64, userID uint64, status int) error {
 	ctx := context.Background()
 
 	order, err := s.GetOrderByID(id, userID)
@@ -280,7 +280,7 @@ func (s *OrderService) UpdateOrderStatus(id uint, userID uint, status int) error
 }
 
 // GetOrdersByUserID gets orders for a user with pagination
-func (s *OrderService) GetOrdersByUserID(userID uint, page, pageSize int, status *int) (*model.Pagination, error) {
+func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, status *int) (*model.Pagination, error) {
 	ctx := context.Background()
 
 	// Generate cache key

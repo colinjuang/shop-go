@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,23 +14,41 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// JWTClaims represents JWT claims
-type JWTClaims struct {
-	UserID uint `json:"user_id"`
+const (
+	RequestUserKey = "REQUEST-USER-INFO"
+)
+
+type UserClaim struct {
+	UserID   uint64 `json:"user_id"`
+	Username string `json:"username"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Gender   int    `json:"gender"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+	Country  string `json:"country"`
+}
+
+// AuthClaims represents JWT claims
+type AuthClaims struct {
+	AnyJson string `json:"any_json"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken generates a JWT token
-func GenerateToken(userID uint) (string, error) {
+func GenerateToken(obj any) (string, error) {
 	cfg := config.GetConfig()
-
+	anyJson, err := json.Marshal(obj)
+	if err != nil {
+		return "", err
+	}
 	// Set claims
-	claims := JWTClaims{
-		UserID: userID,
+	claims := AuthClaims{
+		AnyJson: string(anyJson),
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(cfg.JWT.ExpiresIn))),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(cfg.JWT.ExpiresIn))), // 过期时间
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                                                   // 签发时间
+			NotBefore: jwt.NewNumericDate(time.Now()),                                                   // 生效时间
 		},
 	}
 
@@ -46,11 +65,11 @@ func GenerateToken(userID uint) (string, error) {
 }
 
 // ParseToken parses and validates a JWT token
-func ParseToken(tokenString string) (*JWTClaims, error) {
+func ParseToken(tokenString string) (*AuthClaims, error) {
 	cfg := config.GetConfig()
 
 	// Parse token
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Validate signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -63,7 +82,7 @@ func ParseToken(tokenString string) (*JWTClaims, error) {
 	}
 
 	// Extract claims
-	if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*AuthClaims); ok && token.Valid {
 		return claims, nil
 	}
 
@@ -74,7 +93,7 @@ func ParseToken(tokenString string) (*JWTClaims, error) {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the Authorization header
-		authHeader := c.GetHeader("token")
+		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(401, model.ErrorResponse(401, "Missing token"))
 			c.Abort()
@@ -96,8 +115,28 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set user ID in context
-		c.Set("userID", claims.UserID)
+		var user UserClaim
+		err = json.Unmarshal([]byte(claims.AnyJson), &user)
+		if err != nil {
+			c.JSON(401, model.ErrorResponse(401, "Invalid token"))
+			c.Abort()
+			return
+		}
+		SetRequestUser(c, &user)
 		c.Next()
 	}
+}
+
+// SetRequestUser 设置请求用户到上下文
+func SetRequestUser(c *gin.Context, user *UserClaim) {
+	c.Set(RequestUserKey, user)
+}
+
+// GetRequestUser 获取请求用户
+func GetRequestUser(c *gin.Context) *UserClaim {
+	user, ok := c.Get(RequestUserKey)
+	if !ok {
+		return nil
+	}
+	return user.(*UserClaim)
 }

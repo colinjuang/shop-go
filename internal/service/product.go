@@ -25,7 +25,7 @@ func NewProductService() *ProductService {
 }
 
 // GetProductByID gets a product by ID
-func (s *ProductService) GetProductByID(id uint) (*model.Product, error) {
+func (s *ProductService) GetProductByID(id uint64) (*model.Product, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("product:%d", id)
 
@@ -53,7 +53,7 @@ func (s *ProductService) GetProductByID(id uint) (*model.Product, error) {
 }
 
 // GetProducts gets products with pagination
-func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint, hot, recommend *bool) (*model.Pagination, error) {
+func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot, recommend *bool) (*model.Pagination, error) {
 	ctx := context.Background()
 
 	// Generate cache key based on filters

@@ -33,9 +33,9 @@ func (r *UserRepository) UpdateUser(user *model.User) error {
 }
 
 // GetUserByID gets a user by ID
-func (r *UserRepository) GetUserByID(id uint) (*model.User, error) {
+func (r *UserRepository) GetUserByID(id uint64) (*model.User, error) {
 	var user model.User
-	result := DB.First(&user, id)
+	result := DB.First(&user, "id = ?", id)
 	if result.Error != nil {
 		return nil, result.Error
 	}

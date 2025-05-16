@@ -20,7 +20,7 @@ func NewCartService() *CartService {
 }
 
 // AddToCart adds a product to the cart
-func (s *CartService) AddToCart(userID, productID uint, quantity int) error {
+func (s *CartService) AddToCart(userID uint64, productID uint64, quantity int) error {
 	// Check if the product exists
 	product, err := s.productRepo.GetProductByID(productID)
 	if err != nil {
@@ -36,7 +36,7 @@ func (s *CartService) AddToCart(userID, productID uint, quantity int) error {
 }
 
 // GetCartItems gets all cart items for a user
-func (s *CartService) GetCartItems(userID uint) ([]model.CartItemResponse, error) {
+func (s *CartService) GetCartItems(userID uint64) ([]model.CartItemResponse, error) {
 	cartItems, err := s.cartRepo.GetCartItems(userID)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (s *CartService) GetCartItems(userID uint) ([]model.CartItemResponse, error
 }
 
 // UpdateCartItemStatus updates the status of a cart item
-func (s *CartService) UpdateCartItemStatus(id uint, userID uint, selected bool) error {
+func (s *CartService) UpdateCartItemStatus(id uint64, userID uint64, selected bool) error {
 	// Check if the cart item belongs to the user
 	cartItems, err := s.cartRepo.GetCartItems(userID)
 	if err != nil {
@@ -78,12 +78,12 @@ func (s *CartService) UpdateCartItemStatus(id uint, userID uint, selected bool) 
 }
 
 // UpdateAllCartItemStatus updates the status of all cart items for a user
-func (s *CartService) UpdateAllCartItemStatus(userID uint, selected bool) error {
+func (s *CartService) UpdateAllCartItemStatus(userID uint64, selected bool) error {
 	return s.cartRepo.UpdateAllCartItemStatus(userID, selected)
 }
 
 // DeleteCartItem deletes a cart item
-func (s *CartService) DeleteCartItem(id uint, userID uint) error {
+func (s *CartService) DeleteCartItem(id uint64, userID uint64) error {
 	// Check if the cart item belongs to the user
 	cartItems, err := s.cartRepo.GetCartItems(userID)
 	if err != nil {

@@ -98,7 +98,7 @@ func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
 	}
 
 	// Create a map for quick lookup
-	treeMap := make(map[uint]*model.CategoryTree)
+	treeMap := make(map[uint64]*model.CategoryTree)
 
 	// First pass: create all tree nodes
 	for _, category := range categories {

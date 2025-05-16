@@ -23,9 +23,9 @@ func (r *AddressRepository) CreateAddress(address *model.Address) error {
 }
 
 // GetAddressByID gets an address by ID
-func (r *AddressRepository) GetAddressByID(id uint) (*model.Address, error) {
+func (r *AddressRepository) GetAddressByID(id uint64) (*model.Address, error) {
 	var address model.Address
-	result := DB.First(&address, id)
+	result := DB.First(&address, "id = ?", id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -43,12 +43,12 @@ func (r *AddressRepository) UpdateAddress(address *model.Address) error {
 }
 
 // DeleteAddress deletes an address
-func (r *AddressRepository) DeleteAddress(id uint) error {
-	return DB.Delete(&model.Address{}, id).Error
+func (r *AddressRepository) DeleteAddress(id uint64) error {
+	return DB.Delete(&model.Address{}, "id = ?", id).Error
 }
 
 // GetAddressesByUserID gets all addresses for a user
-func (r *AddressRepository) GetAddressesByUserID(userID uint) ([]model.Address, error) {
+func (r *AddressRepository) GetAddressesByUserID(userID uint64) ([]model.Address, error) {
 	var addresses []model.Address
 	result := DB.Where("user_id = ?", userID).Find(&addresses)
 	if result.Error != nil {
@@ -58,7 +58,7 @@ func (r *AddressRepository) GetAddressesByUserID(userID uint) ([]model.Address, 
 }
 
 // GetDefaultAddressByUserID gets the default address for a user
-func (r *AddressRepository) GetDefaultAddressByUserID(userID uint) (*model.Address, error) {
+func (r *AddressRepository) GetDefaultAddressByUserID(userID uint64) (*model.Address, error) {
 	var address model.Address
 	result := DB.Where("user_id = ? AND is_default = ?", userID, true).First(&address)
 	if result.Error != nil {

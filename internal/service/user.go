@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"time"
 
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -44,7 +46,9 @@ func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender in
 	}
 
 	// Generate JWT token
-	token, err := middleware.GenerateToken(user.ID)
+	token, err := middleware.GenerateToken(middleware.UserClaim{
+		UserID: user.ID,
+	})
 	if err != nil {
 		return "", err
 	}
@@ -53,12 +57,29 @@ func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender in
 }
 
 // GetUserByID gets a user by ID
-func (s *UserService) GetUserByID(id uint) (*model.User, error) {
-	return s.userRepo.GetUserByID(id)
+func (s *UserService) GetUserByID(id uint64) (*dto.UserResponse, error) {
+	user, err := s.userRepo.GetUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		OpenID:    user.OpenID,
+		Nickname:  user.Nickname,
+		AvatarURL: user.Avatar,
+		Gender:    user.Gender,
+		City:      user.City,
+		Province:  user.Province,
+		Country:   user.Country,
+		CreatedAt: user.CreatedAt.Format(time.DateTime),
+		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
+	}, nil
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(id uint, updateInfo model.UserUpdateInfo) error {
+func (s *UserService) UpdateUser(id uint64, updateInfo model.UserUpdateInfo) error {
 	user, err := s.userRepo.GetUserByID(id)
 	if err != nil {
 		return err

@@ -6,15 +6,15 @@ import (
 
 // Product represents a product
 type Product struct {
-	ID             uint      `json:"id" gorm:"column:id;primaryKey"`
+	ID             uint64    `json:"id" gorm:"column:id;primaryKey"`
 	Name           string    `json:"name" gorm:"column:name;not null"`
 	FloralLanguage string    `json:"floralLanguage" gorm:"column:floral_language"`
 	Price          float64   `json:"price" gorm:"column:price;type:decimal(10,2)"`
 	MarketPrice    float64   `json:"marketPrice" gorm:"column:market_price;type:decimal(10,2)"`
 	SaleCount      int       `json:"saleCount" gorm:"column:sale_count;default:0"`
 	StockCount     int       `json:"stockCount" gorm:"column:stock_count;default:0"`
-	CategoryID     uint      `json:"categoryID" gorm:"column:category_id;index"`
-	SubCategoryID  uint      `json:"subCategoryID" gorm:"column:sub_category_id;index"`
+	CategoryID     uint64    `json:"categoryID" gorm:"column:category_id;index"`
+	SubCategoryID  uint64    `json:"subCategoryID" gorm:"column:sub_category_id;index"`
 	Material       string    `json:"material" gorm:"column:material"`
 	Packing        string    `json:"packing" gorm:"column:packing"`
 	ImageUrl       string    `json:"imageUrl" gorm:"column:image_url"`

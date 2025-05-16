@@ -13,7 +13,7 @@ func NewCartRepository() *CartRepository {
 }
 
 // AddToCart adds a product to the cart
-func (r *CartRepository) AddToCart(userID, productID uint, quantity int) error {
+func (r *CartRepository) AddToCart(userID uint64, productID uint64, quantity int) error {
 	// Check if the product exists in the cart
 	var existingItem model.CartItem
 	result := DB.Where("user_id = ? AND product_id = ?", userID, productID).First(&existingItem)
@@ -36,7 +36,7 @@ func (r *CartRepository) AddToCart(userID, productID uint, quantity int) error {
 }
 
 // GetCartItems gets all cart items for a user
-func (r *CartRepository) GetCartItems(userID uint) ([]model.CartItem, error) {
+func (r *CartRepository) GetCartItems(userID uint64) ([]model.CartItem, error) {
 	var cartItems []model.CartItem
 	result := DB.Where("user_id = ?", userID).Preload("Product").Find(&cartItems)
 	if result.Error != nil {
@@ -46,22 +46,22 @@ func (r *CartRepository) GetCartItems(userID uint) ([]model.CartItem, error) {
 }
 
 // UpdateCartItemStatus updates the status of a cart item
-func (r *CartRepository) UpdateCartItemStatus(id uint, selected bool) error {
+func (r *CartRepository) UpdateCartItemStatus(id uint64, selected bool) error {
 	return DB.Model(&model.CartItem{}).Where("id = ?", id).Update("selected", selected).Error
 }
 
 // UpdateAllCartItemStatus updates the status of all cart items for a user
-func (r *CartRepository) UpdateAllCartItemStatus(userID uint, selected bool) error {
+func (r *CartRepository) UpdateAllCartItemStatus(userID uint64, selected bool) error {
 	return DB.Model(&model.CartItem{}).Where("user_id = ?", userID).Update("selected", selected).Error
 }
 
 // DeleteCartItem deletes a cart item
-func (r *CartRepository) DeleteCartItem(id uint) error {
-	return DB.Delete(&model.CartItem{}, id).Error
+func (r *CartRepository) DeleteCartItem(id uint64) error {
+	return DB.Delete(&model.CartItem{}, "id = ?", id).Error
 }
 
 // GetCartItemsByIDs gets cart items by IDs
-func (r *CartRepository) GetCartItemsByIDs(ids []uint) ([]model.CartItem, error) {
+func (r *CartRepository) GetCartItemsByIDs(ids []uint64) ([]model.CartItem, error) {
 	var cartItems []model.CartItem
 	result := DB.Where("id IN ?", ids).Preload("Product").Find(&cartItems)
 	if result.Error != nil {
@@ -71,7 +71,7 @@ func (r *CartRepository) GetCartItemsByIDs(ids []uint) ([]model.CartItem, error)
 }
 
 // GetSelectedCartItems gets selected cart items for a user
-func (r *CartRepository) GetSelectedCartItems(userID uint) ([]model.CartItem, error) {
+func (r *CartRepository) GetSelectedCartItems(userID uint64) ([]model.CartItem, error) {
 	var cartItems []model.CartItem
 	result := DB.Where("user_id = ? AND selected = ?", userID, true).Preload("Product").Find(&cartItems)
 	if result.Error != nil {

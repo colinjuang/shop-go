@@ -20,7 +20,7 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress creates a new address
-func (s *AddressService) CreateAddress(userID uint, req model.AddressRequest) (*model.Address, error) {
+func (s *AddressService) CreateAddress(userID uint64, req model.AddressRequest) (*model.Address, error) {
 	address := &model.Address{
 		UserID:     userID,
 		Name:       req.Name,
@@ -41,7 +41,7 @@ func (s *AddressService) CreateAddress(userID uint, req model.AddressRequest) (*
 }
 
 // GetAddressByID gets an address by ID
-func (s *AddressService) GetAddressByID(id uint, userID uint) (*model.Address, error) {
+func (s *AddressService) GetAddressByID(id uint64, userID uint64) (*model.Address, error) {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (s *AddressService) GetAddressByID(id uint, userID uint) (*model.Address, e
 }
 
 // UpdateAddress updates an address
-func (s *AddressService) UpdateAddress(id uint, userID uint, req model.AddressRequest) error {
+func (s *AddressService) UpdateAddress(id uint64, userID uint64, req model.AddressRequest) error {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (s *AddressService) UpdateAddress(id uint, userID uint, req model.AddressRe
 }
 
 // DeleteAddress deletes an address
-func (s *AddressService) DeleteAddress(id uint, userID uint) error {
+func (s *AddressService) DeleteAddress(id uint64, userID uint64) error {
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
@@ -95,11 +95,11 @@ func (s *AddressService) DeleteAddress(id uint, userID uint) error {
 }
 
 // GetAddressesByUserID gets all addresses for a user
-func (s *AddressService) GetAddressesByUserID(userID uint) ([]model.Address, error) {
+func (s *AddressService) GetAddressesByUserID(userID uint64) ([]model.Address, error) {
 	return s.addressRepo.GetAddressesByUserID(userID)
 }
 
 // GetDefaultAddressByUserID gets the default address for a user
-func (s *AddressService) GetDefaultAddressByUserID(userID uint) (*model.Address, error) {
+func (s *AddressService) GetDefaultAddressByUserID(userID uint64) (*model.Address, error) {
 	return s.addressRepo.GetDefaultAddressByUserID(userID)
 }

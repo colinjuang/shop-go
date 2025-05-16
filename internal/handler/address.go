@@ -36,7 +36,7 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.CreateAddress(userID.(uint), req)
+	address, err := h.addressService.CreateAddress(userID.(uint64), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -53,7 +53,7 @@ func (h *AddressHandler) GetAddressList(c *gin.Context) {
 		return
 	}
 
-	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint))
+	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -77,7 +77,7 @@ func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.GetAddressByID(uint(id), userID.(uint))
+	address, err := h.addressService.GetAddressByID(id, userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -107,7 +107,7 @@ func (h *AddressHandler) UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	err = h.addressService.UpdateAddress(uint(id), userID.(uint), req)
+	err = h.addressService.UpdateAddress(id, userID.(uint64), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -131,7 +131,7 @@ func (h *AddressHandler) DeleteAddress(c *gin.Context) {
 		return
 	}
 
-	err = h.addressService.DeleteAddress(uint(id), userID.(uint))
+	err = h.addressService.DeleteAddress(id, userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

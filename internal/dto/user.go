@@ -43,12 +43,15 @@ type UserUpdateRequest struct {
 
 // UserResponse 用户信息响应（不含敏感信息）
 type UserResponse struct {
-	ID        uint   `json:"id"`
+	ID        uint64 `json:"id"`
+	Username  string `json:"username"`
+	OpenID    string `json:"open_id"`
 	Nickname  string `json:"nickname"`
 	AvatarURL string `json:"avatar_url"`
 	Gender    int    `json:"gender"`
-	Phone     string `json:"phone,omitempty"`
-	Email     string `json:"email,omitempty"`
+	City      string `json:"city"`
+	Province  string `json:"province"`
+	Country   string `json:"country"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }

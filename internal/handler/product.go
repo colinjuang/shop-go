@@ -2,9 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,7 @@ func (h *ProductHandler) GetProductDetail(c *gin.Context) {
 		return
 	}
 
-	product, err := h.productService.GetProductByID(uint(id))
+	product, err := h.productService.GetProductByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -54,11 +55,10 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 	}
 
 	// Get category ID filter
-	var categoryID *uint
+	var categoryID *uint64
 	if idStr := c.Query("category_id"); idStr != "" {
 		if id, err := strconv.ParseUint(idStr, 10, 64); err == nil {
-			catID := uint(id)
-			categoryID = &catID
+			categoryID = &id
 		}
 	}
 

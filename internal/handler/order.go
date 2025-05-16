@@ -33,12 +33,11 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	}
 
 	// Handle direct purchase
-	var productID *uint
+	var productID *uint64
 	var quantity *int
 
 	if pidStr := c.Query("product_id"); pidStr != "" {
 		if pid, err := strconv.ParseUint(pidStr, 10, 64); err == nil {
-			pid := uint(pid)
 			productID = &pid
 		}
 	}
@@ -50,17 +49,17 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	}
 
 	// Handle cart checkout
-	var cartIDs []uint
+	var cartIDs []uint64
 	if cidsStr := c.QueryArray("cart_ids[]"); len(cidsStr) > 0 {
 		for _, cidStr := range cidsStr {
 			if cid, err := strconv.ParseUint(cidStr, 10, 64); err == nil {
-				cartIDs = append(cartIDs, uint(cid))
+				cartIDs = append(cartIDs, cid)
 			}
 		}
 	}
 
 	// Get order details
-	totalAmount, cartItems, err := h.orderService.GetOrderDetail(userID.(uint), cartIDs, productID, quantity)
+	totalAmount, cartItems, err := h.orderService.GetOrderDetail(userID.(uint64), cartIDs, productID, quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -83,14 +82,14 @@ func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
 		return
 	}
 
-	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint))
+	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
 	// Try to get default address first
-	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(userID.(uint))
+	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(userID.(uint64))
 
 	resp := gin.H{
 		"addresses":       addresses,
@@ -114,7 +113,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.orderService.CreateOrder(userID.(uint), req)
+	order, err := h.orderService.CreateOrder(userID.(uint64), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -138,7 +137,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -174,7 +173,7 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -184,14 +183,14 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	// For now, we'll simulate payment success
 	if order.Status == model.OrderStatusPending {
 		// Update order status to paid
-		err = h.orderService.UpdateOrderStatus(order.ID, userID.(uint), model.OrderStatusPaid)
+		err = h.orderService.UpdateOrderStatus(order.ID, userID.(uint64), model.OrderStatusPaid)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
 		}
 
 		// Reload order
-		order, err = h.orderService.GetOrderByID(order.ID, userID.(uint))
+		order, err = h.orderService.GetOrderByID(order.ID, userID.(uint64))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
@@ -236,7 +235,7 @@ func (h *OrderHandler) GetOrderList(c *gin.Context) {
 	}
 
 	// Get orders
-	pagination, err := h.orderService.GetOrdersByUserID(userID.(uint), page, pageSize, status)
+	pagination, err := h.orderService.GetOrdersByUserID(userID.(uint64), page, pageSize, status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

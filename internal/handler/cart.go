@@ -45,7 +45,7 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 		return
 	}
 
-	err = h.cartService.AddToCart(userID.(uint), uint(productID), quantity)
+	err = h.cartService.AddToCart(userID.(uint64), productID, quantity)
 	if err != nil {
 		if err == service.ErrorOutOfStock {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
@@ -66,7 +66,7 @@ func (h *CartHandler) GetCartList(c *gin.Context) {
 		return
 	}
 
-	cartItems, err := h.cartService.GetCartItems(userID.(uint))
+	cartItems, err := h.cartService.GetCartItems(userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -94,7 +94,7 @@ func (h *CartHandler) UpdateCartItemStatus(c *gin.Context) {
 
 	selected := selectedStr == "true" || selectedStr == "1"
 
-	err = h.cartService.UpdateCartItemStatus(uint(id), userID.(uint), selected)
+	err = h.cartService.UpdateCartItemStatus(id, userID.(uint64), selected)
 	if err != nil {
 		if err == service.ErrorCartItemNotFound {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
@@ -118,7 +118,7 @@ func (h *CartHandler) UpdateAllCartItemStatus(c *gin.Context) {
 	selectedStr := c.DefaultQuery("selected", "true")
 	selected := selectedStr == "true" || selectedStr == "1"
 
-	err := h.cartService.UpdateAllCartItemStatus(userID.(uint), selected)
+	err := h.cartService.UpdateAllCartItemStatus(userID.(uint64), selected)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -142,7 +142,7 @@ func (h *CartHandler) DeleteCartItem(c *gin.Context) {
 		return
 	}
 
-	err = h.cartService.DeleteCartItem(uint(id), userID.(uint))
+	err = h.cartService.DeleteCartItem(id, userID.(uint64))
 	if err != nil {
 		if err == service.ErrorCartItemNotFound {
 			c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))

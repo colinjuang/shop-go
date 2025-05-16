@@ -13,9 +13,9 @@ func NewProductRepository() *ProductRepository {
 }
 
 // GetProductByID gets a product by ID
-func (r *ProductRepository) GetProductByID(id uint) (*model.Product, error) {
+func (r *ProductRepository) GetProductByID(id uint64) (*model.Product, error) {
 	var product model.Product
-	result := DB.First(&product, id)
+	result := DB.First(&product, "id = ?", id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -23,7 +23,7 @@ func (r *ProductRepository) GetProductByID(id uint) (*model.Product, error) {
 }
 
 // GetProducts gets products with pagination
-func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint, hot, recommend *bool) ([]model.Product, int64, error) {
+func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint64, hot, recommend *bool) ([]model.Product, int64, error) {
 	var products []model.Product
 	var count int64
 

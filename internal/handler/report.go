@@ -27,11 +27,10 @@ func NewReportHandler() *ReportHandler {
 // GetProductCatalog generates and returns a PDF product catalog
 func (h *ReportHandler) GetProductCatalog(c *gin.Context) {
 	// Get category ID from query
-	var categoryID *uint
+	var categoryID *uint64
 	if idStr := c.Query("category_id"); idStr != "" {
 		if id, err := strconv.ParseUint(idStr, 10, 64); err == nil {
-			catID := uint(id)
-			categoryID = &catID
+			categoryID = &id
 		}
 	}
 
@@ -55,7 +54,6 @@ func (h *ReportHandler) GetProductCatalog(c *gin.Context) {
 func (h *ReportHandler) GetOrderInvoice(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
-	uid := userID.(uint)
 
 	// Get order ID from query
 	idStr := c.Param("id")
@@ -70,7 +68,7 @@ func (h *ReportHandler) GetOrderInvoice(c *gin.Context) {
 	defer cancel()
 
 	// Generate invoice
-	pdfURL, err := h.reportService.GenerateOrderInvoicePDF(ctx, uint(id), uid)
+	pdfURL, err := h.reportService.GenerateOrderInvoicePDF(ctx, id, userID.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -84,11 +82,10 @@ func (h *ReportHandler) GetOrderInvoice(c *gin.Context) {
 // ExportProducts exports products to a CSV file
 func (h *ReportHandler) ExportProducts(c *gin.Context) {
 	// Get category ID from query
-	var categoryID *uint
+	var categoryID *uint64
 	if idStr := c.Query("category_id"); idStr != "" {
 		if id, err := strconv.ParseUint(idStr, 10, 64); err == nil {
-			catID := uint(id)
-			categoryID = &catID
+			categoryID = &id
 		}
 	}
 

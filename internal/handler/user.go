@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -25,26 +24,19 @@ func NewUserHandler() *UserHandler {
 
 // GetUserInfo gets the current user's information
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	userIDStr := c.Query("userID")
-	fmt.Println("userID", userIDStr)
-	if userIDStr == "" {
+	user := middleware.GetRequestUser(c)
+	if user == nil {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid user ID"))
-		return
-	}
-
-	user, err := h.userService.GetUserByID(uint(userID))
+	userInfo, err := h.userService.GetUserByID(user.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, model.SuccessResponse(user))
+	c.JSON(http.StatusOK, model.SuccessResponse(userInfo))
 }
 
 // UpdateUserInfo updates the current user's information
@@ -61,7 +53,7 @@ func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
-	err := h.userService.UpdateUser(userID.(uint), updateInfo)
+	err := h.userService.UpdateUser(userID.(uint64), updateInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

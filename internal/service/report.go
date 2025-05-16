@@ -26,7 +26,7 @@ func NewReportService() *ReportService {
 
 // GenerateProductCatalogPDF generates a PDF catalog of products
 // This is just an example that simulates PDF generation
-func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryID *uint) (string, error) {
+func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryID *uint64) (string, error) {
 	// Create a cache key based on parameters
 	key := fmt.Sprintf("product_catalog")
 	if categoryID != nil {
@@ -80,7 +80,7 @@ func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryI
 }
 
 // GenerateOrderInvoicePDF generates a PDF invoice for an order
-func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uint, userID uint) (string, error) {
+func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uint64, userID uint64) (string, error) {
 	// Get order
 	order, err := s.orderService.GetOrderByID(orderID, userID)
 	if err != nil {
@@ -138,7 +138,7 @@ func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uin
 }
 
 // ExportProductsToCSV exports products to a CSV file
-func (s *ReportService) ExportProductsToCSV(ctx context.Context, categoryID *uint) (string, error) {
+func (s *ReportService) ExportProductsToCSV(ctx context.Context, categoryID *uint64) (string, error) {
 	// Create a cache key based on parameters
 	key := fmt.Sprintf("products_export")
 	if categoryID != nil {

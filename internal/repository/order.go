@@ -25,7 +25,7 @@ func (r *OrderRepository) CreateOrder(order *model.Order) error {
 }
 
 // GetOrderByID gets an order by ID
-func (r *OrderRepository) GetOrderByID(id uint) (*model.Order, error) {
+func (r *OrderRepository) GetOrderByID(id uint64) (*model.Order, error) {
 	var order model.Order
 	result := DB.Preload("OrderItems").First(&order, id)
 	if result.Error != nil {
@@ -45,7 +45,7 @@ func (r *OrderRepository) GetOrderByOrderNo(orderNo string) (*model.Order, error
 }
 
 // UpdateOrderStatus updates the status of an order
-func (r *OrderRepository) UpdateOrderStatus(id uint, status int) error {
+func (r *OrderRepository) UpdateOrderStatus(id uint64, status int) error {
 	updates := map[string]interface{}{
 		"status": status,
 	}
@@ -59,7 +59,7 @@ func (r *OrderRepository) UpdateOrderStatus(id uint, status int) error {
 }
 
 // GetOrdersByUserID gets orders for a user with pagination
-func (r *OrderRepository) GetOrdersByUserID(userID uint, page, pageSize int, status *int) ([]model.Order, int64, error) {
+func (r *OrderRepository) GetOrdersByUserID(userID uint64, page, pageSize int, status *int) ([]model.Order, int64, error) {
 	var orders []model.Order
 	var count int64
 

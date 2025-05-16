@@ -2,12 +2,11 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/colinjuang/shop-go/internal/dto"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
-	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
@@ -45,21 +44,16 @@ func (h *LoginHandler) Login(c *gin.Context) {
 	}
 
 	// generate token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userID": user.ID,
-		"openID": user.OpenID,
-		"exp":    time.Now().Add(time.Hour * 24).Unix(),
+	token, err := middleware.GenerateToken(middleware.UserClaim{
+		UserID: user.ID,
 	})
-
-	// sign token
-	tokenString, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, "Failed to generate token"))
 		return
 	}
 
 	c.JSON(http.StatusOK, model.SuccessResponse(gin.H{
-		"token": tokenString,
+		"token": token,
 	}))
 }
 

@@ -4,8 +4,10 @@ import (
 	"errors"
 
 	"github.com/colinjuang/shop-go/internal/dto"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/gin-gonic/gin"
 )
 
 // AddressService handles business logic for addresses
@@ -21,9 +23,14 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress creates a new address
-func (s *AddressService) CreateAddress(userID uint64, req dto.AddressRequest) (*dto.AddressResponse, error) {
+func (s *AddressService) CreateAddress(c *gin.Context, req dto.AddressRequest) (*dto.AddressResponse, error) {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return nil, errors.New("unauthorized")
+	}
+
 	address := &model.Address{
-		UserID:       userID,
+		UserID:       reqUser.UserID,
 		Name:         req.Name,
 		Phone:        req.Phone,
 		Province:     req.Province,
@@ -58,29 +65,52 @@ func (s *AddressService) CreateAddress(userID uint64, req dto.AddressRequest) (*
 }
 
 // GetAddressByID gets an address by ID
-func (s *AddressService) GetAddressByID(id uint64, userID uint64) (*model.Address, error) {
+func (s *AddressService) GetAddressByID(c *gin.Context, id uint64) (*dto.AddressResponse, error) {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return nil, errors.New("unauthorized")
+	}
+
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserID != userID {
+	if address.UserID != reqUser.UserID {
 		return nil, errors.New("address not found")
 	}
 
-	return address, nil
+	return &dto.AddressResponse{
+		ID:           address.ID,
+		Phone:        address.Phone,
+		Name:         address.Name,
+		City:         address.City,
+		CityCode:     address.CityCode,
+		Province:     address.Province,
+		ProvinceCode: address.ProvinceCode,
+		District:     address.District,
+		DistrictCode: address.DistrictCode,
+		DetailAddr:   address.DetailAddr,
+		FullAddr:     address.Province + address.City + address.District + address.DetailAddr,
+		IsDefault:    address.IsDefault,
+	}, nil
 }
 
 // UpdateAddress updates an address
-func (s *AddressService) UpdateAddress(id uint64, userID uint64, req dto.AddressRequest) error {
-	address, err := s.addressRepo.GetAddressByID(id)
+func (s *AddressService) UpdateAddress(c *gin.Context, req dto.AddressRequest) error {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return errors.New("unauthorized")
+	}
+
+	address, err := s.addressRepo.GetAddressByID(req.ID)
 	if err != nil {
 		return err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserID != userID {
+	if address.UserID != reqUser.UserID {
 		return errors.New("address not found")
 	}
 
@@ -100,14 +130,19 @@ func (s *AddressService) UpdateAddress(id uint64, userID uint64, req dto.Address
 }
 
 // DeleteAddress deletes an address
-func (s *AddressService) DeleteAddress(id uint64, userID uint64) error {
+func (s *AddressService) DeleteAddress(c *gin.Context, id uint64) error {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return errors.New("unauthorized")
+	}
+
 	address, err := s.addressRepo.GetAddressByID(id)
 	if err != nil {
 		return err
 	}
 
 	// Ensure the address belongs to the user
-	if address.UserID != userID {
+	if address.UserID != reqUser.UserID {
 		return errors.New("address not found")
 	}
 
@@ -115,11 +150,62 @@ func (s *AddressService) DeleteAddress(id uint64, userID uint64) error {
 }
 
 // GetAddressesByUserID gets all addresses for a user
-func (s *AddressService) GetAddressesByUserID(userID uint64) ([]model.Address, error) {
-	return s.addressRepo.GetAddressesByUserID(userID)
+func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*dto.AddressResponse, error) {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return nil, errors.New("unauthorized")
+	}
+
+	addresses, err := s.addressRepo.GetAddressesByUserID(reqUser.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	addressResponses := make([]*dto.AddressResponse, len(addresses))
+	for i, address := range addresses {
+		addressResponses[i] = &dto.AddressResponse{
+			ID:           address.ID,
+			Phone:        address.Phone,
+			Name:         address.Name,
+			City:         address.City,
+			CityCode:     address.CityCode,
+			Province:     address.Province,
+			ProvinceCode: address.ProvinceCode,
+			District:     address.District,
+			DistrictCode: address.DistrictCode,
+			DetailAddr:   address.DetailAddr,
+			FullAddr:     address.Province + address.City + address.District + address.DetailAddr,
+			IsDefault:    address.IsDefault,
+		}
+	}
+
+	return addressResponses, nil
 }
 
 // GetDefaultAddressByUserID gets the default address for a user
-func (s *AddressService) GetDefaultAddressByUserID(userID uint64) (*model.Address, error) {
-	return s.addressRepo.GetDefaultAddressByUserID(userID)
+func (s *AddressService) GetDefaultAddressByUserID(c *gin.Context) (*dto.AddressResponse, error) {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return nil, errors.New("unauthorized")
+	}
+
+	address, err := s.addressRepo.GetDefaultAddressByUserID(reqUser.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.AddressResponse{
+		ID:           address.ID,
+		Phone:        address.Phone,
+		Name:         address.Name,
+		City:         address.City,
+		CityCode:     address.CityCode,
+		Province:     address.Province,
+		ProvinceCode: address.ProvinceCode,
+		District:     address.District,
+		DistrictCode: address.DistrictCode,
+		DetailAddr:   address.DetailAddr,
+		FullAddr:     address.Province + address.City + address.District + address.DetailAddr,
+		IsDefault:    address.IsDefault,
+	}, nil
 }

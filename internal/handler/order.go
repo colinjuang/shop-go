@@ -76,20 +76,14 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 
 // GetOrderAddress gets the user's addresses for order
 func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
-	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint64))
+	addresses, err := h.addressService.GetAddressesByUserID(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
 	// Try to get default address first
-	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(userID.(uint64))
+	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(c)
 
 	resp := gin.H{
 		"addresses":       addresses,

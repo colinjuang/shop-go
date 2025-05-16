@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/colinjuang/shop-go/internal/dto"
-	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -25,13 +24,7 @@ func NewUserHandler() *UserHandler {
 
 // GetUserInfo gets the current user's information
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	user := middleware.GetRequestUser(c)
-	if user == nil {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
-	userInfo, err := h.userService.GetUserByID(user.UserID)
+	userInfo, err := h.userService.GetUserByID(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -42,19 +35,13 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 
 // UpdateUserInfo updates the current user's information
 func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
-	user := middleware.GetRequestUser(c)
-	if user == nil {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
 	var updateInfo dto.UserUpdateRequest
 	if err := c.ShouldBindJSON(&updateInfo); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	err := h.userService.UpdateUser(user.UserID, updateInfo)
+	err := h.userService.UpdateUser(c, updateInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

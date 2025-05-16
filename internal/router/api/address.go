@@ -15,7 +15,7 @@ func RegisterAddressApi(api *gin.RouterGroup) {
 	// 添加地址
 	auth.POST("/address", addressHandler.CreateAddress)
 	// 获取地址列表
-	auth.GET("/address", addressHandler.GetAddressList)
+	auth.GET("/addresses", addressHandler.GetAddressList)
 	// 获取地址详情
 	auth.GET("/address/:id", addressHandler.GetAddressDetail)
 	// 更新地址

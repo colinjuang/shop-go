@@ -19,12 +19,12 @@ type AddressResponse struct {
 	Phone        string `json:"phone"`
 	Name         string `json:"name"`
 	City         string `json:"city"`
-	CityCode     string `json:"city_code"`
+	CityCode     string `json:"cityCode"`
 	Province     string `json:"province"`
-	ProvinceCode string `json:"province_code"`
+	ProvinceCode string `json:"provinceCode"`
 	District     string `json:"district"`
-	DistrictCode string `json:"district_code"`
-	DetailAddr   string `json:"detail_addr"`
-	FullAddr     string `json:"full_addr"`
-	IsDefault    int8   `json:"is_default"`
+	DistrictCode string `json:"districtCode"`
+	DetailAddr   string `json:"detailAddr"`
+	FullAddr     string `json:"fullAddr"`
+	IsDefault    int8   `json:"isDefault"`
 }

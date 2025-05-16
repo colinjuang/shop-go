@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/colinjuang/shop-go/internal/dto"
-	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -26,19 +25,13 @@ func NewAddressHandler() *AddressHandler {
 
 // CreateAddress creates a new address
 func (h *AddressHandler) CreateAddress(c *gin.Context) {
-	user := middleware.GetRequestUser(c)
-	if user == nil {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
 	var req dto.AddressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	address, err := h.addressService.CreateAddress(user.UserID, req)
+	address, err := h.addressService.CreateAddress(c, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -49,13 +42,7 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 
 // GetAddressList gets all addresses for a user
 func (h *AddressHandler) GetAddressList(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
-	addresses, err := h.addressService.GetAddressesByUserID(userID.(uint64))
+	addresses, err := h.addressService.GetAddressesByUserID(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -66,12 +53,6 @@ func (h *AddressHandler) GetAddressList(c *gin.Context) {
 
 // GetAddressDetail gets an address by ID
 func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
@@ -79,7 +60,7 @@ func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.GetAddressByID(id, userID.(uint64))
+	address, err := h.addressService.GetAddressByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -90,26 +71,18 @@ func (h *AddressHandler) GetAddressDetail(c *gin.Context) {
 
 // UpdateAddress updates an address
 func (h *AddressHandler) UpdateAddress(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid ID"))
-		return
-	}
-
 	var req dto.AddressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	err = h.addressService.UpdateAddress(id, userID.(uint64), req)
+	if req.ID == 0 {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, "Invalid ID"))
+		return
+	}
+
+	err := h.addressService.UpdateAddress(c, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -120,12 +93,6 @@ func (h *AddressHandler) UpdateAddress(c *gin.Context) {
 
 // DeleteAddress deletes an address
 func (h *AddressHandler) DeleteAddress(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
-		return
-	}
-
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
@@ -133,7 +100,7 @@ func (h *AddressHandler) DeleteAddress(c *gin.Context) {
 		return
 	}
 
-	err = h.addressService.DeleteAddress(id, userID.(uint64))
+	err = h.addressService.DeleteAddress(c, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

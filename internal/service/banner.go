@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/colinjuang/shop-go/internal/model"
+	"time"
+
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"time"
 )
 
 // BannerService handles business logic for the banner page
@@ -27,19 +28,19 @@ func NewBannerService() *BannerService {
 }
 
 // GetBanners gets all banners
-func (s *BannerService) GetBanners() ([]model.Banner, error) {
+func (s *BannerService) GetBanners() ([]*dto.BannerResponse, error) {
 	ctx := context.Background()
 	cacheKey := "home:banners"
 
 	// Try to get from cache
-	var banners []model.Banner
-	err := s.cacheService.GetObject(ctx, cacheKey, &banners)
+	var bannerResponses []*dto.BannerResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &bannerResponses)
 	if err == nil {
-		return banners, nil
+		return bannerResponses, nil
 	}
 
 	// If not in cache, get from database
-	banners, err = s.bannerRepo.GetBanners()
+	banners, err := s.bannerRepo.GetBanners()
 	if err != nil {
 		return nil, err
 	}
@@ -55,5 +56,17 @@ func (s *BannerService) GetBanners() ([]model.Banner, error) {
 		logger.Warnf("Failed to cache banners: %v", err)
 	}
 
-	return banners, nil
+	bannerResponses = make([]*dto.BannerResponse, len(banners))
+	for i, banner := range banners {
+		bannerResponses[i] = &dto.BannerResponse{
+			ID:        banner.ID,
+			Title:     banner.Title,
+			ImageUrl:  banner.ImageUrl,
+			ProductID: banner.ProductID,
+			SortOrder: banner.SortOrder,
+			CreatedAt: banner.CreatedAt,
+			UpdatedAt: banner.UpdatedAt,
+		}
+	}
+	return bannerResponses, nil
 }

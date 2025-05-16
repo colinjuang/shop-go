@@ -21,7 +21,7 @@ func (r *CategoryRepository) GetCategories() ([]model.Category, error) {
 }
 
 // GetCategoriesByParentID gets categories by parent ID
-func (r *CategoryRepository) GetCategoriesByParentID(parentID uint) ([]model.Category, error) {
+func (r *CategoryRepository) GetCategoriesByParentID(parentID uint64) ([]model.Category, error) {
 	var categories []model.Category
 	result := DB.Where("parent_id = ?", parentID).Find(&categories)
 	if result.Error != nil {

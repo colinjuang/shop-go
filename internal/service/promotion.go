@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/colinjuang/shop-go/internal/model"
+	"time"
+
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"time"
 )
 
 // PromotionService handles business logic for the home page
@@ -25,25 +26,32 @@ func NewPromotionService() *PromotionService {
 }
 
 // GetPromotions gets all promotions
-func (s *PromotionService) GetPromotions() ([]model.Promotion, error) {
+func (s *PromotionService) GetPromotions() ([]*dto.PromotionResponse, error) {
 	ctx := context.Background()
 	cacheKey := "home:promotions"
 
 	// Try to get from cache
-	var promotions []model.Promotion
-	err := s.cacheService.GetObject(ctx, cacheKey, &promotions)
+	var promotionResponses []*dto.PromotionResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &promotionResponses)
 	if err == nil {
-		return promotions, nil
+		return promotionResponses, nil
 	}
 
 	// If not in cache, get from database
-	promotions, err = s.promotionRepo.GetPromotions()
+	promotions, err := s.promotionRepo.GetPromotions()
 	if err != nil {
 		return nil, err
 	}
 
 	for i, promotion := range promotions {
-		promotions[i].ImageUrl = minio.GetClient().GetFileURL(promotion.ImageUrl)
+		promotionResponses[i] = &dto.PromotionResponse{
+			ID:            promotion.ID,
+			Title:         promotion.Title,
+			ImageUrl:      minio.GetClient().GetFileURL(promotion.ImageUrl),
+			SubCategoryID: promotion.SubCategoryID,
+			CreatedAt:     promotion.CreatedAt,
+			UpdatedAt:     promotion.UpdatedAt,
+		}
 	}
 
 	// Cache for 1 minute
@@ -52,5 +60,5 @@ func (s *PromotionService) GetPromotions() ([]model.Promotion, error) {
 		logger.Warnf("Failed to cache promotions: %v", err)
 	}
 
-	return promotions, nil
+	return promotionResponses, nil
 }

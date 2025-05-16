@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -26,19 +26,19 @@ func NewCategoryService() *CategoryService {
 }
 
 // GetCategories gets all categories
-func (s *CategoryService) GetCategories() ([]model.Category, error) {
+func (s *CategoryService) GetCategories() ([]*dto.CategoryResponse, error) {
 	ctx := context.Background()
 	cacheKey := "categories:all"
 
 	// Try to get from cache
-	var categories []model.Category
-	err := s.cacheService.GetObject(ctx, cacheKey, &categories)
+	var categoryResponses []*dto.CategoryResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &categoryResponses)
 	if err == nil {
-		return categories, nil
+		return categoryResponses, nil
 	}
 
 	// If not in cache, get from database
-	categories, err = s.categoryRepo.GetCategories()
+	categories, err := s.categoryRepo.GetCategories()
 	if err != nil {
 		return nil, err
 	}
@@ -49,23 +49,35 @@ func (s *CategoryService) GetCategories() ([]model.Category, error) {
 		logger.Warnf("Failed to cache categories: %v", err)
 	}
 
-	return categories, nil
+	categoryResponses = make([]*dto.CategoryResponse, len(categories))
+	for i, category := range categories {
+		categoryResponses[i] = &dto.CategoryResponse{
+			ID:        category.ID,
+			Name:      category.Name,
+			ParentID:  category.ParentID,
+			ImageUrl:  category.ImageUrl,
+			SortOrder: category.SortOrder,
+			CreatedAt: category.CreatedAt,
+			UpdatedAt: category.UpdatedAt,
+		}
+	}
+	return categoryResponses, nil
 }
 
 // GetCategoriesByParentID gets categories by parent ID
-func (s *CategoryService) GetCategoriesByParentID(parentID uint) ([]model.Category, error) {
+func (s *CategoryService) GetCategoriesByParentID(parentID uint64) ([]*dto.CategoryResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("categories:parent:%d", parentID)
 
 	// Try to get from cache
-	var categories []model.Category
-	err := s.cacheService.GetObject(ctx, cacheKey, &categories)
+	var categoryResponses []*dto.CategoryResponse
+	err := s.cacheService.GetObject(ctx, cacheKey, &categoryResponses)
 	if err == nil {
-		return categories, nil
+		return categoryResponses, nil
 	}
 
 	// If not in cache, get from database
-	categories, err = s.categoryRepo.GetCategoriesByParentID(parentID)
+	categories, err := s.categoryRepo.GetCategoriesByParentID(parentID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,16 +88,29 @@ func (s *CategoryService) GetCategoriesByParentID(parentID uint) ([]model.Catego
 		logger.Warnf("Failed to cache categories: %v", err)
 	}
 
-	return categories, nil
+	categoryResponses = make([]*dto.CategoryResponse, len(categories))
+	for i, category := range categories {
+		categoryResponses[i] = &dto.CategoryResponse{
+			ID:        category.ID,
+			Name:      category.Name,
+			ParentID:  category.ParentID,
+			ImageUrl:  category.ImageUrl,
+			SortOrder: category.SortOrder,
+			CreatedAt: category.CreatedAt,
+			UpdatedAt: category.UpdatedAt,
+		}
+	}
+
+	return categoryResponses, nil
 }
 
 // GetCategoryTree gets the category tree
-func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
+func (s *CategoryService) GetCategoryTree() ([]*dto.CategoryTreeResponse, error) {
 	ctx := context.Background()
 	cacheKey := "categories:tree"
 
 	// Try to get from cache
-	var tree []*model.CategoryTree
+	var tree []*dto.CategoryTreeResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &tree)
 	if err == nil {
 		return tree, nil
@@ -98,17 +123,17 @@ func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
 	}
 
 	// Create a map for quick lookup
-	treeMap := make(map[uint64]*model.CategoryTree)
+	treeMap := make(map[uint64]*dto.CategoryTreeResponse)
 
 	// First pass: create all tree nodes
 	for _, category := range categories {
 		if category.ParentID == 0 {
-			node := &model.CategoryTree{
+			node := &dto.CategoryTreeResponse{
 				ID:        category.ID,
 				Name:      category.Name,
 				ImageUrl:  category.ImageUrl,
 				SortOrder: category.SortOrder,
-				Children:  []model.Category{},
+				Children:  []dto.CategoryResponse{},
 			}
 			tree = append(tree, node)
 			treeMap[category.ID] = node
@@ -119,7 +144,14 @@ func (s *CategoryService) GetCategoryTree() ([]*model.CategoryTree, error) {
 	for _, category := range categories {
 		if category.ParentID != 0 {
 			if parent, exists := treeMap[category.ParentID]; exists {
-				parent.Children = append(parent.Children, category)
+				parent.Children = append(parent.Children, dto.CategoryResponse{
+					ID:        category.ID,
+					Name:      category.Name,
+					ImageUrl:  category.ImageUrl,
+					SortOrder: category.SortOrder,
+					CreatedAt: category.CreatedAt,
+					UpdatedAt: category.UpdatedAt,
+				})
 			}
 		}
 	}

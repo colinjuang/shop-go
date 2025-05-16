@@ -53,7 +53,7 @@ func (h *CategoryHandler) GetSubCategories(c *gin.Context) {
 		return
 	}
 
-	categories, err := h.categoryService.GetCategoriesByParentID(uint(id))
+	categories, err := h.categoryService.GetCategoriesByParentID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

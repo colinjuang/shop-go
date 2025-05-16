@@ -11,7 +11,7 @@ func RegisterUserApi(api *gin.RouterGroup) {
 	userHandler := handler.NewUserHandler()
 	auth := api.Use(middleware.AuthMiddleware())
 	// 获取用户信息
-	auth.GET("/users/info", userHandler.GetUserInfo)
+	auth.GET("/user/info", userHandler.GetUserInfo)
 	// 更新用户信息
-	auth.POST("/users/update", userHandler.UpdateUserInfo)
+	auth.PUT("/user/info", userHandler.UpdateUserInfo)
 }

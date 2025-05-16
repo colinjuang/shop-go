@@ -23,7 +23,7 @@ func NewUserService() *UserService {
 }
 
 // LoginWithWechat handles login with WeChat
-func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender int, city, province, country string) (string, error) {
+func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender int, city, province, district string) (string, error) {
 	// Check if user exists
 	user, err := s.userRepo.GetUserByOpenID(openID)
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender in
 			Gender:   gender,
 			City:     city,
 			Province: province,
-			Country:  country,
+			District: district,
 		}
 
 		if err := s.userRepo.CreateUser(newUser); err != nil {
@@ -68,18 +68,18 @@ func (s *UserService) GetUserByID(id uint64) (*dto.UserResponse, error) {
 		Username:  user.Username,
 		OpenID:    user.OpenID,
 		Nickname:  user.Nickname,
-		AvatarURL: user.Avatar,
+		Avatar:    user.Avatar,
 		Gender:    user.Gender,
 		City:      user.City,
 		Province:  user.Province,
-		Country:   user.Country,
+		District:  user.District,
 		CreatedAt: user.CreatedAt.Format(time.DateTime),
 		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
 	}, nil
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(id uint64, updateInfo model.UserUpdateInfo) error {
+func (s *UserService) UpdateUser(id uint64, updateInfo dto.UserUpdateRequest) error {
 	user, err := s.userRepo.GetUserByID(id)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func (s *UserService) UpdateUser(id uint64, updateInfo model.UserUpdateInfo) err
 	user.Gender = updateInfo.Gender
 	user.City = updateInfo.City
 	user.Province = updateInfo.Province
-	user.Country = updateInfo.Country
+	user.District = updateInfo.District
 
 	return s.userRepo.UpdateUser(user)
 }

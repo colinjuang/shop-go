@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `gender` tinyint(1) DEFAULT 0 COMMENT '性别：0未知，1男，2女',
   `city` varchar(50) DEFAULT NULL COMMENT '城市',
   `province` varchar(50) DEFAULT NULL COMMENT '省份',
-  `country` varchar(50) DEFAULT NULL COMMENT '国家',
+  `district` varchar(50) DEFAULT NULL COMMENT '区县',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

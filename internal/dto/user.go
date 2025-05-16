@@ -17,26 +17,30 @@ type UserRegisterRequest struct {
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
 	Gender   int    `json:"gender" binding:"oneof=0 1 2"` // 0: 未知, 1: 男, 2: 女
+	City     string `json:"city"`
+	Province string `json:"province"`
+	District string `json:"district"`
 }
 
 // WechatLoginRequest 微信登录请求
 type WechatLoginRequest struct {
-	Code      string `json:"code" binding:"required"`
-	Nickname  string `json:"nickname"`
-	AvatarURL string `json:"avatar_url"`
-	Gender    int    `json:"gender"`
-	City      string `json:"city"`
-	Province  string `json:"province"`
-	Country   string `json:"country"`
+	Code     string `json:"code" binding:"required"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Gender   int    `json:"gender"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+	District string `json:"district"`
 }
 
 // UserUpdateRequest 用户更新请求
 type UserUpdateRequest struct {
-	Nickname  string `json:"nickname"`
-	AvatarURL string `json:"avatar_url"`
-	Gender    int    `json:"gender"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Gender   int    `json:"gender"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+	District string `json:"district"`
 }
 
 // --- 响应结构体 ---
@@ -47,11 +51,11 @@ type UserResponse struct {
 	Username  string `json:"username"`
 	OpenID    string `json:"open_id"`
 	Nickname  string `json:"nickname"`
-	AvatarURL string `json:"avatar_url"`
+	Avatar    string `json:"avatar"`
 	Gender    int    `json:"gender"`
 	City      string `json:"city"`
 	Province  string `json:"province"`
-	Country   string `json:"country"`
+	District  string `json:"district"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }

@@ -26,7 +26,7 @@ type UserClaim struct {
 	Gender   int    `json:"gender"`
 	City     string `json:"city"`
 	Province string `json:"province"`
-	Country  string `json:"country"`
+	District string `json:"district"`
 }
 
 // AuthClaims represents JWT claims

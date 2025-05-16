@@ -1,6 +1,6 @@
 -- 添加系统管理员用户（如果有需要）
-INSERT INTO `users` (`open_id`, `nickname`, `avatar`, `gender`, `city`, `province`, `country`) VALUES
-('admin_openid', '系统管理员', 'avatars/admin.jpg', 1, '上海', '上海', '中国');
+INSERT INTO `users` (`open_id`, `nickname`, `avatar`, `gender`, `city`, `province`, `district`) VALUES
+('admin_openid', '系统管理员', 'avatars/admin.jpg', 1, '上海', '上海', '徐汇区');
 
 -- 添加更多产品分类
 INSERT INTO `categories` (`name`, `parent_id`, `image`, `sort_order`) VALUES 
@@ -23,7 +23,7 @@ INSERT INTO `products` (`name`, `description`, `price`, `stock`, `category_id`, 
 
 -- 创建测试用户订单
 -- 首先创建一个测试用户
-INSERT INTO `users` (`open_id`, `nickname`, `avatar`, `gender`, `city`, `province`, `country`) VALUES
+INSERT INTO `users` (`open_id`, `nickname`, `avatar`, `gender`, `city`, `province`, `district`) VALUES
 ('test_user_openid', '测试用户', 'avatars/test_user.jpg', 1, '北京', '北京', '中国');
 
 -- 添加测试用户地址

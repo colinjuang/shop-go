@@ -15,7 +15,7 @@ type User struct {
 	Gender    int       `json:"gender" gorm:"column:gender"`
 	City      string    `json:"city" gorm:"column:city"`
 	Province  string    `json:"province" gorm:"column:province"`
-	Country   string    `json:"country" gorm:"column:country"`
+	District  string    `json:"district" gorm:"column:district"`
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
@@ -27,5 +27,5 @@ type UserUpdateInfo struct {
 	Gender   int    `json:"gender" binding:"required"`
 	City     string `json:"city"`
 	Province string `json:"province"`
-	Country  string `json:"country"`
+	District string `json:"district"`
 }

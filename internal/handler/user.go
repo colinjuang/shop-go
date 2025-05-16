@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/colinjuang/shop-go/internal/dto"
 	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
@@ -41,19 +42,19 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 
 // UpdateUserInfo updates the current user's information
 func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	user := middleware.GetRequestUser(c)
+	if user == nil {
 		c.JSON(http.StatusUnauthorized, model.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	var updateInfo model.UserUpdateInfo
+	var updateInfo dto.UserUpdateRequest
 	if err := c.ShouldBindJSON(&updateInfo); err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	err := h.userService.UpdateUser(userID.(uint64), updateInfo)
+	err := h.userService.UpdateUser(user.UserID, updateInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

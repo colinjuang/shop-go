@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/dto"
-	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -27,12 +26,12 @@ func NewProductService() *ProductService {
 }
 
 // GetProductByID gets a product by ID
-func (s *ProductService) GetProductByID(id uint64) (*dto.ProductResponse, error) {
+func (s *ProductService) GetProductByID(id uint64) (*response.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("product:%d", id)
 
 	// Try to get from cache
-	var productResponse dto.ProductResponse
+	var productResponse response.ProductResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &productResponse)
 	if err == nil {
 		return &productResponse, nil
@@ -44,7 +43,7 @@ func (s *ProductService) GetProductByID(id uint64) (*dto.ProductResponse, error)
 		return nil, err
 	}
 
-	productResponse = dto.ProductResponse{
+	productResponse = response.ProductResponse{
 		ID:             product.ID,
 		Name:           product.Name,
 		FloralLanguage: product.FloralLanguage,
@@ -76,7 +75,7 @@ func (s *ProductService) GetProductByID(id uint64) (*dto.ProductResponse, error)
 }
 
 // GetProducts gets products with pagination
-func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot, recommend *bool) (*model.Pagination, error) {
+func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot, recommend *bool) (*response.Pagination, error) {
 	ctx := context.Background()
 
 	// Generate cache key based on filters
@@ -92,7 +91,7 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot
 	}
 
 	// Try to get from cache
-	var pagination model.Pagination
+	var pagination response.Pagination
 	err := s.cacheService.GetObject(ctx, cacheKey, &pagination)
 	if err == nil {
 		return &pagination, nil
@@ -104,7 +103,7 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot
 		return nil, err
 	}
 
-	pagination = model.NewPagination(total, page, pageSize, products)
+	pagination = response.NewPagination(total, page, pageSize, products)
 
 	// Cache for 1 minute
 	err = s.cacheService.Set(ctx, cacheKey, pagination, 1*time.Minute)
@@ -117,12 +116,12 @@ func (s *ProductService) GetProducts(page, pageSize int, categoryID *uint64, hot
 }
 
 // GetRecommendProducts gets recommended products
-func (s *ProductService) GetRecommendProducts(limit int) ([]*dto.ProductResponse, error) {
+func (s *ProductService) GetRecommendProducts(limit int) ([]*response.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:recommend:limit:%d", limit)
 
 	// Try to get from cache
-	var productResponses []*dto.ProductResponse
+	var productResponses []*response.ProductResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &productResponses)
 	if err == nil {
 		return productResponses, nil
@@ -135,9 +134,9 @@ func (s *ProductService) GetRecommendProducts(limit int) ([]*dto.ProductResponse
 		return nil, err
 	}
 
-	productResponses = make([]*dto.ProductResponse, len(products))
+	productResponses = make([]*response.ProductResponse, len(products))
 	for i, product := range products {
-		productResponses[i] = &dto.ProductResponse{
+		productResponses[i] = &response.ProductResponse{
 			ID:             product.ID,
 			Name:           product.Name,
 			FloralLanguage: product.FloralLanguage,
@@ -169,12 +168,12 @@ func (s *ProductService) GetRecommendProducts(limit int) ([]*dto.ProductResponse
 }
 
 // GetHotProducts gets hot products
-func (s *ProductService) GetHotProducts(limit int) ([]*dto.ProductResponse, error) {
+func (s *ProductService) GetHotProducts(limit int) ([]*response.ProductResponse, error) {
 	ctx := context.Background()
 	cacheKey := fmt.Sprintf("home:hot:limit:%d", limit)
 
 	// Try to get from cache
-	var productResponses []*dto.ProductResponse
+	var productResponses []*response.ProductResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &productResponses)
 	if err == nil {
 		return productResponses, nil
@@ -187,9 +186,9 @@ func (s *ProductService) GetHotProducts(limit int) ([]*dto.ProductResponse, erro
 		return nil, err
 	}
 
-	productResponses = make([]*dto.ProductResponse, len(products))
+	productResponses = make([]*response.ProductResponse, len(products))
 	for i, product := range products {
-		productResponses[i] = &dto.ProductResponse{
+		productResponses[i] = &response.ProductResponse{
 			ID:             product.ID,
 			Name:           product.Name,
 			FloralLanguage: product.FloralLanguage,

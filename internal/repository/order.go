@@ -5,14 +5,20 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/database"
+	"gorm.io/gorm"
 )
 
 // OrderRepository handles database operations for orders
-type OrderRepository struct{}
+type OrderRepository struct {
+	db *gorm.DB
+}
 
 // NewOrderRepository creates a new order repository
 func NewOrderRepository() *OrderRepository {
-	return &OrderRepository{}
+	return &OrderRepository{
+		db: database.GetDB(),
+	}
 }
 
 // CreateOrder creates a new order
@@ -21,13 +27,13 @@ func (r *OrderRepository) CreateOrder(order *model.Order) error {
 	now := time.Now()
 	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
 
-	return DB.Create(order).Error
+	return r.db.Create(order).Error
 }
 
 // GetOrderByID gets an order by ID
 func (r *OrderRepository) GetOrderByID(id uint64) (*model.Order, error) {
 	var order model.Order
-	result := DB.Preload("OrderItems").First(&order, id)
+	result := r.db.Preload("OrderItems").First(&order, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -37,7 +43,7 @@ func (r *OrderRepository) GetOrderByID(id uint64) (*model.Order, error) {
 // GetOrderByOrderNo gets an order by order number
 func (r *OrderRepository) GetOrderByOrderNo(orderNo string) (*model.Order, error) {
 	var order model.Order
-	result := DB.Where("order_no = ?", orderNo).Preload("OrderItems").First(&order)
+	result := r.db.Where("order_no = ?", orderNo).Preload("OrderItems").First(&order)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -55,7 +61,7 @@ func (r *OrderRepository) UpdateOrderStatus(id uint64, status int) error {
 		updates["payment_time"] = time.Now()
 	}
 
-	return DB.Model(&model.Order{}).Where("id = ?", id).Updates(updates).Error
+	return r.db.Model(&model.Order{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // GetOrdersByUserID gets orders for a user with pagination
@@ -63,7 +69,7 @@ func (r *OrderRepository) GetOrdersByUserID(userID uint64, page, pageSize int, s
 	var orders []model.Order
 	var count int64
 
-	query := DB.Model(&model.Order{}).Where("user_id = ?", userID)
+	query := r.db.Model(&model.Order{}).Where("user_id = ?", userID)
 
 	// Apply status filter if provided
 	if status != nil {

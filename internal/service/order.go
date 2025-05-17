@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -280,7 +281,7 @@ func (s *OrderService) UpdateOrderStatus(id uint64, userID uint64, status int) e
 }
 
 // GetOrdersByUserID gets orders for a user with pagination
-func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, status *int) (*model.Pagination, error) {
+func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, status *int) (*response.Pagination, error) {
 	ctx := context.Background()
 
 	// Generate cache key
@@ -290,7 +291,7 @@ func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, stat
 	}
 
 	// Try to get from cache
-	var pagination model.Pagination
+	var pagination response.Pagination
 	err := s.cacheService.GetObject(ctx, cacheKey, &pagination)
 	if err == nil {
 		return &pagination, nil
@@ -302,7 +303,7 @@ func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, stat
 		return nil, err
 	}
 
-	pagination = model.NewPagination(total, page, pageSize, orders)
+	pagination = response.NewPagination(total, page, pageSize, orders)
 
 	// Cache for 5 minutes (shorter time since order list changes more frequently)
 	_ = s.cacheService.Set(ctx, cacheKey, pagination, 5*time.Minute)

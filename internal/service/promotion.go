@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/dto"
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
@@ -26,12 +26,12 @@ func NewPromotionService() *PromotionService {
 }
 
 // GetPromotions gets all promotions
-func (s *PromotionService) GetPromotions() ([]*dto.PromotionResponse, error) {
+func (s *PromotionService) GetPromotions() ([]*response.PromotionResponse, error) {
 	ctx := context.Background()
 	cacheKey := "home:promotions"
 
 	// Try to get from cache
-	var promotionResponses []*dto.PromotionResponse
+	var promotionResponses []*response.PromotionResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &promotionResponses)
 	if err == nil {
 		return promotionResponses, nil
@@ -44,7 +44,7 @@ func (s *PromotionService) GetPromotions() ([]*dto.PromotionResponse, error) {
 	}
 
 	for i, promotion := range promotions {
-		promotionResponses[i] = &dto.PromotionResponse{
+		promotionResponses[i] = &response.PromotionResponse{
 			ID:            promotion.ID,
 			Title:         promotion.Title,
 			ImageUrl:      minio.GetClient().GetFileURL(promotion.ImageUrl),

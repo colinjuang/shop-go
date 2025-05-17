@@ -2,12 +2,13 @@ package server
 
 import (
 	"fmt"
+
+	"github.com/colinjuang/shop-go/internal/api/middleware"
+	"github.com/colinjuang/shop-go/internal/api/router"
 	"github.com/colinjuang/shop-go/internal/config"
-	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
-	"github.com/colinjuang/shop-go/internal/repository"
-	"github.com/colinjuang/shop-go/internal/router"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,12 +41,17 @@ func NewServer(cfg *config.Config) *Server {
 // Start starts the server
 func (s *Server) Start() error {
 	// Initialize database
-	_, err := repository.InitDB(s.config)
+	_, err := database.InitDB(s.config)
 	if err != nil {
 		fmt.Printf("Failed to initialize database: %v\n", err)
 		return err
 	}
 	fmt.Println("Database connection established")
+
+	// Add database migration
+	// if err := database.AutoMigrate(); err != nil {
+	// 	return err
+	// }
 
 	// Initialize Redis
 	_, err = redis.InitClient(&s.config.Redis)

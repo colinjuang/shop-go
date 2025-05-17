@@ -2,20 +2,26 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/database"
+	"gorm.io/gorm"
 )
 
 // ProductRepository handles database operations for products
-type ProductRepository struct{}
+type ProductRepository struct {
+	db *gorm.DB
+}
 
 // NewProductRepository creates a new product repository
 func NewProductRepository() *ProductRepository {
-	return &ProductRepository{}
+	return &ProductRepository{
+		db: database.GetDB(),
+	}
 }
 
 // GetProductByID gets a product by ID
 func (r *ProductRepository) GetProductByID(id uint64) (*model.Product, error) {
 	var product model.Product
-	result := DB.First(&product, "id = ?", id)
+	result := r.db.First(&product, "id = ?", id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -27,7 +33,7 @@ func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint64, 
 	var products []model.Product
 	var count int64
 
-	query := DB.Model(&model.Product{})
+	query := r.db.Model(&model.Product{})
 
 	// Apply filters
 	if categoryID != nil {

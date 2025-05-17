@@ -4,8 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/dto"
-	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/api/middleware"
+	"github.com/colinjuang/shop-go/internal/api/request"
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,7 @@ func (s *UserService) LoginWithWechat(openID, nickname, avatar string, gender in
 }
 
 // GetUserByID gets a user by ID
-func (s *UserService) GetUserByID(c *gin.Context) (*dto.UserResponse, error) {
+func (s *UserService) GetUserByID(c *gin.Context) (*response.UserResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return nil, errors.New("unauthorized")
@@ -68,7 +69,7 @@ func (s *UserService) GetUserByID(c *gin.Context) (*dto.UserResponse, error) {
 		return nil, err
 	}
 
-	return &dto.UserResponse{
+	return &response.UserResponse{
 		ID:        user.ID,
 		Username:  user.Username,
 		OpenID:    user.OpenID,
@@ -84,7 +85,7 @@ func (s *UserService) GetUserByID(c *gin.Context) (*dto.UserResponse, error) {
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(c *gin.Context, updateInfo dto.UserUpdateRequest) error {
+func (s *UserService) UpdateUser(c *gin.Context, updateInfo request.UserUpdateRequest) error {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return errors.New("unauthorized")

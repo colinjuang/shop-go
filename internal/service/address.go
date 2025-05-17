@@ -3,8 +3,9 @@ package service
 import (
 	"errors"
 
-	"github.com/colinjuang/shop-go/internal/dto"
-	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/api/middleware"
+	"github.com/colinjuang/shop-go/internal/api/request"
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress creates a new address
-func (s *AddressService) CreateAddress(c *gin.Context, req dto.AddressRequest) (*dto.AddressResponse, error) {
+func (s *AddressService) CreateAddress(c *gin.Context, req request.AddressRequest) (*response.AddressResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return nil, errors.New("unauthorized")
@@ -48,7 +49,7 @@ func (s *AddressService) CreateAddress(c *gin.Context, req dto.AddressRequest) (
 		return nil, err
 	}
 
-	return &dto.AddressResponse{
+	return &response.AddressResponse{
 		ID:           address.ID,
 		Phone:        address.Phone,
 		Name:         address.Name,
@@ -65,7 +66,7 @@ func (s *AddressService) CreateAddress(c *gin.Context, req dto.AddressRequest) (
 }
 
 // GetAddressByID gets an address by ID
-func (s *AddressService) GetAddressByID(c *gin.Context, id uint64) (*dto.AddressResponse, error) {
+func (s *AddressService) GetAddressByID(c *gin.Context, id uint64) (*response.AddressResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return nil, errors.New("unauthorized")
@@ -81,7 +82,7 @@ func (s *AddressService) GetAddressByID(c *gin.Context, id uint64) (*dto.Address
 		return nil, errors.New("address not found")
 	}
 
-	return &dto.AddressResponse{
+	return &response.AddressResponse{
 		ID:           address.ID,
 		Phone:        address.Phone,
 		Name:         address.Name,
@@ -98,7 +99,7 @@ func (s *AddressService) GetAddressByID(c *gin.Context, id uint64) (*dto.Address
 }
 
 // UpdateAddress updates an address
-func (s *AddressService) UpdateAddress(c *gin.Context, req dto.AddressRequest) error {
+func (s *AddressService) UpdateAddress(c *gin.Context, req request.AddressRequest) error {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return errors.New("unauthorized")
@@ -150,7 +151,7 @@ func (s *AddressService) DeleteAddress(c *gin.Context, id uint64) error {
 }
 
 // GetAddressesByUserID gets all addresses for a user
-func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*dto.AddressResponse, error) {
+func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*response.AddressResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return nil, errors.New("unauthorized")
@@ -161,9 +162,9 @@ func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*dto.AddressRes
 		return nil, err
 	}
 
-	addressResponses := make([]*dto.AddressResponse, len(addresses))
+	addressResponses := make([]*response.AddressResponse, len(addresses))
 	for i, address := range addresses {
-		addressResponses[i] = &dto.AddressResponse{
+		addressResponses[i] = &response.AddressResponse{
 			ID:           address.ID,
 			Phone:        address.Phone,
 			Name:         address.Name,
@@ -183,7 +184,7 @@ func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*dto.AddressRes
 }
 
 // GetDefaultAddressByUserID gets the default address for a user
-func (s *AddressService) GetDefaultAddressByUserID(c *gin.Context) (*dto.AddressResponse, error) {
+func (s *AddressService) GetDefaultAddressByUserID(c *gin.Context) (*response.AddressResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		return nil, errors.New("unauthorized")
@@ -194,7 +195,7 @@ func (s *AddressService) GetDefaultAddressByUserID(c *gin.Context) (*dto.Address
 		return nil, err
 	}
 
-	return &dto.AddressResponse{
+	return &response.AddressResponse{
 		ID:           address.ID,
 		Phone:        address.Phone,
 		Name:         address.Name,

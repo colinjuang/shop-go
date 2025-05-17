@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/dto"
+	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
@@ -28,12 +28,12 @@ func NewBannerService() *BannerService {
 }
 
 // GetBanners gets all banners
-func (s *BannerService) GetBanners() ([]*dto.BannerResponse, error) {
+func (s *BannerService) GetBanners() ([]*response.BannerResponse, error) {
 	ctx := context.Background()
 	cacheKey := "home:banners"
 
 	// Try to get from cache
-	var bannerResponses []*dto.BannerResponse
+	var bannerResponses []*response.BannerResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &bannerResponses)
 	if err == nil {
 		return bannerResponses, nil
@@ -56,9 +56,9 @@ func (s *BannerService) GetBanners() ([]*dto.BannerResponse, error) {
 		logger.Warnf("Failed to cache banners: %v", err)
 	}
 
-	bannerResponses = make([]*dto.BannerResponse, len(banners))
+	bannerResponses = make([]*response.BannerResponse, len(banners))
 	for i, banner := range banners {
-		bannerResponses[i] = &dto.BannerResponse{
+		bannerResponses[i] = &response.BannerResponse{
 			ID:        banner.ID,
 			Title:     banner.Title,
 			ImageUrl:  banner.ImageUrl,

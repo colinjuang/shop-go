@@ -6,19 +6,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// ProductRepository handles database operations for products
+// ProductRepository 商品仓库
 type ProductRepository struct {
 	db *gorm.DB
 }
 
-// NewProductRepository creates a new product repository
+// NewProductRepository
 func NewProductRepository() *ProductRepository {
 	return &ProductRepository{
 		db: database.GetDB(),
 	}
 }
 
-// GetProductByID gets a product by ID
+// GetProductByID 获取商品
 func (r *ProductRepository) GetProductByID(id uint64) (*model.Product, error) {
 	var product model.Product
 	result := r.db.First(&product, "id = ?", id)
@@ -28,14 +28,14 @@ func (r *ProductRepository) GetProductByID(id uint64) (*model.Product, error) {
 	return &product, nil
 }
 
-// GetProducts gets products with pagination
+// GetProducts 获取商品
 func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint64, hot, recommend *bool) ([]model.Product, int64, error) {
 	var products []model.Product
 	var count int64
 
 	query := r.db.Model(&model.Product{})
 
-	// Apply filters
+	// 应用过滤
 	if categoryID != nil {
 		query = query.Where("category_id = ?", *categoryID)
 	}
@@ -48,12 +48,12 @@ func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint64, 
 		query = query.Where("recommend = ?", *recommend)
 	}
 
-	// Get total count
+	// 获取总数
 	if err := query.Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// Get paginated results
+	// 获取分页结果
 	offset := (page - 1) * pageSize
 	if err := query.Offset(offset).Limit(pageSize).Find(&products).Error; err != nil {
 		return nil, 0, err

@@ -11,19 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AddressService handles business logic for addresses
+// AddressService 地址服务
 type AddressService struct {
 	addressRepo *repository.AddressRepository
 }
 
-// NewAddressService creates a new address service
+// NewAddressService 实例
 func NewAddressService() *AddressService {
 	return &AddressService{
 		addressRepo: repository.NewAddressRepository(),
 	}
 }
 
-// CreateAddress creates a new address
+// CreateAddress 创建地址
 func (s *AddressService) CreateAddress(c *gin.Context, req request.AddressRequest) (*response.AddressResponse, error) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {

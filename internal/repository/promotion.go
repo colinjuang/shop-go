@@ -6,19 +6,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// PromotionRepository handles database operations for promotions
+// PromotionRepository 促销仓库
 type PromotionRepository struct {
 	db *gorm.DB
 }
 
-// NewPromotionRepository creates a new promotion repository
+// NewPromotionRepository
 func NewPromotionRepository() *PromotionRepository {
 	return &PromotionRepository{
 		db: database.GetDB(),
 	}
 }
 
-// GetPromotions gets all promotions
+// GetPromotions 获取所有促销
 func (r *PromotionRepository) GetPromotions() ([]model.Promotion, error) {
 	var promotions []model.Promotion
 	result := r.db.Find(&promotions)

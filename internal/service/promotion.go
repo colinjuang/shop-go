@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
@@ -28,11 +29,10 @@ func NewPromotionService() *PromotionService {
 // GetPromotions gets all promotions
 func (s *PromotionService) GetPromotions() ([]*response.PromotionResponse, error) {
 	ctx := context.Background()
-	cacheKey := "home:promotions"
 
 	// Try to get from cache
 	var promotionResponses []*response.PromotionResponse
-	err := s.cacheService.GetObject(ctx, cacheKey, &promotionResponses)
+	err := s.cacheService.GetObject(ctx, constant.HomePromotions, &promotionResponses)
 	if err == nil {
 		return promotionResponses, nil
 	}
@@ -55,7 +55,7 @@ func (s *PromotionService) GetPromotions() ([]*response.PromotionResponse, error
 	}
 
 	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, promotions, 1*time.Minute)
+	err = s.cacheService.Set(ctx, constant.HomePromotions, promotions, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache promotions: %v", err)
 	}

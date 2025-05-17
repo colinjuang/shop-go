@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -28,23 +29,22 @@ func NewCategoryService() *CategoryService {
 // GetCategories gets all categories
 func (s *CategoryService) GetCategories() ([]*response.CategoryResponse, error) {
 	ctx := context.Background()
-	cacheKey := "categories:all"
 
-	// Try to get from cache
+	// 从缓存中获取
 	var categoryResponses []*response.CategoryResponse
-	err := s.cacheService.GetObject(ctx, cacheKey, &categoryResponses)
+	err := s.cacheService.GetObject(ctx, constant.CategoryList, &categoryResponses)
 	if err == nil {
 		return categoryResponses, nil
 	}
 
-	// If not in cache, get from database
+	// 如果不在缓存中，从数据库获取
 	categories, err := s.categoryRepo.GetCategories()
 	if err != nil {
 		return nil, err
 	}
 
-	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, categories, 1*time.Minute)
+	// 缓存1分钟
+	err = s.cacheService.Set(ctx, constant.CategoryList, categories, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache categories: %v", err)
 	}
@@ -67,7 +67,7 @@ func (s *CategoryService) GetCategories() ([]*response.CategoryResponse, error) 
 // GetCategoriesByParentID gets categories by parent ID
 func (s *CategoryService) GetCategoriesByParentID(parentID uint64) ([]*response.CategoryResponse, error) {
 	ctx := context.Background()
-	cacheKey := fmt.Sprintf("categories:parent:%d", parentID)
+	cacheKey := fmt.Sprintf(constant.CategoryParentID+":%d", parentID)
 
 	// Try to get from cache
 	var categoryResponses []*response.CategoryResponse
@@ -107,25 +107,25 @@ func (s *CategoryService) GetCategoriesByParentID(parentID uint64) ([]*response.
 // GetCategoryTree gets the category tree
 func (s *CategoryService) GetCategoryTree() ([]*response.CategoryTreeResponse, error) {
 	ctx := context.Background()
-	cacheKey := "categories:tree"
+	cacheKey := constant.CategoryTree
 
-	// Try to get from cache
+	// 从缓存中获取
 	var tree []*response.CategoryTreeResponse
 	err := s.cacheService.GetObject(ctx, cacheKey, &tree)
 	if err == nil {
 		return tree, nil
 	}
 
-	// If not in cache, get from database
+	// 如果不在缓存中，从数据库获取
 	categories, err := s.categoryRepo.GetCategories()
 	if err != nil {
 		return nil, err
 	}
 
-	// Create a map for quick lookup
+	// 创建一个快速查找的map
 	treeMap := make(map[uint64]*response.CategoryTreeResponse)
 
-	// First pass: create all tree nodes
+	// 第一遍：创建所有树节点
 	for _, category := range categories {
 		if category.ParentID == 0 {
 			node := &response.CategoryTreeResponse{
@@ -140,7 +140,7 @@ func (s *CategoryService) GetCategoryTree() ([]*response.CategoryTreeResponse, e
 		}
 	}
 
-	// Second pass: add children using the map for O(1) parent lookup
+	// 第二遍：使用map进行O(1)父节点查找
 	for _, category := range categories {
 		if category.ParentID != 0 {
 			if parent, exists := treeMap[category.ParentID]; exists {
@@ -156,7 +156,7 @@ func (s *CategoryService) GetCategoryTree() ([]*response.CategoryTreeResponse, e
 		}
 	}
 
-	// Cache for 1 minute
+	// 缓存1分钟
 	err = s.cacheService.Set(ctx, cacheKey, tree, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache categories: %v", err)

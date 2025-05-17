@@ -15,7 +15,7 @@
 │   │   ├── handler/     # HTTP处理器
 │   │   ├── middleware/  # HTTP中间件
 │   │   ├── request/     # HTTP请求
-│   │   └── response/    # HTTP响应
+│   │   ├── response/    # HTTP响应
 │   │   └── router/      # API路由定义
 │   ├── config/       # 配置代码
 │   ├── model/        # 领域模型

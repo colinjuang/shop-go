@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -187,7 +188,7 @@ func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*mode
 	}
 
 	// Cache the order for future retrievals
-	cacheKey := fmt.Sprintf("order:%d", order.ID)
+	cacheKey := fmt.Sprintf(constant.OrderPrefix+":%d", order.ID)
 	_ = s.cacheService.Set(ctx, cacheKey, *order, 30*time.Minute)
 
 	return order, orderErr
@@ -196,7 +197,7 @@ func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*mode
 // GetOrderByID gets an order by ID
 func (s *OrderService) GetOrderByID(id uint64, userID uint64) (*model.Order, error) {
 	ctx := context.Background()
-	cacheKey := fmt.Sprintf("order:%d", id)
+	cacheKey := fmt.Sprintf(constant.OrderPrefix+":%d", id)
 
 	// Try to get from cache
 	var order model.Order
@@ -225,7 +226,7 @@ func (s *OrderService) GetOrderByID(id uint64, userID uint64) (*model.Order, err
 // GetOrderByOrderNo gets an order by order number
 func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint64) (*model.Order, error) {
 	ctx := context.Background()
-	cacheKey := fmt.Sprintf("order:no:%s", orderNo)
+	cacheKey := fmt.Sprintf(constant.OrderNo+":%s", orderNo)
 
 	// Try to get from cache
 	var order model.Order
@@ -261,7 +262,7 @@ func (s *OrderService) UpdateOrderStatus(id uint64, userID uint64, status int) e
 	}
 
 	// Use a lock to prevent race conditions when updating order status
-	lockKey := fmt.Sprintf("order:status:%d", id)
+	lockKey := fmt.Sprintf(constant.OrderStatus+":%d", id)
 
 	err = redis.WithLock(ctx, lockKey, 30*time.Second, func() error {
 		// Update status in database
@@ -271,7 +272,7 @@ func (s *OrderService) UpdateOrderStatus(id uint64, userID uint64, status int) e
 		}
 
 		// Invalidate cache
-		cacheKey := fmt.Sprintf("order:%d", id)
+		cacheKey := fmt.Sprintf(constant.OrderPrefix+":%d", id)
 		s.cacheService.Delete(ctx, cacheKey)
 
 		return nil
@@ -285,7 +286,7 @@ func (s *OrderService) GetOrdersByUserID(userID uint64, page, pageSize int, stat
 	ctx := context.Background()
 
 	// Generate cache key
-	cacheKey := fmt.Sprintf("orders:user:%d:page:%d:size:%d", userID, page, pageSize)
+	cacheKey := fmt.Sprintf(constant.OrderUserPage+"%d:page:%d:size:%d", userID, page, pageSize)
 	if status != nil {
 		cacheKey += fmt.Sprintf(":status:%d", *status)
 	}

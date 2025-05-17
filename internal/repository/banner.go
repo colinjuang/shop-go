@@ -6,19 +6,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// BannerRepository handles database operations for banners
+// BannerRepository 轮播图仓库
 type BannerRepository struct {
 	db *gorm.DB
 }
 
-// NewBannerRepository creates a new banner repository
+// NewBannerRepository
 func NewBannerRepository() *BannerRepository {
 	return &BannerRepository{
 		db: database.GetDB(),
 	}
 }
 
-// GetBanners gets all banners
+// GetBanners 获取所有轮播图
 func (r *BannerRepository) GetBanners() ([]model.Banner, error) {
 	var banners []model.Banner
 	result := r.db.Order("sort_order ASC").Find(&banners)

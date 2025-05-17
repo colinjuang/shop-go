@@ -6,21 +6,21 @@ import (
 	"gorm.io/gorm"
 )
 
-// AddressRepository handles database operations for addresses
+// AddressRepository 地址仓库
 type AddressRepository struct {
 	db *gorm.DB
 }
 
-// NewAddressRepository creates a new address repository
+// NewAddressRepository 实例
 func NewAddressRepository() *AddressRepository {
 	return &AddressRepository{
 		db: database.GetDB(),
 	}
 }
 
-// CreateAddress creates a new address
+// CreateAddress 创建新地址
 func (r *AddressRepository) CreateAddress(address *model.Address) error {
-	// Set all other addresses as non-default if this one is default
+	// 如果这个地址是默认地址，则将其他地址设置为非默认
 	if address.IsDefault == 1 {
 		r.db.Model(&model.Address{}).Where("user_id = ?", address.UserID).Update("is_default", 0)
 	}
@@ -28,7 +28,7 @@ func (r *AddressRepository) CreateAddress(address *model.Address) error {
 	return r.db.Create(address).Error
 }
 
-// GetAddressByID gets an address by ID
+// GetAddressByID 获取地址
 func (r *AddressRepository) GetAddressByID(id uint64) (*model.Address, error) {
 	var address model.Address
 	result := r.db.First(&address, "id = ?", id)
@@ -38,9 +38,9 @@ func (r *AddressRepository) GetAddressByID(id uint64) (*model.Address, error) {
 	return &address, nil
 }
 
-// UpdateAddress updates an address
+// UpdateAddress 更新地址
 func (r *AddressRepository) UpdateAddress(address *model.Address) error {
-	// Set all other addresses as non-default if this one is default
+	// 如果这个地址是默认地址，则将其他地址设置为非默认
 	if address.IsDefault == 1 {
 		r.db.Model(&model.Address{}).Where("user_id = ? AND id != ?", address.UserID, address.ID).Update("is_default", 0)
 	}
@@ -48,12 +48,12 @@ func (r *AddressRepository) UpdateAddress(address *model.Address) error {
 	return r.db.Save(address).Error
 }
 
-// DeleteAddress deletes an address
+// DeleteAddress 删除地址
 func (r *AddressRepository) DeleteAddress(id uint64) error {
 	return r.db.Delete(&model.Address{}, "id = ?", id).Error
 }
 
-// GetAddressesByUserID gets all addresses for a user
+// GetAddressesByUserID 获取用户所有地址
 func (r *AddressRepository) GetAddressesByUserID(userID uint64) ([]model.Address, error) {
 	var addresses []model.Address
 	result := r.db.Where("user_id = ?", userID).Find(&addresses)
@@ -63,7 +63,7 @@ func (r *AddressRepository) GetAddressesByUserID(userID uint64) ([]model.Address
 	return addresses, nil
 }
 
-// GetDefaultAddressByUserID gets the default address for a user
+// GetDefaultAddressByUserID 获取用户默认地址
 func (r *AddressRepository) GetDefaultAddressByUserID(userID uint64) (*model.Address, error) {
 	var address model.Address
 	result := r.db.Where("user_id = ? AND is_default = ?", userID, true).First(&address)

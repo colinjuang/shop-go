@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
@@ -30,11 +31,10 @@ func NewBannerService() *BannerService {
 // GetBanners gets all banners
 func (s *BannerService) GetBanners() ([]*response.BannerResponse, error) {
 	ctx := context.Background()
-	cacheKey := "home:banners"
 
 	// Try to get from cache
 	var bannerResponses []*response.BannerResponse
-	err := s.cacheService.GetObject(ctx, cacheKey, &bannerResponses)
+	err := s.cacheService.GetObject(ctx, constant.HomeBanners, &bannerResponses)
 	if err == nil {
 		return bannerResponses, nil
 	}
@@ -51,7 +51,7 @@ func (s *BannerService) GetBanners() ([]*response.BannerResponse, error) {
 		banners[i].ImageUrl = imageUrl
 	}
 	// Cache for 1 minute
-	err = s.cacheService.Set(ctx, cacheKey, banners, 1*time.Minute)
+	err = s.cacheService.Set(ctx, constant.HomeBanners, banners, 1*time.Minute)
 	if err != nil {
 		logger.Warnf("Failed to cache banners: %v", err)
 	}

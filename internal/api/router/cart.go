@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/colinjuang/shop-go/internal/api/handler"
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,15 +10,15 @@ import (
 // RegisterCartApi registers all cart related api
 func RegisterCartApi(api *gin.RouterGroup) {
 	cartHandler := handler.NewCartHandler()
-
+	auth := api.Use(middleware.AuthMiddleware())
 	// 添加到购物车
-	api.GET("/cart/add", cartHandler.AddToCart)
+	auth.POST("/cart", cartHandler.AddToCart)
 	// 获取购物车列表
-	api.GET("/cart/list", cartHandler.GetCartList)
+	auth.GET("/cart", cartHandler.GetCartList)
 	// 更新购物车商品状态
-	api.GET("/cart/update", cartHandler.UpdateCartItemStatus)
+	auth.PUT("/cart", cartHandler.UpdateCartItemStatus)
 	// 更新购物车所有商品状态
-	api.GET("/cart/update-all", cartHandler.UpdateAllCartItemStatus)
+	auth.PUT("/cart/all", cartHandler.UpdateAllCartItemStatus)
 	// 删除购物车商品
-	api.GET("/cart/delete", cartHandler.DeleteCartItem)
+	auth.DELETE("/cart", cartHandler.DeleteCartItem)
 }

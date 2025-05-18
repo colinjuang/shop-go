@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/colinjuang/shop-go/internal/api/handler"
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,13 +10,13 @@ import (
 // RegisterProductApi registers all product api
 func RegisterProductApi(api *gin.RouterGroup) {
 	productHandler := handler.NewProductHandler()
-
+	auth := api.Use(middleware.AuthMiddleware())
 	// 获取商品列表
-	api.GET("/product", productHandler.GetProducts)
+	auth.GET("/product", productHandler.GetProducts)
 	// 获取商品详情
-	api.GET("/product/:id", productHandler.GetProductDetail)
+	auth.GET("/product/:id", productHandler.GetProductDetail)
 	// 获取推荐商品
-	api.GET("/product/recommend", productHandler.GetRecommendProducts)
+	auth.GET("/product/recommend", productHandler.GetRecommendProducts)
 	// 获取热门商品
-	api.GET("/product/hot", productHandler.GetHotProducts)
+	auth.GET("/product/hot", productHandler.GetHotProducts)
 }

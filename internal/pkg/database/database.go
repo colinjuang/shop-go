@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 var (
@@ -34,6 +35,10 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",   // 表前缀
+			SingularTable: true, // 使用单数表名
+		},
 	})
 	if err != nil {
 		log.Printf("Failed to connect to database: %v", err)

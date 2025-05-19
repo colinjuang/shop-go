@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/api/middleware"
+	apiv1 "github.com/colinjuang/shop-go/internal/api/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,28 +17,28 @@ func RegisterRouter(router *gin.Engine) {
 	router.Use(middleware.RateLimitMiddleware(100, 1*time.Minute))
 
 	// API group
-	apiV1 := router.Group("/api")
+	api := router.Group("/api")
 
 	// 轮播图
-	RegisterBannerApi(apiV1)
+	apiv1.RegisterBannerApi(api)
 	// 分类
-	RegisterCategoryApi(apiV1)
+	apiv1.RegisterCategoryApi(api)
 	// 商品
-	RegisterProductApi(apiV1)
+	apiv1.RegisterProductApi(api)
 	// 促销广告
-	RegisterPromotionApi(apiV1)
+	apiv1.RegisterPromotionApi(api)
 	// 上传
-	RegisterUploadApi(apiV1)
+	apiv1.RegisterUploadApi(api)
 	// 登录
-	RegisterLoginApi(apiV1)
+	apiv1.RegisterLoginApi(api)
 	// 微信登录
-	RegisterWechatLoginApi(apiV1)
+	apiv1.RegisterWechatLoginApi(api)
 	// 用户
-	RegisterUserApi(apiV1)
+	apiv1.RegisterUserApi(api)
 	// 地址
-	RegisterAddressApi(apiV1)
+	apiv1.RegisterAddressApi(api)
 	// 购物车
-	RegisterCartApi(apiV1)
+	apiv1.RegisterCartApi(api)
 	// 订单
-	RegisterOrderApi(apiV1)
+	apiv1.RegisterOrderApi(api)
 }

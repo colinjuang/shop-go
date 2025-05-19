@@ -1,4 +1,4 @@
-package router
+package v1
 
 import (
 	"github.com/colinjuang/shop-go/internal/api/handler"

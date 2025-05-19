@@ -1,8 +1,13 @@
 package service
 
 import (
+	"errors"
+
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
+	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/gin-gonic/gin"
 )
 
 // CartService handles business logic for cart items
@@ -20,7 +25,11 @@ func NewCartService() *CartService {
 }
 
 // AddToCart adds a product to the cart
-func (s *CartService) AddToCart(userID uint64, productID uint64, quantity int) error {
+func (s *CartService) AddToCart(c *gin.Context, productID uint64, quantity int) error {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		return errors.New("unauthorized")
+	}
 	// Check if the product exists
 	product, err := s.productRepo.GetProductByID(productID)
 	if err != nil {
@@ -29,10 +38,10 @@ func (s *CartService) AddToCart(userID uint64, productID uint64, quantity int) e
 
 	// Check stock
 	if product.StockCount < quantity {
-		return ErrorOutOfStock
+		return pkgerrors.ErrOutOfStock
 	}
 
-	return s.cartRepo.AddToCart(userID, productID, quantity)
+	return s.cartRepo.AddToCart(reqUser.UserID, productID, quantity)
 }
 
 // GetCartItems gets all cart items for a user
@@ -74,7 +83,7 @@ func (s *CartService) UpdateCartItemStatus(id uint64, userID uint64, selected bo
 		}
 	}
 
-	return ErrorCartItemNotFound
+	return pkgerrors.ErrCartItemNotFound
 }
 
 // UpdateAllCartItemStatus updates the status of all cart items for a user
@@ -96,5 +105,5 @@ func (s *CartService) DeleteCartItem(id uint64, userID uint64) error {
 		}
 	}
 
-	return ErrorCartItemNotFound
+	return pkgerrors.ErrCartItemNotFound
 }

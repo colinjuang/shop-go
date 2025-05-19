@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
+
 	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
@@ -49,7 +51,7 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 		// Verify ownership of cart items
 		for _, item := range items {
 			if item.UserID != userID {
-				return 0, nil, ErrorUnauthorized
+				return 0, nil, pkgerrors.ErrPaymentFailed
 			}
 		}
 
@@ -63,7 +65,7 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 
 		// Check stock
 		if product.StockCount < *quantity {
-			return 0, nil, ErrorOutOfStock
+			return 0, nil, pkgerrors.ErrOutOfStock
 		}
 
 		cartItems = []model.CartItem{
@@ -116,7 +118,7 @@ func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*mode
 		}
 
 		if address.UserID != userID {
-			return ErrorAddressNotFound
+			return pkgerrors.ErrPaymentFailed
 		}
 
 		// Get order details
@@ -148,7 +150,7 @@ func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*mode
 			}
 
 			if product.StockCount < item.Quantity {
-				return ErrorOutOfStock
+				return pkgerrors.ErrOutOfStock
 			}
 
 			orderItem := model.OrderItem{
@@ -214,7 +216,7 @@ func (s *OrderService) GetOrderByID(id uint64, userID uint64) (*model.Order, err
 
 	// Ensure the order belongs to the user
 	if orderPtr.UserID != userID {
-		return nil, ErrorOrderNotFound
+		return nil, pkgerrors.ErrPaymentFailed
 	}
 
 	// Cache for future requests
@@ -243,7 +245,7 @@ func (s *OrderService) GetOrderByOrderNo(orderNo string, userID uint64) (*model.
 
 	// Ensure the order belongs to the user
 	if orderPtr.UserID != userID {
-		return nil, ErrorOrderNotFound
+		return nil, pkgerrors.ErrPaymentFailed
 	}
 
 	// Cache for future requests

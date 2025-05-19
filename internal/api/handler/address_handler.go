@@ -7,7 +7,6 @@ import (
 	"github.com/colinjuang/shop-go/internal/api/request"
 	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/service"
-
 	"github.com/gin-gonic/gin"
 )
 

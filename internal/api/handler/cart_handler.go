@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/colinjuang/shop-go/internal/api/request"
 	"github.com/colinjuang/shop-go/internal/api/response"
+	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/service"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,30 +25,20 @@ func NewCartHandler() *CartHandler {
 
 // AddToCart adds a product to the cart
 func (h *CartHandler) AddToCart(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
+	var request request.AddToCartRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	productIDStr := c.Query("product_id")
-	quantityStr := c.DefaultQuery("quantity", "1")
-
-	productID, err := strconv.ParseUint(productIDStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid product ID"))
-		return
-	}
-
-	quantity, err := strconv.Atoi(quantityStr)
-	if err != nil || quantity < 1 {
+	if request.Quantity < 1 {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid quantity"))
 		return
 	}
 
-	err = h.cartService.AddToCart(userID.(uint64), productID, quantity)
+	err := h.cartService.AddToCart(c, request.ProductID, request.Quantity)
 	if err != nil {
-		if err == service.ErrorOutOfStock {
+		if err == pkgerrors.ErrOutOfStock {
 			c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		} else {
 			c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
@@ -96,7 +87,7 @@ func (h *CartHandler) UpdateCartItemStatus(c *gin.Context) {
 
 	err = h.cartService.UpdateCartItemStatus(id, userID.(uint64), selected)
 	if err != nil {
-		if err == service.ErrorCartItemNotFound {
+		if err == pkgerrors.ErrCartItemNotFound {
 			c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		} else {
 			c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
@@ -144,7 +135,7 @@ func (h *CartHandler) DeleteCartItem(c *gin.Context) {
 
 	err = h.cartService.DeleteCartItem(id, userID.(uint64))
 	if err != nil {
-		if err == service.ErrorCartItemNotFound {
+		if err == pkgerrors.ErrCartItemNotFound {
 			c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		} else {
 			c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))

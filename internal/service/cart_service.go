@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/colinjuang/shop-go/internal/api/middleware"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -23,14 +23,13 @@ func NewCartService() *CartService {
 
 // AddToCart adds a product to the cart
 func (s *CartService) AddToCart(reqUser *middleware.UserClaim, productID uint64, quantity int) error {
-
-	// Check if the product exists
+	// 检查商品是否存在
 	product, err := s.productRepo.GetProductByID(productID)
 	if err != nil {
 		return err
 	}
 
-	// Check stock
+	// 检查库存
 	if product.StockCount < quantity {
 		return pkgerrors.ErrOutOfStock
 	}

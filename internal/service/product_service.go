@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/response"
 )
 
 // ProductService handles business logic for products

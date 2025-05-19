@@ -3,11 +3,11 @@ package service
 import (
 	"errors"
 
-	"github.com/colinjuang/shop-go/internal/api/middleware"
-	"github.com/colinjuang/shop-go/internal/api/request"
-	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/request"
+	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/gin-gonic/gin"
 )
 

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/colinjuang/shop-go/internal/api/middleware"
-	"github.com/colinjuang/shop-go/internal/api/request"
-	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/request"
+	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
 )

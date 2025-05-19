@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/colinjuang/shop-go/internal/api/handler"
+	"github.com/colinjuang/shop-go/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/colinjuang/shop-go/internal/api/request"
-	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/request"
+	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/colinjuang/shop-go/internal/service"
 
 	"github.com/gin-gonic/gin"

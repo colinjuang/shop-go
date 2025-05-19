@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/api/response"
+	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/colinjuang/shop-go/internal/service"
 
 	"github.com/gin-gonic/gin"

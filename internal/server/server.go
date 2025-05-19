@@ -3,12 +3,12 @@ package server
 import (
 	"fmt"
 
-	"github.com/colinjuang/shop-go/internal/api/middleware"
-	"github.com/colinjuang/shop-go/internal/api/router"
 	"github.com/colinjuang/shop-go/internal/config"
+	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
+	"github.com/colinjuang/shop-go/internal/router"
 	"github.com/gin-gonic/gin"
 )
 

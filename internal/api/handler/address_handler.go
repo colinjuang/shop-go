@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 	"github.com/colinjuang/shop-go/internal/api/request"
 	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/service"
@@ -30,7 +31,13 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 		return
 	}
 
-	address, err := h.addressService.CreateAddress(c, req)
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
+		return
+	}
+
+	address, err := h.addressService.CreateAddress(reqUser, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -41,7 +48,13 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 
 // GetAddressList gets all addresses for a user
 func (h *AddressHandler) GetAddressList(c *gin.Context) {
-	addresses, err := h.addressService.GetAddressesByUserID(c)
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
+		return
+	}
+
+	addresses, err := h.addressService.GetAddressesByUserID(reqUser)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

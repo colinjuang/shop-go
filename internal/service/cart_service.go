@@ -1,13 +1,10 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/colinjuang/shop-go/internal/api/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"github.com/gin-gonic/gin"
 )
 
 // CartService handles business logic for cart items
@@ -25,11 +22,8 @@ func NewCartService() *CartService {
 }
 
 // AddToCart adds a product to the cart
-func (s *CartService) AddToCart(c *gin.Context, productID uint64, quantity int) error {
-	reqUser := middleware.GetRequestUser(c)
-	if reqUser == nil {
-		return errors.New("unauthorized")
-	}
+func (s *CartService) AddToCart(reqUser *middleware.UserClaim, productID uint64, quantity int) error {
+
 	// Check if the product exists
 	product, err := s.productRepo.GetProductByID(productID)
 	if err != nil {

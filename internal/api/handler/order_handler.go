@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
@@ -77,7 +78,13 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 
 // GetOrderAddress gets the user's addresses for order
 func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
-	addresses, err := h.addressService.GetAddressesByUserID(c)
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
+		return
+	}
+
+	addresses, err := h.addressService.GetAddressesByUserID(reqUser)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -96,8 +103,8 @@ func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
 
 // CreateOrder creates a new order
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
@@ -108,7 +115,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.orderService.CreateOrder(userID.(uint64), req)
+	order, err := h.orderService.CreateOrder(reqUser, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -119,8 +126,8 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 
 // GetWechatPayInfo gets WeChat payment information
 func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
@@ -132,7 +139,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint64))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, reqUser.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -155,8 +162,8 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 
 // CheckWechatPayStatus checks WeChat payment status
 func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
@@ -168,7 +175,7 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	}
 
 	// Get order by order number
-	order, err := h.orderService.GetOrderByOrderNo(orderNo, userID.(uint64))
+	order, err := h.orderService.GetOrderByOrderNo(orderNo, reqUser.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -178,14 +185,14 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	// For now, we'll simulate payment success
 	if order.Status == model.OrderStatusPending {
 		// Update order status to paid
-		err = h.orderService.UpdateOrderStatus(order.ID, userID.(uint64), model.OrderStatusPaid)
+		err = h.orderService.UpdateOrderStatus(order.ID, reqUser.UserID, model.OrderStatusPaid)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
 		}
 
 		// Reload order
-		order, err = h.orderService.GetOrderByID(order.ID, userID.(uint64))
+		order, err = h.orderService.GetOrderByID(order.ID, reqUser.UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 			return
@@ -203,8 +210,8 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 
 // GetOrderList gets orders for a user with pagination
 func (h *OrderHandler) GetOrderList(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
@@ -230,7 +237,7 @@ func (h *OrderHandler) GetOrderList(c *gin.Context) {
 	}
 
 	// Get orders
-	pagination, err := h.orderService.GetOrdersByUserID(userID.(uint64), page, pageSize, status)
+	pagination, err := h.orderService.GetOrdersByUserID(reqUser.UserID, page, pageSize, status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return

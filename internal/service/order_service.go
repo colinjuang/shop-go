@@ -8,6 +8,7 @@ import (
 
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 
+	"github.com/colinjuang/shop-go/internal/api/middleware"
 	"github.com/colinjuang/shop-go/internal/api/response"
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
@@ -90,13 +91,13 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 }
 
 // CreateOrder creates a new order
-func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*model.Order, error) {
+func (s *OrderService) CreateOrder(reqUser *middleware.UserClaim, req model.OrderRequest) (*model.Order, error) {
 	ctx := context.Background()
 
 	// Create a lock key for this order creation
 	// This prevents race conditions when multiple requests try to create an order
 	// for the same user with the same products
-	lockKey := fmt.Sprintf("order:create:user:%d", userID)
+	lockKey := fmt.Sprintf("order:create:user:%d", reqUser.UserID)
 	if len(req.CartIDs) > 0 {
 		for _, id := range req.CartIDs {
 			lockKey += fmt.Sprintf(":cart:%d", id)
@@ -117,19 +118,19 @@ func (s *OrderService) CreateOrder(userID uint64, req model.OrderRequest) (*mode
 			return err
 		}
 
-		if address.UserID != userID {
+		if address.UserID != reqUser.UserID {
 			return pkgerrors.ErrPaymentFailed
 		}
 
 		// Get order details
-		totalAmount, cartItems, err := s.GetOrderDetail(userID, req.CartIDs, &req.ProductID, &req.Quantity)
+		totalAmount, cartItems, err := s.GetOrderDetail(reqUser.UserID, req.CartIDs, &req.ProductID, &req.Quantity)
 		if err != nil {
 			return err
 		}
 
 		// Create order
 		order = &model.Order{
-			UserID:        userID,
+			UserID:        reqUser.UserID,
 			TotalAmount:   totalAmount,
 			PaymentAmount: totalAmount, // No discount for now
 			Status:        model.OrderStatusPending,

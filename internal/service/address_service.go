@@ -24,12 +24,7 @@ func NewAddressService() *AddressService {
 }
 
 // CreateAddress 创建地址
-func (s *AddressService) CreateAddress(c *gin.Context, req request.AddressRequest) (*response.AddressResponse, error) {
-	reqUser := middleware.GetRequestUser(c)
-	if reqUser == nil {
-		return nil, errors.New("unauthorized")
-	}
-
+func (s *AddressService) CreateAddress(reqUser *middleware.UserClaim, req request.AddressRequest) (*response.AddressResponse, error) {
 	address := &model.Address{
 		UserID:       reqUser.UserID,
 		Name:         req.Name,
@@ -151,12 +146,7 @@ func (s *AddressService) DeleteAddress(c *gin.Context, id uint64) error {
 }
 
 // GetAddressesByUserID gets all addresses for a user
-func (s *AddressService) GetAddressesByUserID(c *gin.Context) ([]*response.AddressResponse, error) {
-	reqUser := middleware.GetRequestUser(c)
-	if reqUser == nil {
-		return nil, errors.New("unauthorized")
-	}
-
+func (s *AddressService) GetAddressesByUserID(reqUser *middleware.UserClaim) ([]*response.AddressResponse, error) {
 	addresses, err := s.addressRepo.GetAddressesByUserID(reqUser.UserID)
 	if err != nil {
 		return nil, err

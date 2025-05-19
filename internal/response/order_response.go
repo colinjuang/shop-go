@@ -6,7 +6,7 @@ type OrderDetailResponse struct {
 	OrderID     uint64              `json:"orderID"`
 	OrderNo     string              `json:"orderNo"`
 	TotalAmount float64             `json:"totalAmount"`
-	Items       []OrderItemResponse `json:"items"`
+	OrderItem   []OrderItemResponse `json:"orderItem"`
 	Address     AddressResponse     `json:"address"`
 }
 

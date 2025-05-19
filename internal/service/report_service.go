@@ -82,7 +82,7 @@ func (s *ReportService) GenerateProductCatalogPDF(ctx context.Context, categoryI
 // GenerateOrderInvoicePDF generates a PDF invoice for an order
 func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uint64, userID uint64) (string, error) {
 	// Get order
-	order, err := s.orderService.GetOrderByID(orderID, userID)
+	order, err := s.orderService.GetOrderAndOrderItemByID(orderID, userID)
 	if err != nil {
 		return "", err
 	}
@@ -123,7 +123,7 @@ func (s *ReportService) GenerateOrderInvoicePDF(ctx context.Context, orderID uin
 
 		// Order items
 		file.WriteString("Items:\n")
-		for _, item := range order.OrderItems {
+		for _, item := range order.OrderItem {
 			file.WriteString(fmt.Sprintf("%s - Qty: %d - Price: %.2f - Total: %.2f\n",
 				item.Name, item.Quantity, item.Price, float64(item.Quantity)*item.Price))
 		}

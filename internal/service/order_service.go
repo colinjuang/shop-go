@@ -39,7 +39,7 @@ func NewOrderService() *OrderService {
 
 // GetOrderDetail gets order details for checkout
 func (s *OrderService) GetOrderDetail(userID uint64, orderID uint64) (*response.OrderDetailResponse, error) {
-	order, err := s.orderRepo.GetOrderByID(orderID)
+	order, err := s.orderRepo.GetOrderByIDAndUserID(orderID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (s *OrderService) GetOrderDetail(userID uint64, orderID uint64) (*response.
 		OrderID:     order.ID,
 		OrderNo:     order.OrderNo,
 		TotalAmount: order.TotalAmount,
-		Items:       orderItemsResponse,
+		OrderItem:   orderItemsResponse,
 		Address: response.AddressResponse{
 			ID:           address.ID,
 			Phone:        address.Phone,
@@ -90,26 +90,29 @@ func (s *OrderService) GetOrderDetail(userID uint64, orderID uint64) (*response.
 }
 
 // CreateOrder creates a new order
-func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest) (*response.CreateOrderResponse, error) {
+func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest) error {
 	address, err := s.addressRepo.GetAddressByID(req.AddressID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if address.UserID != userID {
-		return nil, pkgerrors.ErrAddressNotFound
+		return pkgerrors.ErrAddressNotFound
 	}
 
-	order := &model.Order{
-		UserID:        userID,                                                                  // 用户ID
-		TotalAmount:   0,                                                                       // 总金额
-		PaymentAmount: 0,                                                                       // 支付金额
-		Status:        model.OrderStatusPending,                                                // 订单状态
-		AddressID:     req.AddressID,                                                           // 地址ID
-		ReceiverName:  address.Name,                                                            // 收货人姓名
-		ReceiverPhone: address.Phone,                                                           // 收货人电话
-		Address:       address.Province + address.City + address.District + address.DetailAddr, // 地址
-		PaymentType:   1,                                                                       // 默认微信支付
+	order := &model.OrderWithOrderItem{
+		Order: model.Order{
+			UserID:        userID,                                                                  // 用户ID
+			TotalAmount:   0,                                                                       // 总金额
+			PaymentAmount: 0,                                                                       // 支付金额
+			Status:        model.OrderStatusPending,                                                // 订单状态
+			AddressID:     req.AddressID,                                                           // 地址ID
+			ReceiverName:  address.Name,                                                            // 收货人姓名
+			ReceiverPhone: address.Phone,                                                           // 收货人电话
+			Address:       address.Province + address.City + address.District + address.DetailAddr, // 地址
+			PaymentType:   constant.PaymentMethodWechat,                                            // 默认微信支付
+		},
+		OrderItem: []model.OrderItem{},
 	}
 
 	var totalAmount float64
@@ -118,11 +121,11 @@ func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest
 	for _, cartID := range req.CartIDs {
 		cart, err := s.cartRepo.GetCartByID(cartID)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if cart.Product.StockCount < cart.Quantity {
-			return nil, pkgerrors.ErrOutOfStock
+			return pkgerrors.ErrOutOfStock
 		}
 
 		orderItem := model.OrderItem{
@@ -138,13 +141,13 @@ func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest
 		paymentAmount += float64(cart.Quantity) * cart.Product.Price
 	}
 
-	order.OrderItems = orderItems
+	order.OrderItem = orderItems
 	order.TotalAmount = totalAmount
 	order.PaymentAmount = paymentAmount
 
 	// 保存订单
-	if err := s.orderRepo.CreateOrder(order); err != nil {
-		return nil, err
+	if err := s.orderRepo.CreateOrder(&order.Order); err != nil {
+		return err
 	}
 
 	// 更新商品库存
@@ -159,7 +162,7 @@ func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest
 		}
 	}
 
-	return order, nil
+	return nil
 }
 
 // GetOrderByID gets an order by ID
@@ -188,7 +191,35 @@ func (s *OrderService) GetOrderByID(id uint64, userID uint64) (*model.Order, err
 	// Cache for future requests
 	_ = s.cacheService.Set(ctx, cacheKey, *orderPtr, 30*time.Minute)
 
-	return orderPtr, nil
+	return &order, nil
+}
+
+func (s *OrderService) GetOrderAndOrderItemByID(id uint64, userID uint64) (*model.OrderWithOrderItem, error) {
+	ctx := context.Background()
+	cacheKey := fmt.Sprintf(constant.OrderPrefix+":%d", id)
+
+	// Try to get from cache
+	var order model.OrderWithOrderItem
+	err := s.cacheService.GetObject(ctx, cacheKey, &order)
+	if err == nil && order.UserID == userID {
+		return &order, nil
+	}
+
+	// If not in cache or not owned by user, get from database
+	orderPtr, err := s.orderRepo.GetOrderByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure the order belongs to the user
+	if orderPtr.UserID != userID {
+		return nil, pkgerrors.ErrPaymentFailed
+	}
+
+	// Cache for future requests
+	_ = s.cacheService.Set(ctx, cacheKey, *orderPtr, 30*time.Minute)
+
+	return &order, nil
 }
 
 // GetOrderByOrderNo gets an order by order number

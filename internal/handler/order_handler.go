@@ -35,15 +35,15 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 		return
 	}
 
-	orderIdStr := c.Param("orderId")
-	orderId, err := strconv.ParseUint(orderIdStr, 10, 64)
+	orderIDStr := c.Query("id")
+	orderID, err := strconv.ParseUint(orderIDStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid order ID"))
 		return
 	}
 
 	// Get order details
-	orderDetail, err := h.orderService.GetOrderDetail(reqUser.UserID, orderId)
+	orderDetail, err := h.orderService.GetOrderDetail(reqUser.UserID, orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -91,13 +91,13 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.orderService.CreateOrder(reqUser.UserID, req)
+	err := h.orderService.CreateOrder(reqUser.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response.SuccessResponse(order))
+	c.JSON(http.StatusOK, response.SuccessResponse(nil))
 }
 
 // GetWechatPayInfo gets WeChat payment information

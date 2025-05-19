@@ -30,10 +30,28 @@ func (r *OrderRepository) CreateOrder(order *model.Order) error {
 	return r.db.Create(order).Error
 }
 
-// GetOrderByID 获取订单
 func (r *OrderRepository) GetOrderByID(id uint64) (*model.Order, error) {
 	var order model.Order
-	result := r.db.Preload("OrderItems").First(&order, id)
+	result := r.db.First(&order, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &order, nil
+}
+
+// GetOrderByID 获取订单
+func (r *OrderRepository) GetOrderAndOrderItemByID(id uint64) (*model.OrderWithOrderItem, error) {
+	var order model.OrderWithOrderItem
+	result := r.db.Preload("OrderItem").First(&order, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &order, nil
+}
+
+func (r *OrderRepository) GetOrderByIDAndUserID(id uint64, userID uint64) (*model.Order, error) {
+	var order model.Order
+	result := r.db.Where("id = ? AND user_id = ?", id, userID).First(&order)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -43,7 +61,7 @@ func (r *OrderRepository) GetOrderByID(id uint64) (*model.Order, error) {
 // GetOrderByOrderNo 获取订单
 func (r *OrderRepository) GetOrderByOrderNo(orderNo string) (*model.Order, error) {
 	var order model.Order
-	result := r.db.Where("order_no = ?", orderNo).Preload("OrderItems").First(&order)
+	result := r.db.Where("order_no = ?", orderNo).Preload("OrderItem").First(&order)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -83,7 +101,7 @@ func (r *OrderRepository) GetOrdersByUserID(userID uint64, page, pageSize int, s
 
 	// 获取分页结果
 	offset := (page - 1) * pageSize
-	if err := query.Offset(offset).Limit(pageSize).Preload("OrderItems").Order("created_at DESC").Find(&orders).Error; err != nil {
+	if err := query.Offset(offset).Limit(pageSize).Preload("OrderItem").Order("created_at DESC").Find(&orders).Error; err != nil {
 		return nil, 0, err
 	}
 

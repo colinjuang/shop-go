@@ -61,3 +61,9 @@ func (r *ProductRepository) GetProducts(page, pageSize int, categoryID *uint64, 
 
 	return products, count, nil
 }
+
+// UpdateProductStock 更新商品库存
+func (r *ProductRepository) UpdateProductStock(id uint64, stock int) error {
+	// 减去库存
+	return r.db.Model(&model.Product{}).Where("id = ?", id).Update("stock_count", gorm.Expr("stock_count - ?", stock)).Error
+}

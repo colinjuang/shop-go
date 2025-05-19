@@ -66,6 +66,16 @@ func (r *CartRepository) DeleteCart(id uint64) error {
 	return r.db.Delete(&model.Cart{}, "id = ?", id).Error
 }
 
+// GetCartByID 获取购物车商品
+func (r *CartRepository) GetCartByID(id uint64) (*model.Cart, error) {
+	var cart model.Cart
+	result := r.db.Where("id = ?", id).Preload("Product").First(&cart)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &cart, nil
+}
+
 // GetCartsByIDs 获取购物车商品
 func (r *CartRepository) GetCartsByIDs(ids []uint64) ([]model.Cart, error) {
 	var cart []model.Cart

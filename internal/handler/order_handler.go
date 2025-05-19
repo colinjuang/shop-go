@@ -6,6 +6,7 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/request"
 	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/colinjuang/shop-go/internal/service"
 
@@ -28,52 +29,27 @@ func NewOrderHandler() *OrderHandler {
 
 // GetOrderDetail gets order details for checkout
 func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
+	reqUser := middleware.GetRequestUser(c)
+	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	// Handle direct purchase
-	var productID *uint64
-	var quantity *int
-
-	if pidStr := c.Query("product_id"); pidStr != "" {
-		if pid, err := strconv.ParseUint(pidStr, 10, 64); err == nil {
-			productID = &pid
-		}
-	}
-
-	if qtyStr := c.Query("quantity"); qtyStr != "" {
-		if qty, err := strconv.Atoi(qtyStr); err == nil && qty > 0 {
-			quantity = &qty
-		}
-	}
-
-	// Handle cart checkout
-	var cartIDs []uint64
-	if cidsStr := c.QueryArray("cart_ids[]"); len(cidsStr) > 0 {
-		for _, cidStr := range cidsStr {
-			if cid, err := strconv.ParseUint(cidStr, 10, 64); err == nil {
-				cartIDs = append(cartIDs, cid)
-			}
-		}
+	orderIdStr := c.Param("orderId")
+	orderId, err := strconv.ParseUint(orderIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid order ID"))
+		return
 	}
 
 	// Get order details
-	totalAmount, cart, err := h.orderService.GetOrderDetail(userID.(uint64), cartIDs, productID, quantity)
+	orderDetail, err := h.orderService.GetOrderDetail(reqUser.UserID, orderId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
-	// Prepare response
-	resp := gin.H{
-		"total_amount": totalAmount,
-		"items":        cart,
-	}
-
-	c.JSON(http.StatusOK, response.SuccessResponse(resp))
+	c.JSON(http.StatusOK, response.SuccessResponse(orderDetail))
 }
 
 // GetOrderAddress gets the user's addresses for order
@@ -109,13 +85,13 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	var req model.OrderRequest
+	var req request.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	order, err := h.orderService.CreateOrder(reqUser, req)
+	order, err := h.orderService.CreateOrder(reqUser.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -147,7 +123,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 
 	// In a real implementation, we would call WeChat Payment API
 	// For now, we'll return a mock response
-	paymentResponse := model.PaymentResponse{
+	paymentResponse := response.PaymentResponse{
 		PaymentID: "wx" + orderNo,
 		AppID:     "your-app-id",
 		TimeStamp: strconv.FormatInt(order.CreatedAt.Unix(), 10),

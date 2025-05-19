@@ -2,14 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
+	"github.com/colinjuang/shop-go/internal/request"
 
 	"github.com/colinjuang/shop-go/internal/constant"
-	"github.com/colinjuang/shop-go/internal/middleware"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
@@ -18,183 +17,149 @@ import (
 
 // OrderService handles business logic for orders
 type OrderService struct {
-	orderRepo    *repository.OrderRepository
-	cartRepo     *repository.CartRepository
-	productRepo  *repository.ProductRepository
-	addressRepo  *repository.AddressRepository
-	cacheService *redis.CacheService
+	orderRepo     *repository.OrderRepository
+	orderItemRepo *repository.OrderItemRepository
+	cartRepo      *repository.CartRepository
+	productRepo   *repository.ProductRepository
+	addressRepo   *repository.AddressRepository
+	cacheService  *redis.CacheService
 }
 
 // NewOrderService creates a new order service
 func NewOrderService() *OrderService {
 	return &OrderService{
-		orderRepo:    repository.NewOrderRepository(),
-		cartRepo:     repository.NewCartRepository(),
-		productRepo:  repository.NewProductRepository(),
-		addressRepo:  repository.NewAddressRepository(),
-		cacheService: redis.NewCacheService(),
+		orderRepo:     repository.NewOrderRepository(),
+		orderItemRepo: repository.NewOrderItemRepository(),
+		cartRepo:      repository.NewCartRepository(),
+		productRepo:   repository.NewProductRepository(),
+		addressRepo:   repository.NewAddressRepository(),
+		cacheService:  redis.NewCacheService(),
 	}
 }
 
 // GetOrderDetail gets order details for checkout
-func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID *uint64, quantity *int) (float64, []model.Cart, error) {
-	var cart []model.Cart
-	var err error
-
-	// Get items from cart or direct purchase
-	if len(cartIDs) > 0 {
-		// Cart checkout
-		items, err := s.cartRepo.GetCartsByIDs(cartIDs)
-		if err != nil {
-			return 0, nil, err
-		}
-
-		// Verify ownership of cart items
-		for _, item := range items {
-			if item.UserID != userID {
-				return 0, nil, pkgerrors.ErrPaymentFailed
-			}
-		}
-
-		cart = items
-	} else if productID != nil && quantity != nil {
-		// Direct purchase
-		product, err := s.productRepo.GetProductByID(*productID)
-		if err != nil {
-			return 0, nil, err
-		}
-
-		// Check stock
-		if product.StockCount < *quantity {
-			return 0, nil, pkgerrors.ErrOutOfStock
-		}
-
-		cart = []model.Cart{
-			{
-				UserID:    userID,
-				ProductID: *productID,
-				Quantity:  *quantity,
-				Product:   *product,
-			},
-		}
-	} else {
-		return 0, nil, errors.New("invalid request")
-	}
-
-	// Calculate total amount
-	var totalAmount float64
-	for _, item := range cart {
-		totalAmount += item.Product.Price * float64(item.Quantity)
-	}
-
-	return totalAmount, cart, err
-}
-
-// CreateOrder creates a new order
-func (s *OrderService) CreateOrder(reqUser *middleware.UserClaim, req model.OrderRequest) (*model.Order, error) {
-	ctx := context.Background()
-
-	// Create a lock key for this order creation
-	// This prevents race conditions when multiple requests try to create an order
-	// for the same user with the same products
-	lockKey := fmt.Sprintf("order:create:user:%d", reqUser.UserID)
-	if len(req.CartIDs) > 0 {
-		for _, id := range req.CartIDs {
-			lockKey += fmt.Sprintf(":cart:%d", id)
-		}
-	} else {
-		lockKey += fmt.Sprintf(":product:%d:qty:%d", req.ProductID, req.Quantity)
-	}
-
-	// Use Redis distributed lock to prevent race conditions
-	// Lock will expire after 30 seconds as a safety measure
-	var order *model.Order
-	var orderErr error
-
-	err := redis.WithLock(ctx, lockKey, 30*time.Second, func() error {
-		// Verify address
-		address, err := s.addressRepo.GetAddressByID(req.AddressID)
-		if err != nil {
-			return err
-		}
-
-		if address.UserID != reqUser.UserID {
-			return pkgerrors.ErrPaymentFailed
-		}
-
-		// Get order details
-		totalAmount, cart, err := s.GetOrderDetail(reqUser.UserID, req.CartIDs, &req.ProductID, &req.Quantity)
-		if err != nil {
-			return err
-		}
-
-		// Create order
-		order = &model.Order{
-			UserID:        reqUser.UserID,
-			TotalAmount:   totalAmount,
-			PaymentAmount: totalAmount, // No discount for now
-			Status:        model.OrderStatusPending,
-			AddressID:     req.AddressID,
-			ReceiverName:  address.Name,
-			ReceiverPhone: address.Phone,
-			Address:       address.Province + address.City + address.District + address.DetailAddr,
-			PaymentType:   1, // Default to WeChat
-		}
-
-		// Create order items
-		var orderItems []model.OrderItem
-		for _, item := range cart {
-			// Check stock again within the lock to prevent race conditions
-			product, err := s.productRepo.GetProductByID(item.ProductID)
-			if err != nil {
-				return err
-			}
-
-			if product.StockCount < item.Quantity {
-				return pkgerrors.ErrOutOfStock
-			}
-
-			orderItem := model.OrderItem{
-				ProductID: item.ProductID,
-				Quantity:  item.Quantity,
-				Price:     item.Product.Price,
-				Name:      item.Product.Name,
-				ImageUrl:  item.Product.ImageUrl,
-			}
-			orderItems = append(orderItems, orderItem)
-		}
-
-		order.OrderItems = orderItems
-
-		// Save order
-		if err := s.orderRepo.CreateOrder(order); err != nil {
-			return err
-		}
-
-		// Update product stock
-		for _, item := range orderItems {
-			fmt.Printf("Would decrease stock for product %d by %d\n", item.ProductID, item.Quantity)
-		}
-
-		// Delete cart items if from cart
-		if len(req.CartIDs) > 0 {
-			for _, id := range req.CartIDs {
-				s.cartRepo.DeleteCart(id)
-			}
-		}
-
-		return nil
-	})
-
+func (s *OrderService) GetOrderDetail(userID uint64, orderID uint64) (*response.OrderDetailResponse, error) {
+	order, err := s.orderRepo.GetOrderByID(orderID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Cache the order for future retrievals
-	cacheKey := fmt.Sprintf(constant.OrderPrefix+":%d", order.ID)
-	_ = s.cacheService.Set(ctx, cacheKey, *order, 30*time.Minute)
+	orderItems, err := s.orderItemRepo.GetOrderItemsByOrderID(orderID)
+	if err != nil {
+		return nil, err
+	}
 
-	return order, orderErr
+	address, err := s.addressRepo.GetAddressByID(order.AddressID)
+	if err != nil {
+		return nil, err
+	}
+
+	orderItemsResponse := make([]response.OrderItemResponse, len(orderItems))
+	for i, item := range orderItems {
+		orderItemsResponse[i] = response.OrderItemResponse{
+			ProductID: item.ProductID,
+			Quantity:  item.Quantity,
+			Price:     item.Price,
+			Name:      item.Name,
+			ImageUrl:  item.ImageUrl,
+		}
+	}
+
+	orderDetail := &response.OrderDetailResponse{
+		OrderID:     order.ID,
+		OrderNo:     order.OrderNo,
+		TotalAmount: order.TotalAmount,
+		Items:       orderItemsResponse,
+		Address: response.AddressResponse{
+			ID:           address.ID,
+			Phone:        address.Phone,
+			Name:         address.Name,
+			City:         address.City,
+			CityCode:     address.CityCode,
+			Province:     address.Province,
+			ProvinceCode: address.ProvinceCode,
+			District:     address.District,
+			DistrictCode: address.DistrictCode,
+			DetailAddr:   address.DetailAddr,
+			FullAddr:     address.Province + address.City + address.District + address.DetailAddr,
+			IsDefault:    address.IsDefault,
+		},
+	}
+
+	return orderDetail, nil
+}
+
+// CreateOrder creates a new order
+func (s *OrderService) CreateOrder(userID uint64, req request.CreateOrderRequest) (*response.CreateOrderResponse, error) {
+	address, err := s.addressRepo.GetAddressByID(req.AddressID)
+	if err != nil {
+		return nil, err
+	}
+
+	if address.UserID != userID {
+		return nil, pkgerrors.ErrAddressNotFound
+	}
+
+	order := &model.Order{
+		UserID:        userID,                                                                  // 用户ID
+		TotalAmount:   0,                                                                       // 总金额
+		PaymentAmount: 0,                                                                       // 支付金额
+		Status:        model.OrderStatusPending,                                                // 订单状态
+		AddressID:     req.AddressID,                                                           // 地址ID
+		ReceiverName:  address.Name,                                                            // 收货人姓名
+		ReceiverPhone: address.Phone,                                                           // 收货人电话
+		Address:       address.Province + address.City + address.District + address.DetailAddr, // 地址
+		PaymentType:   1,                                                                       // 默认微信支付
+	}
+
+	var totalAmount float64
+	var paymentAmount float64
+	var orderItems []model.OrderItem
+	for _, cartID := range req.CartIDs {
+		cart, err := s.cartRepo.GetCartByID(cartID)
+		if err != nil {
+			return nil, err
+		}
+
+		if cart.Product.StockCount < cart.Quantity {
+			return nil, pkgerrors.ErrOutOfStock
+		}
+
+		orderItem := model.OrderItem{
+			ProductID: cart.ProductID,
+			Quantity:  cart.Quantity,
+			Price:     cart.Product.Price,
+			Name:      cart.Product.Name,
+			ImageUrl:  cart.Product.ImageUrl,
+		}
+		orderItems = append(orderItems, orderItem)
+
+		totalAmount += float64(cart.Quantity) * cart.Product.Price
+		paymentAmount += float64(cart.Quantity) * cart.Product.Price
+	}
+
+	order.OrderItems = orderItems
+	order.TotalAmount = totalAmount
+	order.PaymentAmount = paymentAmount
+
+	// 保存订单
+	if err := s.orderRepo.CreateOrder(order); err != nil {
+		return nil, err
+	}
+
+	// 更新商品库存
+	for _, item := range orderItems {
+		s.productRepo.UpdateProductStock(item.ProductID, item.Quantity)
+	}
+
+	// 删除购物车
+	if len(req.CartIDs) > 0 {
+		for _, id := range req.CartIDs {
+			s.cartRepo.DeleteCart(id)
+		}
+	}
+
+	return order, nil
 }
 
 // GetOrderByID gets an order by ID

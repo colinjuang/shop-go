@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/colinjuang/shop-go/internal/middleware"
-	"github.com/colinjuang/shop-go/internal/model"
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
+	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/response"
 )
 
 // CartService handles business logic for cart items
@@ -22,7 +22,7 @@ func NewCartService() *CartService {
 }
 
 // AddToCart adds a product to the cart
-func (s *CartService) AddToCart(reqUser *middleware.UserClaim, productID uint64, quantity int) error {
+func (s *CartService) AddToCart(userID uint64, productID uint64, quantity int) error {
 	// 检查商品是否存在
 	product, err := s.productRepo.GetProductByID(productID)
 	if err != nil {
@@ -34,26 +34,27 @@ func (s *CartService) AddToCart(reqUser *middleware.UserClaim, productID uint64,
 		return pkgerrors.ErrOutOfStock
 	}
 
-	return s.cartRepo.AddToCart(reqUser.UserID, productID, quantity)
+	return s.cartRepo.AddToCart(userID, productID, quantity)
 }
 
-// GetCartItems gets all cart items for a user
-func (s *CartService) GetCartItems(userID uint64) ([]model.CartItemResponse, error) {
-	cartItems, err := s.cartRepo.GetCartItems(userID)
+// GetCart gets all cart items for a user
+func (s *CartService) GetCart(userID uint64) ([]response.CartResponse, error) {
+	carts, err := s.cartRepo.GetCart(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var responses []model.CartItemResponse
-	for _, item := range cartItems {
-		response := model.CartItemResponse{
+	minioClient := minio.GetClient()
+	var responses []response.CartResponse
+	for _, item := range carts {
+		response := response.CartResponse{
 			ID:         item.ID,
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
 			Selected:   item.Selected,
 			Name:       item.Product.Name,
 			Price:      item.Product.Price,
-			ImageUrl:   item.Product.ImageUrl,
+			ImageUrl:   minioClient.GetFileURL(item.Product.ImageUrl),
 			StockCount: item.Product.StockCount,
 		}
 		responses = append(responses, response)
@@ -62,41 +63,44 @@ func (s *CartService) GetCartItems(userID uint64) ([]model.CartItemResponse, err
 	return responses, nil
 }
 
-// UpdateCartItemStatus updates the status of a cart item
-func (s *CartService) UpdateCartItemStatus(id uint64, userID uint64, selected bool) error {
-	// Check if the cart item belongs to the user
-	cartItems, err := s.cartRepo.GetCartItems(userID)
+// UpdateCartStatus updates the status of a cart item
+func (s *CartService) UpdateCartStatus(userID uint64, productID uint64, selected bool) error {
+	carts, err := s.cartRepo.GetCart(userID)
 	if err != nil {
 		return err
 	}
 
-	for _, item := range cartItems {
-		if item.ID == id {
-			return s.cartRepo.UpdateCartItemStatus(id, selected)
+	for _, item := range carts {
+		if item.ProductID == productID {
+			return s.cartRepo.UpdateCartStatus(item.ID, selected)
 		}
 	}
 
-	return pkgerrors.ErrCartItemNotFound
+	return pkgerrors.ErrCartNotFound
 }
 
-// UpdateAllCartItemStatus updates the status of all cart items for a user
-func (s *CartService) UpdateAllCartItemStatus(userID uint64, selected bool) error {
-	return s.cartRepo.UpdateAllCartItemStatus(userID, selected)
-}
-
-// DeleteCartItem deletes a cart item
-func (s *CartService) DeleteCartItem(id uint64, userID uint64) error {
-	// Check if the cart item belongs to the user
-	cartItems, err := s.cartRepo.GetCartItems(userID)
+// UpdateAllCartStatus updates the status of all cart items for a user
+func (s *CartService) UpdateAllCartStatus(userID uint64, selected bool) error {
+	_, err := s.cartRepo.GetCart(userID)
 	if err != nil {
 		return err
 	}
 
-	for _, item := range cartItems {
+	return s.cartRepo.UpdateAllCartStatus(userID, selected)
+}
+
+// DeleteCart deletes a cart item
+func (s *CartService) DeleteCart(userID uint64, id uint64) error {
+	carts, err := s.cartRepo.GetCart(userID)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range carts {
 		if item.ID == id {
-			return s.cartRepo.DeleteCartItem(id)
+			return s.cartRepo.DeleteCart(id)
 		}
 	}
 
-	return pkgerrors.ErrCartItemNotFound
+	return pkgerrors.ErrCartNotFound
 }

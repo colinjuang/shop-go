@@ -47,8 +47,7 @@ func (s *BannerService) GetBanners() ([]*response.BannerResponse, error) {
 
 	minioClient := minio.GetClient()
 	for i, banner := range banners {
-		imageUrl := minioClient.GetFileURL(banner.ImageUrl)
-		banners[i].ImageUrl = imageUrl
+		banners[i].ImageUrl = minioClient.GetFileURL(banner.ImageUrl)
 	}
 	// Cache for 1 minute
 	err = s.cacheService.Set(ctx, constant.HomeBanners, banners, 1*time.Minute)

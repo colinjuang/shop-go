@@ -16,9 +16,9 @@ func RegisterCartApi(api *gin.RouterGroup) {
 	// 获取购物车列表
 	auth.GET("/cart", cartHandler.GetCartList)
 	// 更新购物车商品状态
-	auth.PUT("/cart", cartHandler.UpdateCartItemStatus)
+	auth.PUT("/cart/:productId/:selected", cartHandler.UpdateCartStatus)
 	// 更新购物车所有商品状态
-	auth.PUT("/cart/all", cartHandler.UpdateAllCartItemStatus)
+	auth.PUT("/cart/all/:selected", cartHandler.UpdateAllCartStatus)
 	// 删除购物车商品
-	auth.DELETE("/cart", cartHandler.DeleteCartItem)
+	auth.DELETE("/cart", cartHandler.DeleteCart)
 }

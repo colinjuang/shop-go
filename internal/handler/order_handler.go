@@ -61,7 +61,7 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	}
 
 	// Get order details
-	totalAmount, cartItems, err := h.orderService.GetOrderDetail(userID.(uint64), cartIDs, productID, quantity)
+	totalAmount, cart, err := h.orderService.GetOrderDetail(userID.(uint64), cartIDs, productID, quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
@@ -70,7 +70,7 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	// Prepare response
 	resp := gin.H{
 		"total_amount": totalAmount,
-		"items":        cartItems,
+		"items":        cart,
 	}
 
 	c.JSON(http.StatusOK, response.SuccessResponse(resp))

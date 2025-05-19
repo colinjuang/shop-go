@@ -37,14 +37,14 @@ func NewOrderService() *OrderService {
 }
 
 // GetOrderDetail gets order details for checkout
-func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID *uint64, quantity *int) (float64, []model.CartItem, error) {
-	var cartItems []model.CartItem
+func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID *uint64, quantity *int) (float64, []model.Cart, error) {
+	var cart []model.Cart
 	var err error
 
 	// Get items from cart or direct purchase
 	if len(cartIDs) > 0 {
 		// Cart checkout
-		items, err := s.cartRepo.GetCartItemsByIDs(cartIDs)
+		items, err := s.cartRepo.GetCartsByIDs(cartIDs)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -56,7 +56,7 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 			}
 		}
 
-		cartItems = items
+		cart = items
 	} else if productID != nil && quantity != nil {
 		// Direct purchase
 		product, err := s.productRepo.GetProductByID(*productID)
@@ -69,7 +69,7 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 			return 0, nil, pkgerrors.ErrOutOfStock
 		}
 
-		cartItems = []model.CartItem{
+		cart = []model.Cart{
 			{
 				UserID:    userID,
 				ProductID: *productID,
@@ -83,11 +83,11 @@ func (s *OrderService) GetOrderDetail(userID uint64, cartIDs []uint64, productID
 
 	// Calculate total amount
 	var totalAmount float64
-	for _, item := range cartItems {
+	for _, item := range cart {
 		totalAmount += item.Product.Price * float64(item.Quantity)
 	}
 
-	return totalAmount, cartItems, err
+	return totalAmount, cart, err
 }
 
 // CreateOrder creates a new order
@@ -123,7 +123,7 @@ func (s *OrderService) CreateOrder(reqUser *middleware.UserClaim, req model.Orde
 		}
 
 		// Get order details
-		totalAmount, cartItems, err := s.GetOrderDetail(reqUser.UserID, req.CartIDs, &req.ProductID, &req.Quantity)
+		totalAmount, cart, err := s.GetOrderDetail(reqUser.UserID, req.CartIDs, &req.ProductID, &req.Quantity)
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func (s *OrderService) CreateOrder(reqUser *middleware.UserClaim, req model.Orde
 
 		// Create order items
 		var orderItems []model.OrderItem
-		for _, item := range cartItems {
+		for _, item := range cart {
 			// Check stock again within the lock to prevent race conditions
 			product, err := s.productRepo.GetProductByID(item.ProductID)
 			if err != nil {
@@ -179,7 +179,7 @@ func (s *OrderService) CreateOrder(reqUser *middleware.UserClaim, req model.Orde
 		// Delete cart items if from cart
 		if len(req.CartIDs) > 0 {
 			for _, id := range req.CartIDs {
-				s.cartRepo.DeleteCartItem(id)
+				s.cartRepo.DeleteCart(id)
 			}
 		}
 

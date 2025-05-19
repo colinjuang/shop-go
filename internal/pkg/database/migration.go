@@ -13,7 +13,7 @@ func AutoMigrate() error {
 	// Add all models here for auto migration
 	err := DB.AutoMigrate(
 		&model.Banner{},
-		&model.CartItem{},
+		&model.Cart{},
 		&model.Order{},
 		&model.OrderItem{},
 		&model.Promotion{},

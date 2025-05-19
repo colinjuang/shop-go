@@ -22,11 +22,11 @@ var (
 
 // 特定资源错误
 var (
-	ErrUserNotFound     = fmt.Errorf("user not found: %w", ErrNotFound)
-	ErrProductNotFound  = fmt.Errorf("product not found: %w", ErrNotFound)
-	ErrOrderNotFound    = fmt.Errorf("order not found: %w", ErrNotFound)
-	ErrCartItemNotFound = fmt.Errorf("cart item not found: %w", ErrNotFound)
-	ErrAddressNotFound  = fmt.Errorf("address not found: %w", ErrNotFound)
+	ErrUserNotFound    = fmt.Errorf("user not found: %w", ErrNotFound)
+	ErrProductNotFound = fmt.Errorf("product not found: %w", ErrNotFound)
+	ErrOrderNotFound   = fmt.Errorf("order not found: %w", ErrNotFound)
+	ErrCartNotFound    = fmt.Errorf("cart item not found: %w", ErrNotFound)
+	ErrAddressNotFound = fmt.Errorf("address not found: %w", ErrNotFound)
 )
 
 // 错误检查辅助函数

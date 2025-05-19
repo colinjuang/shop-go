@@ -21,7 +21,7 @@ func NewCartRepository() *CartRepository {
 // AddToCart 添加商品到购物车
 func (r *CartRepository) AddToCart(userID uint64, productID uint64, quantity int) error {
 	// 检查商品是否已存在
-	var existingItem model.CartItem
+	var existingItem model.Cart
 	result := r.db.Where("user_id = ? AND product_id = ?", userID, productID).First(&existingItem)
 
 	if result.Error == nil {
@@ -31,7 +31,7 @@ func (r *CartRepository) AddToCart(userID uint64, productID uint64, quantity int
 	}
 
 	// 如果商品不存在，则添加新商品
-	cartItem := model.CartItem{
+	cartItem := model.Cart{
 		UserID:    userID,
 		ProductID: productID,
 		Quantity:  quantity,
@@ -41,47 +41,47 @@ func (r *CartRepository) AddToCart(userID uint64, productID uint64, quantity int
 	return r.db.Create(&cartItem).Error
 }
 
-// GetCartItems 获取用户所有购物车商品
-func (r *CartRepository) GetCartItems(userID uint64) ([]model.CartItem, error) {
-	var cartItems []model.CartItem
-	result := r.db.Where("user_id = ?", userID).Preload("Product").Find(&cartItems)
+// GetCart 获取用户所有购物车商品
+func (r *CartRepository) GetCart(userID uint64) ([]model.Cart, error) {
+	var cart []model.Cart
+	result := r.db.Where("user_id = ?", userID).Preload("Product").Find(&cart)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return cartItems, nil
+	return cart, nil
 }
 
-// UpdateCartItemStatus 更新购物车商品状态
-func (r *CartRepository) UpdateCartItemStatus(id uint64, selected bool) error {
-	return r.db.Model(&model.CartItem{}).Where("id = ?", id).Update("selected", selected).Error
+// UpdateCartStatus 更新购物车商品状态
+func (r *CartRepository) UpdateCartStatus(id uint64, selected bool) error {
+	return r.db.Model(&model.Cart{}).Where("id = ?", id).Update("selected", selected).Error
 }
 
-// UpdateAllCartItemStatus 更新用户所有购物车商品状态
-func (r *CartRepository) UpdateAllCartItemStatus(userID uint64, selected bool) error {
-	return r.db.Model(&model.CartItem{}).Where("user_id = ?", userID).Update("selected", selected).Error
+// UpdateAllCartStatus 更新用户所有购物车商品状态
+func (r *CartRepository) UpdateAllCartStatus(userID uint64, selected bool) error {
+	return r.db.Model(&model.Cart{}).Where("user_id = ?", userID).Update("selected", selected).Error
 }
 
-// DeleteCartItem 删除购物车商品
-func (r *CartRepository) DeleteCartItem(id uint64) error {
-	return r.db.Delete(&model.CartItem{}, "id = ?", id).Error
+// DeleteCart 删除购物车商品
+func (r *CartRepository) DeleteCart(id uint64) error {
+	return r.db.Delete(&model.Cart{}, "id = ?", id).Error
 }
 
-// GetCartItemsByIDs 获取购物车商品
-func (r *CartRepository) GetCartItemsByIDs(ids []uint64) ([]model.CartItem, error) {
-	var cartItems []model.CartItem
-	result := r.db.Where("id IN ?", ids).Preload("Product").Find(&cartItems)
+// GetCartsByIDs 获取购物车商品
+func (r *CartRepository) GetCartsByIDs(ids []uint64) ([]model.Cart, error) {
+	var cart []model.Cart
+	result := r.db.Where("id IN ?", ids).Preload("Product").Find(&cart)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return cartItems, nil
+	return cart, nil
 }
 
-// GetSelectedCartItems 获取用户选中的购物车商品
-func (r *CartRepository) GetSelectedCartItems(userID uint64) ([]model.CartItem, error) {
-	var cartItems []model.CartItem
-	result := r.db.Where("user_id = ? AND selected = ?", userID, true).Preload("Product").Find(&cartItems)
+// GetSelectedCarts 获取用户选中的购物车商品
+func (r *CartRepository) GetSelectedCarts(userID uint64) ([]model.Cart, error) {
+	var cart []model.Cart
+	result := r.db.Where("user_id = ? AND selected = ?", userID, true).Preload("Product").Find(&cart)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return cartItems, nil
+	return cart, nil
 }

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/colinjuang/shop-go/internal/handler"
+	"github.com/colinjuang/shop-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,16 +10,17 @@ import (
 // RegisterOrderApi registers all order related api
 func RegisterOrderApi(api *gin.RouterGroup) {
 	orderHandler := handler.NewOrderHandler()
+	auth := api.Use(middleware.AuthMiddleware())
 	// 获取订单详情
-	api.GET("/order/detail", orderHandler.GetOrderDetail)
+	auth.GET("/order/detail", orderHandler.GetOrderDetail)
 	// 获取订单地址
-	api.GET("/order/address", orderHandler.GetOrderAddress)
+	auth.GET("/order/address", orderHandler.GetOrderAddress)
 	// 提交订单
-	api.POST("/order/submit", orderHandler.CreateOrder)
+	auth.POST("/order/submit", orderHandler.CreateOrder)
 	// 获取微信支付信息
-	api.GET("/order/pay", orderHandler.GetWechatPayInfo)
+	auth.GET("/order/pay", orderHandler.GetWechatPayInfo)
 	// 检查微信支付状态
-	api.GET("/order/pay/status", orderHandler.CheckWechatPayStatus)
+	auth.GET("/order/pay/status", orderHandler.CheckWechatPayStatus)
 	// 获取订单列表
-	api.GET("/order/list", orderHandler.GetOrderList)
+	auth.GET("/order/list", orderHandler.GetOrderList)
 }

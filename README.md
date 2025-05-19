@@ -16,7 +16,8 @@
 │   │   ├── middleware/  # HTTP中间件
 │   │   ├── request/     # HTTP请求
 │   │   ├── response/    # HTTP响应
-│   │   └── router/      # API路由定义
+│   │   ├── router/      # API路由定义
+│   │   └── v1/          # API V1路由定义
 │   ├── config/       # 配置代码
 │   ├── model/        # 领域模型
 │   ├── pkg/          # 内部共享包
@@ -36,7 +37,7 @@
 
 ## 系统要求
 
-- Go 1.22或更高版本
+- Go 1.23或更高版本
 - MySQL
 - Redis（用于缓存和速率限制）
 - MinIO（用于对象存储）

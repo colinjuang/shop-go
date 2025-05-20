@@ -8,16 +8,16 @@
 
 ```
 ├── cmd/              # 应用程序入口点
-│   ├── main.go       # 主应用程序入口
+│   └── main.go       # 主应用程序入口
 ├── configs/          # 配置文件
 ├── internal/         # 内部包
 │   ├── api/          # API层
-│   │   ├── handler/     # HTTP处理器
-│   │   ├── middleware/  # HTTP中间件
-│   │   ├── request/     # HTTP请求
-│   │   ├── response/    # HTTP响应
-│   │   ├── router/      # API路由定义
 │   │   └── v1/          # API V1路由定义
+│   ├── handler/      # HTTP处理器
+│   ├── middleware/   # HTTP中间件
+│   ├── request/      # HTTP请求
+│   ├── response/     # HTTP响应
+│   ├── router/       # API路由定义
 │   ├── config/       # 配置代码
 │   ├── model/        # 领域模型
 │   ├── pkg/          # 内部共享包

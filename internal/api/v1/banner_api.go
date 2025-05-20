@@ -7,8 +7,11 @@ import (
 )
 
 // RegisterBannerApi registers all banner api
-func RegisterBannerApi(api *gin.RouterGroup) {
+func RegisterBannerApi(router *gin.Engine) {
 	bannerHandler := handler.NewBannerHandler()
-	// 获取轮播图
-	api.GET("/banner", bannerHandler.GetBanners)
+	api := router.Group("/api")
+	{
+		// 获取轮播图
+		api.GET("/banner", bannerHandler.GetBanners)
+	}
 }

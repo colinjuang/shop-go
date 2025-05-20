@@ -6,10 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterLoginApi(api *gin.RouterGroup) {
+func RegisterLoginApi(router *gin.Engine) {
 	loginHandler := handler.NewLoginHandler()
-	// 登录
-	api.POST("/login", loginHandler.Login)
-	// 注册
-	api.POST("/register", loginHandler.Register)
+	api := router.Group("/api")
+	{
+		// 登录
+		api.POST("/login", loginHandler.Login)
+		// 注册
+		api.POST("/register", loginHandler.Register)
+	}
 }

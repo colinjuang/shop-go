@@ -10,6 +10,7 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
+	"github.com/colinjuang/shop-go/internal/pkg/order"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/colinjuang/shop-go/internal/response"
@@ -87,6 +88,67 @@ func (s *OrderService) GetOrderDetail(userID uint64, orderID uint64) (*response.
 	}
 
 	return orderDetail, nil
+}
+
+// CreateOrderAndPay 创建订单并支付
+func (s *OrderService) CreateOrderAndPay(userID uint64, req request.CreateOrderAndPayRequest) error {
+	address, err := s.addressRepo.GetAddressByID(req.AddressID)
+	if err != nil {
+		return err
+	}
+
+	if address.UserID != userID {
+		return pkgerrors.ErrAddressNotFound
+	}
+
+	product, err := s.productRepo.GetProductByID(req.ProductID)
+	if err != nil {
+		return err
+	}
+
+	if product.StockCount < req.Quantity {
+		return pkgerrors.ErrOutOfStock
+	}
+
+	order := &model.OrderWithOrderItem{
+		Order: model.Order{
+			UserID:        userID,
+			OrderNo:       order.GenerateOrderNo(userID), // 使用新的订单号生成函数
+			TotalAmount:   product.Price * float64(req.Quantity),
+			PaymentAmount: product.Price * float64(req.Quantity),
+			AddressID:     req.AddressID,
+			ReceiverName:  address.Name,
+			ReceiverPhone: address.Phone,
+			Address:       address.Province + address.City + address.District + address.DetailAddr,
+			PaymentType:   constant.PaymentMethodWechat,
+			Remark:        req.Remark,
+		},
+		OrderItem: []model.OrderItem{
+			{
+				ProductID: req.ProductID,
+				Quantity:  req.Quantity,
+				Price:     product.Price,
+				Name:      product.Name,
+				ImageUrl:  product.ImageUrl,
+				Blessing:  req.Blessing,
+			},
+		},
+	}
+
+	// 保存订单
+	if err := s.orderRepo.CreateOrder(&order.Order); err != nil {
+		return err
+	}
+
+	// 保存订单项
+	if err := s.orderItemRepo.CreateOrderItem(order.OrderItem); err != nil {
+		return err
+	}
+
+	// 更新商品库存
+	s.productRepo.UpdateProductStock(req.ProductID, req.Quantity)
+
+	return nil
 }
 
 // CreateOrder creates a new order

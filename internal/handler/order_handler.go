@@ -13,13 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// OrderHandler handles order-related API endpoints
+// OrderHandler 订单处理器
 type OrderHandler struct {
 	orderService   *service.OrderService
 	addressService *service.AddressService
 }
 
-// NewOrderHandler creates a new order handler
+// NewOrderHandler 创建一个新的订单处理器
 func NewOrderHandler() *OrderHandler {
 	return &OrderHandler{
 		orderService:   service.NewOrderService(),
@@ -27,7 +27,7 @@ func NewOrderHandler() *OrderHandler {
 	}
 }
 
-// GetOrderDetail gets order details for checkout
+// GetOrderDetail 获取订单详情
 func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
@@ -52,32 +52,30 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessResponse(orderDetail))
 }
 
-// GetOrderAddress gets the user's addresses for order
-func (h *OrderHandler) GetOrderAddress(c *gin.Context) {
+// CreateOrderAndPay 创建订单并支付
+func (h *OrderHandler) CreateOrderAndPay(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusUnauthorized, "Unauthorized"))
 		return
 	}
 
-	addresses, err := h.addressService.GetAddressesByUserID(reqUser)
+	var req request.CreateOrderAndPayRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+		return
+	}
+
+	err := h.orderService.CreateOrderAndPay(reqUser.UserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
-	// Try to get default address first
-	defaultAddress, _ := h.addressService.GetDefaultAddressByUserID(c)
-
-	resp := gin.H{
-		"addresses":       addresses,
-		"default_address": defaultAddress,
-	}
-
-	c.JSON(http.StatusOK, response.SuccessResponse(resp))
+	c.JSON(http.StatusOK, response.SuccessResponse(nil))
 }
 
-// CreateOrder creates a new order
+// CreateOrder 创建订单
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
@@ -100,7 +98,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessResponse(nil))
 }
 
-// GetWechatPayInfo gets WeChat payment information
+// GetWechatPayInfo 获取微信支付信息
 func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
@@ -136,7 +134,7 @@ func (h *OrderHandler) GetWechatPayInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessResponse(paymentResponse))
 }
 
-// CheckWechatPayStatus checks WeChat payment status
+// CheckWechatPayStatus 检查微信支付状态
 func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {
@@ -184,7 +182,7 @@ func (h *OrderHandler) CheckWechatPayStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response.SuccessResponse(resp))
 }
 
-// GetOrderList gets orders for a user with pagination
+// GetOrderList 获取用户订单列表
 func (h *OrderHandler) GetOrderList(c *gin.Context) {
 	reqUser := middleware.GetRequestUser(c)
 	if reqUser == nil {

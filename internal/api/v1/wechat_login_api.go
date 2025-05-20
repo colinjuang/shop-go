@@ -7,9 +7,11 @@ import (
 )
 
 // RegisterWechatLoginApi registers all wechat login api
-func RegisterWechatLoginApi(api *gin.RouterGroup) {
+func RegisterWechatLoginApi(router *gin.Engine) {
 	wechatLoginHandler := handler.NewWechatLoginHandler()
-
-	// 微信登录
-	api.GET("/login/wechat/:code", wechatLoginHandler.WechatMiniLogin)
+	api := router.Group("/api")
+	{
+		// 微信登录
+		api.GET("/login/wechat/:code", wechatLoginHandler.WechatMiniLogin)
+	}
 }

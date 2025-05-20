@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/model"
@@ -24,8 +23,8 @@ func NewOrderRepository() *OrderRepository {
 // CreateOrder 创建新订单
 func (r *OrderRepository) CreateOrder(order *model.Order) error {
 	// 生成订单号
-	now := time.Now()
-	order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
+	// now := time.Now()
+	// order.OrderNo = fmt.Sprintf("%s%d", now.Format("20060102150405"), order.UserID)
 
 	return r.db.Create(order).Error
 }

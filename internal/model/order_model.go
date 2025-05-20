@@ -31,6 +31,7 @@ type Order struct {
 	ReceiverPhone string    `json:"receiverPhone" gorm:"column:receiver_phone"`
 	Address       string    `json:"address" gorm:"column:address"`
 	PaymentType   int       `json:"paymentType" gorm:"default:1"` // 1: wechat
+	Remark        string    `json:"remark" gorm:"column:remark"`
 	CreatedAt     time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt     time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }

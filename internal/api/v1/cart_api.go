@@ -8,17 +8,20 @@ import (
 )
 
 // RegisterCartApi registers all cart related api
-func RegisterCartApi(api *gin.RouterGroup) {
+func RegisterCartApi(router *gin.Engine) {
 	cartHandler := handler.NewCartHandler()
-	auth := api.Use(middleware.AuthMiddleware())
-	// 添加到购物车
-	auth.POST("/cart", cartHandler.AddToCart)
-	// 获取购物车列表
-	auth.GET("/cart", cartHandler.GetCartList)
-	// 更新购物车商品状态
-	auth.PUT("/cart/:productId/:selected", cartHandler.UpdateCartStatus)
-	// 更新购物车所有商品状态
-	auth.PUT("/cart/all/:selected", cartHandler.UpdateAllCartStatus)
-	// 删除购物车商品
-	auth.DELETE("/cart", cartHandler.DeleteCart)
+	api := router.Group("/api")
+	api.Use(middleware.AuthMiddleware())
+	{
+		// 添加到购物车
+		api.POST("/cart", cartHandler.AddToCart)
+		// 获取购物车列表
+		api.GET("/cart", cartHandler.GetCartList)
+		// 更新购物车商品状态
+		api.PUT("/cart/:productId/:selected", cartHandler.UpdateCartStatus)
+		// 更新购物车所有商品状态
+		api.PUT("/cart/all/:selected", cartHandler.UpdateAllCartStatus)
+		// 删除购物车商品
+		api.DELETE("/cart", cartHandler.DeleteCart)
+	}
 }

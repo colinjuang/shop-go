@@ -109,6 +109,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			if err.Error() == "token is expired" {
 				c.JSON(200, response.TokenExpiredResponse())
 			} else {
+				fmt.Println("1111")
 				c.JSON(401, response.ErrorResponse(401, "Invalid token"))
 			}
 			c.Abort()
@@ -118,6 +119,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		var user UserClaim
 		err = json.Unmarshal([]byte(claims.AnyJson), &user)
 		if err != nil {
+			fmt.Println("2222")
 			c.JSON(401, response.ErrorResponse(401, "Invalid token"))
 			c.Abort()
 			return

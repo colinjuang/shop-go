@@ -7,11 +7,15 @@ import (
 )
 
 // RegisterUserApi registers all user api
-func RegisterUserApi(api *gin.RouterGroup) {
+func RegisterUserApi(router *gin.Engine) {
 	userHandler := handler.NewUserHandler()
-	auth := api.Use(middleware.AuthMiddleware())
-	// 获取用户信息
-	auth.GET("/user/info", userHandler.GetUserInfo)
-	// 更新用户信息
-	auth.PUT("/user/info", userHandler.UpdateUserInfo)
+
+	api := router.Group("/api")
+	api.Use(middleware.AuthMiddleware())
+	{
+		// 获取用户信息
+		api.GET("/user/info", userHandler.GetUserInfo)
+		// 更新用户信息
+		api.PUT("/user/info", userHandler.UpdateUserInfo)
+	}
 }

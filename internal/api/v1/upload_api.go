@@ -7,10 +7,13 @@ import (
 )
 
 // RegisterUploadApi registers all file upload related api
-func RegisterUploadApi(api *gin.RouterGroup) {
+func RegisterUploadApi(router *gin.Engine) {
 	uploadHandler := handler.NewUploadHandler()
-	// Upload
-	api.POST("/upload", uploadHandler.UploadFile)
-	api.POST("/upload/batch", uploadHandler.BatchUploadFiles)
-	api.POST("/upload/delete", uploadHandler.DeleteFile)
+	api := router.Group("/api")
+	{
+		// Upload
+		api.POST("/upload", uploadHandler.UploadFile)
+		api.POST("/upload/batch", uploadHandler.BatchUploadFiles)
+		api.POST("/upload/delete", uploadHandler.DeleteFile)
+	}
 }

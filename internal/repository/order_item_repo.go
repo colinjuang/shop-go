@@ -16,6 +16,10 @@ func NewOrderItemRepository() *OrderItemRepository {
 	}
 }
 
+func (r *OrderItemRepository) CreateOrderItem(orderItem []model.OrderItem) error {
+	return r.db.Create(orderItem).Error
+}
+
 func (r *OrderItemRepository) GetOrderItemsByOrderID(orderID uint64) ([]model.OrderItem, error) {
 	var orderItems []model.OrderItem
 	result := r.db.Where("order_id = ?", orderID).Find(&orderItems)

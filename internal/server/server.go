@@ -20,7 +20,7 @@ type Server struct {
 
 // NewServer creates a new server
 func NewServer(cfg *config.Config) *Server {
-	// Set Gin mode based on environment
+	// 设置 gin 模式
 	if cfg.Server.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}

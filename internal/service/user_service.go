@@ -10,6 +10,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/request"
 	"github.com/colinjuang/shop-go/internal/response"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserService handles business logic for users
@@ -111,9 +112,59 @@ func (s *UserService) UpdateUser(c *gin.Context, updateInfo request.UserUpdateRe
 	return s.userRepo.UpdateUser(user)
 }
 
-// GetUserByUsername gets a user by username
-func (s *UserService) GetUserByUsername(username string) (*model.User, error) {
-	return s.userRepo.GetUserByUsername(username)
+// Login gets a user by username and password
+func (s *UserService) Login(username, password string) (string, error) {
+	user, err := s.userRepo.GetUserByUsername(username)
+	if err != nil {
+		return "", err
+	}
+	if user.ID == 0 {
+		return "", errors.New("用户不存在")
+	}
+
+	// 检查密码是否正确
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return "", errors.New("密码错误或用户不存在")
+	}
+
+	// 生成token
+	token, err := middleware.GenerateToken(middleware.UserClaim{
+		UserID: user.ID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+// Register creates a new user
+func (s *UserService) Register(userRegisterRequest request.UserRegisterRequest) error {
+	user, err := s.userRepo.GetUserByUsername(userRegisterRequest.Username)
+	if err != nil {
+		return err
+	}
+	if user.ID != 0 {
+		return errors.New("用户已存在")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userRegisterRequest.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user = &model.User{
+		Username: userRegisterRequest.Username,
+		Password: string(hashedPassword),
+		Nickname: userRegisterRequest.Nickname,
+		Avatar:   userRegisterRequest.Avatar,
+		Gender:   userRegisterRequest.Gender,
+	}
+
+	err = s.userRepo.CreateUser(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // CreateUser creates a new user

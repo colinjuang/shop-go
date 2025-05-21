@@ -10,10 +10,10 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/order"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/colinjuang/shop-go/internal/response"
+	"github.com/colinjuang/shop-go/internal/utils/order"
 )
 
 // OrderService handles business logic for orders
@@ -113,7 +113,7 @@ func (s *OrderService) CreateOrderAndPay(userID uint64, req request.CreateOrderA
 	order := &model.OrderWithOrderItem{
 		Order: model.Order{
 			UserID:        userID,
-			OrderNo:       order.GenerateOrderNo(userID), // 使用新的订单号生成函数
+			OrderNo:       utils.GenerateOrderNo(userID), // 使用新的订单号生成函数
 			TotalAmount:   product.Price * float64(req.Quantity),
 			PaymentAmount: product.Price * float64(req.Quantity),
 			AddressID:     req.AddressID,

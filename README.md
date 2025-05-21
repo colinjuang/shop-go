@@ -27,7 +27,8 @@
 │   │   └── logger/   # Zap日志配置
 │   ├── repository/   # 数据访问层
 │   ├── service/      # 业务逻辑
-│   └── server/       # 服务器设置
+│   ├── server/       # 服务器设置
+│   └── utils/        # 公共
 ├── scripts/          # 实用脚本
 ├── uploads/          # 文件上传（运行时创建）
 ├── logs/             # 应用程序日志（运行时创建）

@@ -16,11 +16,11 @@ import (
 )
 
 var (
-	srvCtx *Server
+	srvCtx *ServerContext
 )
 
 // Server represents the HTTP server
-type Server struct {
+type ServerContext struct {
 	config     *config.Config
 	httpServer *http.Server
 	DB         *gorm.DB
@@ -28,12 +28,12 @@ type Server struct {
 	Minio      *minio.Client
 }
 
-func GetServer() *Server {
+func GetServer() *ServerContext {
 	return srvCtx
 }
 
 // NewServer creates a new server
-func NewServer(cfg *config.Config) *Server {
+func NewServerContext(cfg *config.Config) *ServerContext {
 	// 初始化数据库
 	// fmt.Printf("cfg.DatabaseConf: %+v\n", cfg.DatabaseConf)
 	db, err := database.InitDB(&cfg.DatabaseConf)
@@ -59,7 +59,7 @@ func NewServer(cfg *config.Config) *Server {
 	}
 	fmt.Println("MinIO connection established")
 
-	srvCtx = &Server{
+	srvCtx = &ServerContext{
 		config: cfg,
 		DB:     db,
 		Redis:  redisClient,
@@ -69,12 +69,12 @@ func NewServer(cfg *config.Config) *Server {
 }
 
 // GetConfig returns the server configuration
-func (s *Server) GetConfig() *config.Config {
+func (s *ServerContext) GetConfig() *config.Config {
 	return s.config
 }
 
 // Start starts the server
-func (s *Server) Start(router *gin.Engine) error {
+func (s *ServerContext) Start(router *gin.Engine) error {
 	// 创建 HTTP 服务器
 	s.httpServer = &http.Server{
 		Addr:           s.config.Server.Port,
@@ -92,7 +92,7 @@ func (s *Server) Start(router *gin.Engine) error {
 }
 
 // Shutdown gracefully shuts down the server
-func (s *Server) Shutdown() error {
+func (s *ServerContext) Shutdown() error {
 	fmt.Println("Starting graceful shutdown...")
 
 	// 创建带有超时上下文的上下文

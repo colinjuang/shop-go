@@ -26,7 +26,7 @@ func main() {
 	defer logger.Sync()
 
 	// 创建 server
-	srv := server.NewServer(cfg)
+	srv := server.NewServerContext(cfg)
 	// 创建 router
 	r := router.NewRouter(cfg)
 

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/app/response"
@@ -44,6 +45,11 @@ func (s *PromotionService) GetPromotions() ([]*response.PromotionResponse, error
 	if err != nil {
 		return nil, err
 	}
+
+	if len(promotions) == 0 {
+		return nil, errors.New("no promotions found")
+	}
+	promotionResponses = make([]*response.PromotionResponse, len(promotions))
 
 	for i, promotion := range promotions {
 		promotionResponses[i] = &response.PromotionResponse{

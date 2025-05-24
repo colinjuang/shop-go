@@ -44,24 +44,20 @@ func main() {
 	select {
 	case err := <-serverErrors:
 		if err != nil {
-			logger.Errorf("Server error: %v", err)
-			fmt.Printf("======================================\n")
+			fmt.Println("======================================")
 			fmt.Printf("Server error:\n%v\n", err)
-			fmt.Printf("======================================\n")
+			fmt.Println("======================================")
 			os.Exit(1)
 		}
 	case sig := <-shutdown:
-		logger.Infof("Received shutdown signal: %v", sig)
-		fmt.Printf("\nReceived shutdown signal: %v\n", sig)
+		fmt.Printf("Received shutdown signal: %v\n", sig)
 
 		// 执行优雅关闭
 		if err := srv.Shutdown(); err != nil {
-			logger.Errorf("Graceful shutdown failed: %v", err)
 			fmt.Printf("Graceful shutdown failed: %v\n", err)
 			os.Exit(1)
 		}
 
-		logger.Info("Server shutdown successfully")
 		fmt.Println("Server shutdown successfully")
 	}
 }

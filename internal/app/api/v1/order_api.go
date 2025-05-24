@@ -3,14 +3,13 @@ package v1
 import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
 	"github.com/colinjuang/shop-go/internal/app/middleware"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterOrderApi registers all order related api
-func RegisterOrderApi(router *gin.Engine, db *gorm.DB) {
-	orderHandler := handler.NewOrderHandler(db)
+func RegisterOrderApi(router *gin.Engine) {
+	orderHandler := handler.NewOrderHandler()
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware())
 	{

@@ -2,13 +2,13 @@ package v1
 
 import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterCategoryApi registers all category api
-func RegisterCategoryApi(router *gin.Engine, db *gorm.DB) {
-	categoryHandler := handler.NewCategoryHandler(db)
+func RegisterCategoryApi(router *gin.Engine) {
+	categoryHandler := handler.NewCategoryHandler()
 	api := router.Group("/api")
 	{
 		// 获取所有分类

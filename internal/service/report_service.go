@@ -8,7 +8,6 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
-	"gorm.io/gorm"
 )
 
 // ReportService handles business logic for generating reports
@@ -18,10 +17,10 @@ type ReportService struct {
 }
 
 // NewReportService creates a new report service
-func NewReportService(db *gorm.DB) *ReportService {
+func NewReportService() *ReportService {
 	return &ReportService{
-		productService: NewProductService(db),
-		orderService:   NewOrderService(db),
+		productService: NewProductService(),
+		orderService:   NewOrderService(),
 	}
 }
 

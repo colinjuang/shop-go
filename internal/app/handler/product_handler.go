@@ -6,7 +6,6 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +16,9 @@ type ProductHandler struct {
 }
 
 // NewProductHandler creates a new product handler
-func NewProductHandler(db *gorm.DB) *ProductHandler {
+func NewProductHandler() *ProductHandler {
 	return &ProductHandler{
-		productService: service.NewProductService(db),
+		productService: service.NewProductService(),
 	}
 }
 

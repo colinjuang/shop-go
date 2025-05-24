@@ -2,13 +2,12 @@ package api
 
 import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterBasicApi(router *gin.Engine, db *gorm.DB) {
-	basicHandler := handler.NewBasicHandler(db)
+func RegisterBasicApi(router *gin.Engine) {
+	basicHandler := handler.NewBasicHandler()
 	api := router.Group("/api")
 	{
 		// 健康状态检测

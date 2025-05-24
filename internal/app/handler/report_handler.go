@@ -8,7 +8,6 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,9 +18,9 @@ type ReportHandler struct {
 }
 
 // NewReportHandler creates a new report handler
-func NewReportHandler(db *gorm.DB) *ReportHandler {
+func NewReportHandler() *ReportHandler {
 	return &ReportHandler{
-		reportService: service.NewReportService(db),
+		reportService: service.NewReportService(),
 	}
 }
 

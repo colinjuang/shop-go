@@ -4,18 +4,15 @@ import (
 	"net/http"
 
 	"github.com/colinjuang/shop-go/internal/pkg/database"
+	"github.com/colinjuang/shop-go/internal/server"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type BasicHandler struct {
-	db *gorm.DB
 }
 
-func NewBasicHandler(db *gorm.DB) *BasicHandler {
-	return &BasicHandler{
-		db: db,
-	}
+func NewBasicHandler() *BasicHandler {
+	return &BasicHandler{}
 }
 
 func (h *BasicHandler) Health() gin.HandlerFunc {
@@ -26,7 +23,7 @@ func (h *BasicHandler) Health() gin.HandlerFunc {
 
 func (h *BasicHandler) DBHealth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := database.HealthCheck(h.db); err != nil {
+		if err := database.HealthCheck(server.GetServer().DB); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "Database connection failed"})
 			return
 		}
@@ -36,7 +33,7 @@ func (h *BasicHandler) DBHealth() gin.HandlerFunc {
 
 func (h *BasicHandler) DBStats() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		stats := database.Stats(h.db)
+		stats := database.Stats(server.GetServer().DB)
 		c.JSON(http.StatusOK, stats)
 	}
 }

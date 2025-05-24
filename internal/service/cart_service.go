@@ -5,7 +5,7 @@ import (
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"gorm.io/gorm"
+	"github.com/colinjuang/shop-go/internal/server"
 )
 
 // CartService handles business logic for cart items
@@ -15,10 +15,11 @@ type CartService struct {
 }
 
 // NewCartService creates a new cart service
-func NewCartService(db *gorm.DB) *CartService {
+func NewCartService() *CartService {
+	server := server.GetServer()
 	return &CartService{
-		cartRepo:    repository.NewCartRepository(db),
-		productRepo: repository.NewProductRepository(db),
+		cartRepo:    repository.NewCartRepository(server.DB),
+		productRepo: repository.NewProductRepository(server.DB),
 	}
 }
 

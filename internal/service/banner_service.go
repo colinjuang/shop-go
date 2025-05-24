@@ -10,7 +10,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"gorm.io/gorm"
+	"github.com/colinjuang/shop-go/internal/server"
 )
 
 // BannerService handles business logic for the banner page
@@ -22,9 +22,10 @@ type BannerService struct {
 }
 
 // NewBannerService creates a new banner service
-func NewBannerService(db *gorm.DB) *BannerService {
+func NewBannerService() *BannerService {
+	server := server.GetServer()
 	return &BannerService{
-		bannerRepo:   repository.NewBannerRepository(db),
+		bannerRepo:   repository.NewBannerRepository(server.DB),
 		cacheService: redis.NewCacheService(),
 	}
 }

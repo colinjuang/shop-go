@@ -8,7 +8,6 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/middleware"
 	"github.com/colinjuang/shop-go/internal/config"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func NewRouter(cfg *config.Config) *gin.Engine {
@@ -41,30 +40,30 @@ func NewRouter(cfg *config.Config) *gin.Engine {
 }
 
 // RegisterRouter sets up all the routes for the application
-func RegisterRouter(router *gin.Engine, db *gorm.DB) {
+func RegisterRouter(router *gin.Engine) {
 	// 基础 API
-	api.RegisterBasicApi(router, db)
+	api.RegisterBasicApi(router)
 
 	// 登录
-	apiv1.RegisterLoginApi(router, db)
+	apiv1.RegisterLoginApi(router)
 	// 轮播图
-	apiv1.RegisterBannerApi(router, db)
+	apiv1.RegisterBannerApi(router)
 	// 分类
-	apiv1.RegisterCategoryApi(router, db)
+	apiv1.RegisterCategoryApi(router)
 	// 商品
-	apiv1.RegisterProductApi(router, db)
+	apiv1.RegisterProductApi(router)
 	// 促销广告
-	apiv1.RegisterPromotionApi(router, db)
+	apiv1.RegisterPromotionApi(router)
 	// 上传
-	apiv1.RegisterUploadApi(router, db)
+	apiv1.RegisterUploadApi(router)
 	// 微信登录
-	apiv1.RegisterWechatLoginApi(router, db)
+	apiv1.RegisterWechatLoginApi(router)
 	// 用户
-	apiv1.RegisterUserApi(router, db)
+	apiv1.RegisterUserApi(router)
 	// 地址
-	apiv1.RegisterAddressApi(router, db)
+	apiv1.RegisterAddressApi(router)
 	// 购物车
-	apiv1.RegisterCartApi(router, db)
+	apiv1.RegisterCartApi(router)
 	// 订单
-	apiv1.RegisterOrderApi(router, db)
+	apiv1.RegisterOrderApi(router)
 }

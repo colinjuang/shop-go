@@ -6,7 +6,6 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +16,9 @@ type CategoryHandler struct {
 }
 
 // NewCategoryHandler creates a new banner handler
-func NewCategoryHandler(db *gorm.DB) *CategoryHandler {
+func NewCategoryHandler() *CategoryHandler {
 	return &CategoryHandler{
-		categoryService: service.NewCategoryService(db),
+		categoryService: service.NewCategoryService(),
 	}
 }
 

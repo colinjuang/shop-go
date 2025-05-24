@@ -4,12 +4,11 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
 	"github.com/colinjuang/shop-go/internal/app/middleware"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterUserApi registers all user api
-func RegisterUserApi(router *gin.Engine, db *gorm.DB) {
-	userHandler := handler.NewUserHandler(db)
+func RegisterUserApi(router *gin.Engine) {
+	userHandler := handler.NewUserHandler()
 
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware())

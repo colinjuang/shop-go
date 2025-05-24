@@ -9,7 +9,6 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // AddressHandler handles address-related API endpoints
@@ -18,9 +17,9 @@ type AddressHandler struct {
 }
 
 // NewAddressHandler creates a new address handler
-func NewAddressHandler(db *gorm.DB) *AddressHandler {
+func NewAddressHandler() *AddressHandler {
 	return &AddressHandler{
-		addressService: service.NewAddressService(db),
+		addressService: service.NewAddressService(),
 	}
 }
 

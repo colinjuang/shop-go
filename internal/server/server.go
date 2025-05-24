@@ -15,6 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	srvCtx *Server
+)
+
 // Server represents the HTTP server
 type Server struct {
 	config     *config.Config
@@ -22,6 +26,10 @@ type Server struct {
 	DB         *gorm.DB
 	Redis      *redis.Client
 	Minio      *minio.Client
+}
+
+func GetServer() *Server {
+	return srvCtx
 }
 
 // NewServer creates a new server
@@ -51,29 +59,18 @@ func NewServer(cfg *config.Config) *Server {
 	}
 	fmt.Println("MinIO connection established")
 
-	return &Server{
+	srvCtx = &Server{
 		config: cfg,
 		DB:     db,
 		Redis:  redisClient,
 		Minio:  minioClient,
 	}
+	return srvCtx
 }
 
 // GetConfig returns the server configuration
 func (s *Server) GetConfig() *config.Config {
 	return s.config
-}
-
-func (s *Server) GetDB() *gorm.DB {
-	return s.DB
-}
-
-func (s *Server) GetRedis() *redis.Client {
-	return s.Redis
-}
-
-func (s *Server) GetMinio() *minio.Client {
-	return s.Minio
 }
 
 // Start starts the server

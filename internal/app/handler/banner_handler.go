@@ -6,7 +6,6 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // BannerHandler handles home page API endpoints
@@ -15,10 +14,10 @@ type BannerHandler struct {
 }
 
 // NewBannerHandler creates a new banner handler
-func NewBannerHandler(db *gorm.DB) *BannerHandler {
+func NewBannerHandler() *BannerHandler {
 
 	return &BannerHandler{
-		bannerService: service.NewBannerService(db),
+		bannerService: service.NewBannerService(),
 	}
 }
 

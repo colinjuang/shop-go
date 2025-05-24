@@ -2,14 +2,13 @@ package v1
 
 import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterProductApi registers all product api
-func RegisterProductApi(router *gin.Engine, db *gorm.DB) {
-	productHandler := handler.NewProductHandler(db)
+func RegisterProductApi(router *gin.Engine) {
+	productHandler := handler.NewProductHandler()
 	api := router.Group("/api")
 	{
 		// 获取商品列表

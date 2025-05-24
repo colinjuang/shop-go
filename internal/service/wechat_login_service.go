@@ -6,11 +6,11 @@ import (
 	"github.com/colinjuang/shop-go/internal/config"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"github.com/colinjuang/shop-go/internal/server"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
-	"gorm.io/gorm"
 )
 
 type WechatLoginService struct {
@@ -18,10 +18,11 @@ type WechatLoginService struct {
 	userRepo *repository.UserRepository
 }
 
-func NewWechatLoginService(db *gorm.DB) *WechatLoginService {
+func NewWechatLoginService() *WechatLoginService {
+	server := server.GetServer()
 	return &WechatLoginService{
 		config:   config.GetConfig(),
-		userRepo: repository.NewUserRepository(db),
+		userRepo: repository.NewUserRepository(server.DB),
 	}
 }
 

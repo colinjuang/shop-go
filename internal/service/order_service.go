@@ -7,7 +7,7 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/app/request"
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
-	"gorm.io/gorm"
+	"github.com/colinjuang/shop-go/internal/server"
 
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/constant"
@@ -28,13 +28,14 @@ type OrderService struct {
 }
 
 // NewOrderService creates a new order service
-func NewOrderService(db *gorm.DB) *OrderService {
+func NewOrderService() *OrderService {
+	server := server.GetServer()
 	return &OrderService{
-		orderRepo:     repository.NewOrderRepository(db),
-		orderItemRepo: repository.NewOrderItemRepository(db),
-		cartRepo:      repository.NewCartRepository(db),
-		productRepo:   repository.NewProductRepository(db),
-		addressRepo:   repository.NewAddressRepository(db),
+		orderRepo:     repository.NewOrderRepository(server.DB),
+		orderItemRepo: repository.NewOrderItemRepository(server.DB),
+		cartRepo:      repository.NewCartRepository(server.DB),
+		productRepo:   repository.NewProductRepository(server.DB),
+		addressRepo:   repository.NewAddressRepository(server.DB),
 		cacheService:  redis.NewCacheService(),
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"gorm.io/gorm"
+	"github.com/colinjuang/shop-go/internal/server"
 )
 
 // PromotionService handles business logic for the home page
@@ -20,9 +20,10 @@ type PromotionService struct {
 }
 
 // NewPromotionService creates a new home service
-func NewPromotionService(db *gorm.DB) *PromotionService {
+func NewPromotionService() *PromotionService {
+	server := server.GetServer()
 	return &PromotionService{
-		promotionRepo: repository.NewPromotionRepository(db),
+		promotionRepo: repository.NewPromotionRepository(server.DB),
 		cacheService:  redis.NewCacheService(),
 	}
 }

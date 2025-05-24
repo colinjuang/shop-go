@@ -4,12 +4,11 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
 	"github.com/colinjuang/shop-go/internal/app/middleware"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterCartApi registers all cart related api
-func RegisterCartApi(router *gin.Engine, db *gorm.DB) {
-	cartHandler := handler.NewCartHandler(db)
+func RegisterCartApi(router *gin.Engine) {
+	cartHandler := handler.NewCartHandler()
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware())
 	{

@@ -114,7 +114,7 @@ func (s *Server) Shutdown() error {
 
 	// 关闭数据库连接
 	fmt.Println("Closing database connections...")
-	if err := database.Close(); err != nil {
+	if err := database.Close(s.DB); err != nil {
 		fmt.Printf("Database close error: %v\n", err)
 		return fmt.Errorf("failed to close database: %w", err)
 	}

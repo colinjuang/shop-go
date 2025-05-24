@@ -10,10 +10,6 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var (
-	DB *gorm.DB
-)
-
 // InitDB 初始化数据库连接（使用DatabaseConfig）
 func InitDB(cfg *DatabaseConfig) (*gorm.DB, error) {
 	// 验证配置
@@ -37,7 +33,7 @@ func InitDB(cfg *DatabaseConfig) (*gorm.DB, error) {
 	}
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(cfg.DSN()), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(cfg.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   cfg.TablePrefix,   // 表前缀
@@ -50,7 +46,7 @@ func InitDB(cfg *DatabaseConfig) (*gorm.DB, error) {
 	}
 
 	// 设置连接池
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
@@ -62,16 +58,16 @@ func InitDB(cfg *DatabaseConfig) (*gorm.DB, error) {
 	sqlDB.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
 
 	log.Printf("Database connected successfully: %s", cfg.String())
-	return DB, nil
+	return db, nil
 }
 
 // HealthCheck 检查数据库连接健康状态
-func HealthCheck() error {
-	if DB == nil {
+func HealthCheck(db *gorm.DB) error {
+	if db == nil {
 		return fmt.Errorf("database not initialized")
 	}
 
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
@@ -80,12 +76,12 @@ func HealthCheck() error {
 }
 
 // Close 关闭数据库连接
-func Close() error {
-	if DB == nil {
+func Close(db *gorm.DB) error {
+	if db == nil {
 		return nil
 	}
 
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
@@ -94,12 +90,12 @@ func Close() error {
 }
 
 // Stats 获取数据库连接统计信息
-func Stats() map[string]interface{} {
-	if DB == nil {
+func Stats(db *gorm.DB) map[string]interface{} {
+	if db == nil {
 		return map[string]interface{}{"status": "not_initialized"}
 	}
 
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		return map[string]interface{}{"error": err.Error()}
 	}

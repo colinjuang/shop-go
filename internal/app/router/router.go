@@ -43,7 +43,7 @@ func NewRouter(cfg *config.Config) *gin.Engine {
 // RegisterRouter sets up all the routes for the application
 func RegisterRouter(router *gin.Engine, db *gorm.DB) {
 	// 基础 API
-	api.RegisterBasicApi(router)
+	api.RegisterBasicApi(router, db)
 
 	// 登录
 	apiv1.RegisterLoginApi(router, db)

@@ -8,28 +8,35 @@
 
 ```
 ├── cmd/              # 应用程序入口点
-│   └── main.go       # 主应用程序入口
+│   ├── main.go       # 主应用程序入口
+│   └── zaptest/      # 日志测试工具
 ├── configs/          # 配置文件
+├── database/         # 数据库相关文件
+├── test/             # 测试文件
+├── scripts/          # 实用脚本
 ├── internal/         # 内部包
-│   ├── api/          # API层
-│   │   └── v1/          # API V1路由定义
-│   ├── handler/      # HTTP处理器
-│   ├── middleware/   # HTTP中间件
-│   ├── request/      # HTTP请求
-│   ├── response/     # HTTP响应
-│   ├── router/       # API路由定义
+│   ├── app/          # 应用层
+│   │   ├── api/      # API层
+│   │   │   └── v1/   # API V1路由定义
+│   │   ├── handler/  # HTTP处理器
+│   │   ├── middleware/ # HTTP中间件
+│   │   ├── request/  # HTTP请求结构
+│   │   ├── response/ # HTTP响应结构
+│   │   └── router/   # API路由定义
 │   ├── config/       # 配置代码
+│   ├── constant/     # 常量定义
 │   ├── model/        # 领域模型
 │   ├── pkg/          # 内部共享包
 │   │   ├── database/ # 数据库客户端和工具
 │   │   ├── redis/    # Redis客户端和工具
 │   │   ├── minio/    # MinIO客户端和工具
-│   │   └── logger/   # Zap日志配置
+│   │   ├── logger/   # Zap日志配置
+│   │   └── errors/   # 错误处理工具
 │   ├── repository/   # 数据访问层
 │   ├── service/      # 业务逻辑
 │   ├── server/       # 服务器设置
-│   └── utils/        # 公共
-├── scripts/          # 实用脚本
+│   └── utils/        # 工具函数
+├── pkg/              # 外部共享包（当前为空）
 ├── uploads/          # 文件上传（运行时创建）
 ├── logs/             # 应用程序日志（运行时创建）
 ├── reports/          # 生成的报告（运行时创建）

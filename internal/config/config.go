@@ -25,8 +25,11 @@ type LoggerConfig struct {
 
 // ServerConfig represents server configuration
 type ServerConfig struct {
-	Port        string `mapstructure:"port"`
-	Environment string `mapstructure:"environment"`
+	Port         string `mapstructure:"port"`
+	Environment  string `mapstructure:"environment"`
+	ReadTimeout  int    `mapstructure:"read_timeout"`
+	WriteTimeout int    `mapstructure:"write_timeout"`
+	IdleTimeout  int    `mapstructure:"idle_timeout"`
 }
 
 // DatabaseConfig represents database configuration

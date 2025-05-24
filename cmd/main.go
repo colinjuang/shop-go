@@ -36,7 +36,7 @@ func main() {
 	// 在 goroutine 中启动 server
 	go func() {
 		fmt.Println("Starting HTTP server...")
-		router.RegisterRouter(r, srv.GetDB())
+		router.RegisterRouter(r)
 		fmt.Println("Routes initialized")
 		serverErrors <- srv.Start(r)
 	}()

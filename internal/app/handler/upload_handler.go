@@ -6,7 +6,6 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/service"
-
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,19 +1,20 @@
 package config
 
 import (
+	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"github.com/spf13/viper"
 )
 
 // Config represents the application configuration
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Redis    RedisConfig    `mapstructure:"redis"`
-	MinIO    MinIOConfig    `mapstructure:"minio"`
-	JWT      JWTConfig      `mapstructure:"jwt"`
-	Wechat   WechatConfig   `mapstructure:"wechat"`
-	Upload   UploadConfig   `mapstructure:"upload"`
-	Logger   LoggerConfig   `mapstructure:"logger"`
+	Server       ServerConfig            `mapstructure:"server"`
+	DatabaseConf database.DatabaseConfig `mapstructure:"database"`
+	Redis        RedisConfig             `mapstructure:"redis"`
+	MinIO        MinIOConfig             `mapstructure:"minio"`
+	JWT          JWTConfig               `mapstructure:"jwt"`
+	Wechat       WechatConfig            `mapstructure:"wechat"`
+	Upload       UploadConfig            `mapstructure:"upload"`
+	Logger       LoggerConfig            `mapstructure:"logger"`
 }
 
 // LoggerConfig represents logger configuration
@@ -33,13 +34,22 @@ type ServerConfig struct {
 }
 
 // DatabaseConfig represents database configuration
-type DatabaseConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     string `mapstructure:"port"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-	DBName   string `mapstructure:"dbname"`
-}
+// type DatabaseConfig struct {
+// 	Host     string `mapstructure:"host"`
+// 	Port     string `mapstructure:"port"`
+// 	Username string `mapstructure:"username"`
+// 	Password string `mapstructure:"password"`
+// 	DBName   string `mapstructure:"dbname"`
+
+// 	// 连接池配置（可选，有默认值）
+// 	MaxOpenConns int `mapstructure:"max_open_conns"`
+// 	MaxIdleConns int `mapstructure:"max_idle_conns"`
+
+// 	// 高级配置（可选）
+// 	LogLevel      string `mapstructure:"log_level"`
+// 	TablePrefix   string `mapstructure:"table_prefix"`
+// 	SingularTable *bool  `mapstructure:"singular_table"` // 使用指针以支持默认值
+// }
 
 // RedisConfig represents Redis configuration
 type RedisConfig struct {

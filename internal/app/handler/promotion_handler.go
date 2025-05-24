@@ -6,6 +6,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
+"gorm.io/gorm"
 )
 
 // PromotionHandler handles home page API endpoints
@@ -14,9 +15,9 @@ type PromotionHandler struct {
 }
 
 // NewPromotionHandler creates a new promotion handler
-func NewPromotionHandler() *PromotionHandler {
+func NewPromotionHandler(db *gorm.DB) *PromotionHandler {
 	return &PromotionHandler{
-		promotionService: service.NewPromotionService(),
+		promotionService: service.NewPromotionService(db),
 	}
 }
 

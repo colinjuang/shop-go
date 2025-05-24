@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +11,9 @@ type UserRepository struct {
 }
 
 // NewUserRepository 创建并返回一个新的用户数据仓库实例
-func NewUserRepository() *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

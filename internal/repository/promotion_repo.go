@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +11,9 @@ type PromotionRepository struct {
 }
 
 // NewPromotionRepository
-func NewPromotionRepository() *PromotionRepository {
+func NewPromotionRepository(db *gorm.DB) *PromotionRepository {
 	return &PromotionRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

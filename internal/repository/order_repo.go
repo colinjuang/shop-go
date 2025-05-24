@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -14,9 +13,9 @@ type OrderRepository struct {
 }
 
 // NewOrderRepository
-func NewOrderRepository() *OrderRepository {
+func NewOrderRepository(db *gorm.DB) *OrderRepository {
 	return &OrderRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

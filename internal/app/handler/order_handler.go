@@ -9,6 +9,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/service"
+"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,10 +21,10 @@ type OrderHandler struct {
 }
 
 // NewOrderHandler 创建一个新的订单处理器
-func NewOrderHandler() *OrderHandler {
+func NewOrderHandler(db *gorm.DB) *OrderHandler {
 	return &OrderHandler{
-		orderService:   service.NewOrderService(),
-		addressService: service.NewAddressService(),
+		orderService:   service.NewOrderService(db),
+		addressService: service.NewAddressService(db),
 	}
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/colinjuang/shop-go/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,51 +14,105 @@ var (
 	DB *gorm.DB
 )
 
-// InitDB initializes the database connection
-func InitDB(cfg *config.Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		cfg.Database.Username,
-		cfg.Database.Password,
-		cfg.Database.Host,
-		cfg.Database.Port,
-		cfg.Database.DBName,
-	)
+// InitDB 初始化数据库连接（使用DatabaseConfig）
+func InitDB(cfg *DatabaseConfig) (*gorm.DB, error) {
+	// 验证配置
+	if err := cfg.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid database config: %w", err)
+	}
 
+	// 设置日志级别
 	var logLevel logger.LogLevel
-	if cfg.Server.Environment == "development" {
+	switch cfg.LogLevel {
+	case "silent":
+		logLevel = logger.Silent
+	case "error":
+		logLevel = logger.Error
+	case "warn":
+		logLevel = logger.Warn
+	case "info":
 		logLevel = logger.Info
-	} else {
+	default:
 		logLevel = logger.Error
 	}
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	DB, err = gorm.Open(mysql.Open(cfg.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "",   // 表前缀
-			SingularTable: true, // 使用单数表名
+			TablePrefix:   cfg.TablePrefix,   // 表前缀
+			SingularTable: cfg.SingularTable, // 是否使用单数表名
 		},
 	})
 	if err != nil {
 		log.Printf("Failed to connect to database: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// 设置连接池设置
+	// 设置连接池
 	sqlDB, err := DB.DB()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
 
-	// SetMaxIdleConns 设置空闲连接池中的最大连接数
-	sqlDB.SetMaxIdleConns(10)
-	// SetMaxOpenConns 设置打开数据库连接的最大数量
-	sqlDB.SetMaxOpenConns(100)
+	// 配置连接池参数
+	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
+	sqlDB.SetConnMaxLifetime(cfg.ConnMaxLifetime)
+	sqlDB.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
 
+	log.Printf("Database connected successfully: %s", cfg.String())
 	return DB, nil
 }
 
-// GetDB returns the database instance
-func GetDB() *gorm.DB {
-	return DB
+// HealthCheck 检查数据库连接健康状态
+func HealthCheck() error {
+	if DB == nil {
+		return fmt.Errorf("database not initialized")
+	}
+
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	return sqlDB.Ping()
+}
+
+// Close 关闭数据库连接
+func Close() error {
+	if DB == nil {
+		return nil
+	}
+
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	return sqlDB.Close()
+}
+
+// Stats 获取数据库连接统计信息
+func Stats() map[string]interface{} {
+	if DB == nil {
+		return map[string]interface{}{"status": "not_initialized"}
+	}
+
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return map[string]interface{}{"error": err.Error()}
+	}
+
+	stats := sqlDB.Stats()
+	return map[string]interface{}{
+		"max_open_connections": stats.MaxOpenConnections,
+		"open_connections":     stats.OpenConnections,
+		"in_use":               stats.InUse,
+		"idle":                 stats.Idle,
+		"wait_count":           stats.WaitCount,
+		"wait_duration":        stats.WaitDuration.String(),
+		"max_idle_closed":      stats.MaxIdleClosed,
+		"max_lifetime_closed":  stats.MaxLifetimeClosed,
+	}
 }

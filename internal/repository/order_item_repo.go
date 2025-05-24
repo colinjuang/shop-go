@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -10,9 +9,9 @@ type OrderItemRepository struct {
 	db *gorm.DB
 }
 
-func NewOrderItemRepository() *OrderItemRepository {
+func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
 	return &OrderItemRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

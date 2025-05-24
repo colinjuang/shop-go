@@ -10,6 +10,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"gorm.io/gorm"
 )
 
 // CategoryService handles business logic for categories
@@ -19,9 +20,9 @@ type CategoryService struct {
 }
 
 // NewCategoryService creates a new category service
-func NewCategoryService() *CategoryService {
+func NewCategoryService(db *gorm.DB) *CategoryService {
 	return &CategoryService{
-		categoryRepo: repository.NewCategoryRepository(),
+		categoryRepo: repository.NewCategoryRepository(db),
 		cacheService: redis.NewCacheService(),
 	}
 }

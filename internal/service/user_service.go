@@ -11,6 +11,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // UserService handles business logic for users
@@ -19,9 +20,9 @@ type UserService struct {
 }
 
 // NewUserService creates a new user service
-func NewUserService() *UserService {
+func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{
-		userRepo: repository.NewUserRepository(),
+		userRepo: repository.NewUserRepository(db),
 	}
 }
 

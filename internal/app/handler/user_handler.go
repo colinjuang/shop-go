@@ -6,6 +6,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/request"
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
+"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,9 +17,9 @@ type UserHandler struct {
 }
 
 // NewUserHandler creates a new user handler
-func NewUserHandler() *UserHandler {
+func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{
-		userService: service.NewUserService(),
+		userService: service.NewUserService(db),
 	}
 }
 

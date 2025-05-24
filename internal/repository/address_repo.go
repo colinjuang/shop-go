@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +11,9 @@ type AddressRepository struct {
 }
 
 // NewAddressRepository 实例
-func NewAddressRepository() *AddressRepository {
+func NewAddressRepository(db *gorm.DB) *AddressRepository {
 	return &AddressRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/colinjuang/shop-go/internal/model"
-	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +11,9 @@ type BannerRepository struct {
 }
 
 // NewBannerRepository
-func NewBannerRepository() *BannerRepository {
+func NewBannerRepository(db *gorm.DB) *BannerRepository {
 	return &BannerRepository{
-		db: database.GetDB(),
+		db: db,
 	}
 }
 

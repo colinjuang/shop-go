@@ -3,13 +3,14 @@ package v1
 import (
 	"github.com/colinjuang/shop-go/internal/app/handler"
 	"github.com/colinjuang/shop-go/internal/app/middleware"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterAddressApi registers all user and address related api
-func RegisterAddressApi(router *gin.Engine) {
-	addressHandler := handler.NewAddressHandler()
+func RegisterAddressApi(router *gin.Engine, db *gorm.DB) {
+	addressHandler := handler.NewAddressHandler(db)
 
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware())

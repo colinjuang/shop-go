@@ -6,45 +6,53 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/colinjuang/shop-go/internal/app/middleware"
-	"github.com/colinjuang/shop-go/internal/app/router"
 	"github.com/colinjuang/shop-go/internal/config"
 	"github.com/colinjuang/shop-go/internal/pkg/database"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // Server represents the HTTP server
 type Server struct {
 	config     *config.Config
-	router     *gin.Engine
 	httpServer *http.Server
+	DB         *gorm.DB
+	Redis      *redis.Client
+	Minio      *minio.Client
 }
 
 // NewServer creates a new server
-func NewServer(cfg *config.Config) *Server {
-	// 设置 gin 模式
-	if cfg.Server.Environment == "production" {
-		gin.SetMode(gin.ReleaseMode)
+func NewServer(cfg *config.Config) (*Server, error) {
+	// 初始化数据库
+	// fmt.Printf("cfg.DatabaseConf: %+v\n", cfg.DatabaseConf)
+	db, err := database.InitDB(&cfg.DatabaseConf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
+	fmt.Println("Database connection established")
 
-	// 创建一个带有我们日志记录器的自定义 gin.Engine
-	router := gin.New()
+	// 初始化 Redis
+	redisClient, err := redis.InitClient(&cfg.Redis)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize Redis: %w", err)
+	}
+	fmt.Println("Redis connection established")
 
-	// 使用我们自己的日志记录器和恢复中间件
-	router.Use(middleware.ZapLogger())
-	router.Use(gin.Recovery())
+	// 初始化 MinIO
+	minioClient, err := minio.InitClient(&cfg.MinIO)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize MinIO: %w", err)
+	}
+	fmt.Println("MinIO connection established")
 
 	return &Server{
 		config: cfg,
-		router: router,
-	}
-}
-
-// GetRouter returns the router instance for external access if needed
-func (s *Server) GetRouter() *gin.Engine {
-	return s.router
+		DB:     db,
+		Redis:  redisClient,
+		Minio:  minioClient,
+	}, nil
 }
 
 // GetConfig returns the server configuration
@@ -52,45 +60,24 @@ func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 
+func (s *Server) GetDB() *gorm.DB {
+	return s.DB
+}
+
+func (s *Server) GetRedis() *redis.Client {
+	return s.Redis
+}
+
+func (s *Server) GetMinio() *minio.Client {
+	return s.Minio
+}
+
 // Start starts the server
-func (s *Server) Start() error {
-	// Initialize database
-	_, err := database.InitDB(s.config)
-	if err != nil {
-		fmt.Printf("Failed to initialize database: %v\n", err)
-		return err
-	}
-	fmt.Println("Database connection established")
-
-	// Add database migration
-	// if err := database.AutoMigrate(); err != nil {
-	// 	return err
-	// }
-
-	// 初始化 Redis
-	_, err = redis.InitClient(&s.config.Redis)
-	if err != nil {
-		fmt.Printf("Failed to initialize Redis: %v\n", err)
-		return err
-	}
-	fmt.Println("Redis connection established")
-
-	// 初始化 MinIO
-	_, err = minio.InitClient(&s.config.MinIO)
-	if err != nil {
-		fmt.Printf("Failed to initialize MinIO: %v\n", err)
-		return err
-	}
-	fmt.Println("MinIO connection established")
-
-	// 初始化路由
-	router.RegisterRouter(s.router)
-	fmt.Println("Routes initialized")
-
+func (s *Server) Start(router *gin.Engine) error {
 	// 创建 HTTP 服务器
 	s.httpServer = &http.Server{
 		Addr:           s.config.Server.Port,
-		Handler:        s.router,
+		Handler:        router,
 		MaxHeaderBytes: 1 << 20, // 1MB
 		// 设置超时
 		ReadTimeout:  time.Duration(s.config.Server.ReadTimeout) * time.Second,  // 读取超时
@@ -122,16 +109,12 @@ func (s *Server) Shutdown() error {
 	}
 
 	// 关闭数据库连接
-	if db := database.GetDB(); db != nil {
-		fmt.Println("Closing database connections...")
-		if sqlDB, err := db.DB(); err == nil {
-			if err := sqlDB.Close(); err != nil {
-				fmt.Printf("Database close error: %v\n", err)
-				return fmt.Errorf("failed to close database: %w", err)
-			}
-		}
-		fmt.Println("Database connections closed")
+	fmt.Println("Closing database connections...")
+	if err := database.Close(); err != nil {
+		fmt.Printf("Database close error: %v\n", err)
+		return fmt.Errorf("failed to close database: %w", err)
 	}
+	fmt.Println("Database connections closed")
 
 	// 关闭 Redis 连接
 	if redisClient := redis.GetClient(); redisClient != nil {

@@ -10,6 +10,7 @@ import (
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // CartHandler handles cart-related API endpoints
@@ -18,9 +19,9 @@ type CartHandler struct {
 }
 
 // NewCartHandler creates a new cart handler
-func NewCartHandler() *CartHandler {
+func NewCartHandler(db *gorm.DB) *CartHandler {
 	return &CartHandler{
-		cartService: service.NewCartService(),
+		cartService: service.NewCartService(db),
 	}
 }
 

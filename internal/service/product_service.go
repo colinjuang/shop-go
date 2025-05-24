@@ -10,6 +10,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
+	"gorm.io/gorm"
 )
 
 // ProductService handles business logic for products
@@ -19,9 +20,9 @@ type ProductService struct {
 }
 
 // NewProductService creates a new product service
-func NewProductService() *ProductService {
+func NewProductService(db *gorm.DB) *ProductService {
 	return &ProductService{
-		productRepo:  repository.NewProductRepository(),
+		productRepo:  repository.NewProductRepository(db),
 		cacheService: redis.NewCacheService(),
 	}
 }

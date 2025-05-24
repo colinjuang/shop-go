@@ -5,15 +5,16 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type WechatLoginHandler struct {
 	wechatLoginService *service.WechatLoginService
 }
 
-func NewWechatLoginHandler() *WechatLoginHandler {
+func NewWechatLoginHandler(db *gorm.DB) *WechatLoginHandler {
 	return &WechatLoginHandler{
-		wechatLoginService: service.NewWechatLoginService(),
+		wechatLoginService: service.NewWechatLoginService(db),
 	}
 }
 

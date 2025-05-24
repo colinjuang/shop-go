@@ -10,6 +10,7 @@ import (
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
+	"gorm.io/gorm"
 )
 
 type WechatLoginService struct {
@@ -17,10 +18,10 @@ type WechatLoginService struct {
 	userRepo *repository.UserRepository
 }
 
-func NewWechatLoginService() *WechatLoginService {
+func NewWechatLoginService(db *gorm.DB) *WechatLoginService {
 	return &WechatLoginService{
 		config:   config.GetConfig(),
-		userRepo: repository.NewUserRepository(),
+		userRepo: repository.NewUserRepository(db),
 	}
 }
 

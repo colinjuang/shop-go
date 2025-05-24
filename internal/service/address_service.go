@@ -9,6 +9,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/repository"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // AddressService 地址服务
@@ -17,9 +18,9 @@ type AddressService struct {
 }
 
 // NewAddressService 实例
-func NewAddressService() *AddressService {
+func NewAddressService(db *gorm.DB) *AddressService {
 	return &AddressService{
-		addressRepo: repository.NewAddressRepository(),
+		addressRepo: repository.NewAddressRepository(db),
 	}
 }
 

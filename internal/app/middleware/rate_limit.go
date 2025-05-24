@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
-	"github.com/colinjuang/shop-go/internal/response"
 
 	"github.com/gin-gonic/gin"
 )

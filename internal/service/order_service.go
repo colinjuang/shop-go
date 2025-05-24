@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/app/request"
 	pkgerrors "github.com/colinjuang/shop-go/internal/pkg/errors"
-	"github.com/colinjuang/shop-go/internal/request"
 
+	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/model"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"github.com/colinjuang/shop-go/internal/response"
-	"github.com/colinjuang/shop-go/internal/utils/order"
+	utils "github.com/colinjuang/shop-go/internal/utils/order"
 )
 
 // OrderService handles business logic for orders

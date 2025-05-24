@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/colinjuang/shop-go/internal/handler"
-	"github.com/colinjuang/shop-go/internal/middleware"
+	"github.com/colinjuang/shop-go/internal/app/handler"
+	"github.com/colinjuang/shop-go/internal/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )

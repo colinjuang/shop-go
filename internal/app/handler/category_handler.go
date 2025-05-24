@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/colinjuang/shop-go/internal/response"
+	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
 
 	"github.com/gin-gonic/gin"

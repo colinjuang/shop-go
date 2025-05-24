@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/constant"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/pkg/minio"
 	"github.com/colinjuang/shop-go/internal/pkg/redis"
 	"github.com/colinjuang/shop-go/internal/repository"
-	"github.com/colinjuang/shop-go/internal/response"
 )
 
 // PromotionService handles business logic for the home page

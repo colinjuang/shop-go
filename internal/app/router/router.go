@@ -3,8 +3,8 @@ package router
 import (
 	"time"
 
-	apiv1 "github.com/colinjuang/shop-go/internal/api/v1"
-	"github.com/colinjuang/shop-go/internal/middleware"
+	apiv1 "github.com/colinjuang/shop-go/internal/app/api/v1"
+	"github.com/colinjuang/shop-go/internal/app/middleware"
 	"github.com/gin-gonic/gin"
 )
 

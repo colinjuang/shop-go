@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/colinjuang/shop-go/internal/config"
@@ -17,6 +18,8 @@ import (
 
 var (
 	srvCtx *ServerContext
+	once   sync.Once    // 确保只初始化一次
+	mu     sync.RWMutex // 读写锁保护
 )
 
 // Server represents the HTTP server
@@ -28,44 +31,69 @@ type ServerContext struct {
 	Minio      *minio.Client
 }
 
+// GetServer 获取服务器实例（线程安全）
 func GetServer() *ServerContext {
+	mu.RLock()
+	defer mu.RUnlock()
 	return srvCtx
 }
 
-// NewServer creates a new server
+// SetServer 设置服务器实例（用于测试）
+func SetServer(ctx *ServerContext) {
+	mu.Lock()
+	defer mu.Unlock()
+	srvCtx = ctx
+}
+
+// ResetServer 重置服务器实例（用于测试清理）
+func ResetServer() {
+	mu.Lock()
+	defer mu.Unlock()
+	srvCtx = nil
+	once = sync.Once{}
+}
+
+// NewServerContext creates a new server
 func NewServerContext(cfg *config.Config) *ServerContext {
-	// 初始化数据库
-	// fmt.Printf("cfg.DatabaseConf: %+v\n", cfg.DatabaseConf)
-	db, err := database.InitDB(&cfg.DatabaseConf)
-	if err != nil {
-		log.Fatalf("Failed to initialize database: %v\n", err)
-		return nil
-	}
-	fmt.Println("Database connection established")
+	var server *ServerContext
 
-	// 初始化 Redis
-	redisClient, err := redis.InitClient(&cfg.Redis)
-	if err != nil {
-		log.Fatalf("Failed to initialize Redis: %v\n", err)
-		return nil
-	}
-	fmt.Println("Redis connection established")
+	once.Do(func() {
+		// 初始化数据库
+		db, err := database.InitDB(&cfg.DatabaseConf)
+		if err != nil {
+			log.Fatalf("Failed to initialize database: %v\n", err)
+			return
+		}
+		fmt.Println("Database connection established")
 
-	// 初始化 MinIO
-	minioClient, err := minio.InitClient(&cfg.MinIO)
-	if err != nil {
-		log.Fatalf("Failed to initialize MinIO: %v\n", err)
-		return nil
-	}
-	fmt.Println("MinIO connection established")
+		// 初始化 Redis
+		redisClient, err := redis.InitClient(&cfg.Redis)
+		if err != nil {
+			log.Fatalf("Failed to initialize Redis: %v\n", err)
+			return
+		}
+		fmt.Println("Redis connection established")
 
-	srvCtx = &ServerContext{
-		config: cfg,
-		DB:     db,
-		Redis:  redisClient,
-		Minio:  minioClient,
-	}
-	return srvCtx
+		// 初始化 MinIO
+		minioClient, err := minio.InitClient(&cfg.MinIO)
+		if err != nil {
+			log.Fatalf("Failed to initialize MinIO: %v\n", err)
+			return
+		}
+		fmt.Println("MinIO connection established")
+
+		server = &ServerContext{
+			config: cfg,
+			DB:     db,
+			Redis:  redisClient,
+			Minio:  minioClient,
+		}
+
+		// 线程安全地设置全局实例
+		SetServer(server)
+	})
+
+	return GetServer()
 }
 
 // GetConfig returns the server configuration

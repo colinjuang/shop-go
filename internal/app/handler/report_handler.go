@@ -8,7 +8,7 @@ import (
 
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
-"gorm.io/gorm"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )

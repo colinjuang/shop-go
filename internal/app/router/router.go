@@ -3,6 +3,7 @@ package router
 import (
 	"time"
 
+	"github.com/colinjuang/shop-go/internal/app/api"
 	apiv1 "github.com/colinjuang/shop-go/internal/app/api/v1"
 	"github.com/colinjuang/shop-go/internal/app/middleware"
 	"github.com/colinjuang/shop-go/internal/config"
@@ -30,16 +31,19 @@ func NewRouter(cfg *config.Config) *gin.Engine {
 	router.Use(middleware.ZapLogger())
 	router.Use(gin.Recovery())
 
+	// 设置 CORS
+	router.Use(middleware.CORSMiddleware())
+
+	// 设置全局限流 - 每分钟100个请求
+	router.Use(middleware.RateLimitMiddleware(100, 1*time.Minute))
+
 	return router
 }
 
 // RegisterRouter sets up all the routes for the application
 func RegisterRouter(router *gin.Engine, db *gorm.DB) {
-	// Set up CORS
-	router.Use(middleware.CORSMiddleware())
-
-	// Set up global rate limiting - 100 requests per minute
-	router.Use(middleware.RateLimitMiddleware(100, 1*time.Minute))
+	// 基础 API
+	api.RegisterBasicApi(router)
 
 	// 登录
 	apiv1.RegisterLoginApi(router, db)

@@ -6,7 +6,7 @@ import (
 	"github.com/colinjuang/shop-go/internal/app/response"
 	"github.com/colinjuang/shop-go/internal/service"
 	"github.com/gin-gonic/gin"
-"gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 // PromotionHandler handles home page API endpoints

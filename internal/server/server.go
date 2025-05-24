@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -24,26 +25,29 @@ type Server struct {
 }
 
 // NewServer creates a new server
-func NewServer(cfg *config.Config) (*Server, error) {
+func NewServer(cfg *config.Config) *Server {
 	// 初始化数据库
 	// fmt.Printf("cfg.DatabaseConf: %+v\n", cfg.DatabaseConf)
 	db, err := database.InitDB(&cfg.DatabaseConf)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize database: %w", err)
+		log.Fatalf("Failed to initialize database: %v\n", err)
+		return nil
 	}
 	fmt.Println("Database connection established")
 
 	// 初始化 Redis
 	redisClient, err := redis.InitClient(&cfg.Redis)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Redis: %w", err)
+		log.Fatalf("Failed to initialize Redis: %v\n", err)
+		return nil
 	}
 	fmt.Println("Redis connection established")
 
 	// 初始化 MinIO
 	minioClient, err := minio.InitClient(&cfg.MinIO)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize MinIO: %w", err)
+		log.Fatalf("Failed to initialize MinIO: %v\n", err)
+		return nil
 	}
 	fmt.Println("MinIO connection established")
 
@@ -52,7 +56,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		DB:     db,
 		Redis:  redisClient,
 		Minio:  minioClient,
-	}, nil
+	}
 }
 
 // GetConfig returns the server configuration

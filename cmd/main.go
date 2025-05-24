@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/colinjuang/shop-go/internal/app/router"
 	"github.com/colinjuang/shop-go/internal/config"
 	"github.com/colinjuang/shop-go/internal/pkg/logger"
 	"github.com/colinjuang/shop-go/internal/server"
@@ -26,6 +27,8 @@ func main() {
 
 	// 创建 server
 	srv := server.NewServer(cfg)
+	// 创建 router
+	r := router.NewRouter(cfg)
 
 	// 创建 server 错误通道
 	serverErrors := make(chan error, 1)
@@ -33,7 +36,9 @@ func main() {
 	// 在 goroutine 中启动 server
 	go func() {
 		fmt.Println("Starting HTTP server...")
-		serverErrors <- srv.Start()
+		router.RegisterRouter(r, srv.GetDB())
+		fmt.Println("Routes initialized")
+		serverErrors <- srv.Start(r)
 	}()
 
 	// 创建信号通道
